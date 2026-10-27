@@ -10,8 +10,7 @@ Za správně přeložená slovíčka získáváš energii ⚡ na útoky, za výh
 3. Souboj: přelož české slovo do angličtiny. Správné odpovědi dávají energii a kombo, chyby a vypršený čas způsobí útok.
    Energii utrať za útoky nebo léčení. Patra jsou stále těžší (silnější nepřátelé, časový limit, psaní odpovědí).
 4. Po výhře otevři **truhlu** s mincemi; z nepřátel může padnout i **vybavení** (čím lepší rarita, tím vzácnější).
-5. V **profilu a inventáři** si vybavení nasazuješ a prodáváš, v **obchodě** ho kupuješ. Rarity: zelená, modrá, žlutá.
-   Nasazené zbraně, oblečení i šperky jsou vidět na tvé postavě.
+5. V **profilu a inventáři** si nasazuješ vybavení do 15 slotů (zbraň, štít, helma, ramena, brnění, rukavice, boty, 2 prsteny, 2 náušnice, opasek, amulet, 2 trinkety) a vidíš, jak se změní životy, obrana a poškození kouzel. V **obchodě** ho kupuješ. Rarity: zelená, modrá, žlutá. Vše je vidět na tvé postavě.
 
 ## Spuštění
 Otevři `index.html` v prohlížeči – žádná instalace ani build není potřeba.

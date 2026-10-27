@@ -47,15 +47,17 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .floor{font-family:Impact,sans-serif;font-size:1.6rem;background:var(--ink);color:var(--gold);border-radius:10px;padding:6px 10px;text-align:center;min-width:64px}
 .stat{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;font-weight:900}
 /* obchod / profil */
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-.tabs .btn{flex:1}.tabs .btn.off{background:#b9a77a}
-.shopgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.tabs .btn{flex:1 1 auto;font-size:.85rem;padding:7px 10px}.tabs .btn.off{background:#b9a77a}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
 .item{background:#fffbe9;border:5px solid var(--ink);border-radius:14px;padding:10px;text-align:center}
-.item .ic{font-size:2.6rem}
-.item h3{font-size:1rem}
+.item .ic{font-size:2.4rem}
+.item h3{font-size:.95rem}
 .item.green{border-color:var(--r-green)}.item.blue{border-color:var(--r-blue)}
 .item.yellow{border-color:var(--r-yellow);box-shadow:0 0 12px var(--r-yellow)}
 .item.empty{border-style:dashed;opacity:.7}
+.item p{margin:6px 0;font-size:.9rem}
+.diff{font-size:.78rem;font-weight:700;background:#fff3b0;border-radius:8px;padding:4px 6px;margin:4px 0}
 .rar{display:inline-block;font-size:.7rem;font-weight:900;color:#fff;border-radius:8px;padding:1px 8px;text-transform:uppercase}
 .rar.green{background:var(--r-green)}.rar.blue{background:var(--r-blue)}.rar.yellow{background:var(--r-yellow);color:var(--ink)}
 .shophead{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
@@ -66,8 +68,14 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .prof .pinfo{flex:1;min-width:220px;font-weight:700}
 .prof .pinfo .bar{margin:6px 0}
 .xp i{background:var(--gold)}
-.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-@media(max-width:560px){.slots{grid-template-columns:1fr}}
+.spells{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;text-align:center;font-size:.85rem}
+.spells div{background:#fffbe9;border:3px solid var(--ink);border-radius:10px;padding:4px}
+.spells b{display:block;font-size:1.2rem}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.slots .item h3{font-size:.8rem}
+.slots .item .ic{font-size:1.8rem}
+.slotname{font-size:.7rem;font-weight:900;text-transform:uppercase;color:var(--wood-d)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;border:3px solid var(--gold);border-radius:12px;padding:8px 14px;font-weight:700;font-size:.85rem;z-index:50;max-width:92vw;text-align:center;display:none}
 /* truhla */
 .chest{font-size:4.5rem;cursor:pointer;display:inline-block;animation:wiggle 1.2s ease-in-out infinite;user-select:none}
 .chest.open{animation:pop .5s}
@@ -116,7 +124,7 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .combo{text-align:center;font-weight:900;color:var(--red);min-height:1.4em}
 .log{margin-top:12px;font-size:.95rem;min-height:1.3em;text-align:center;font-style:italic}
 ul.miss{padding-left:20px;text-align:left;display:inline-block}
-@media(max-width:560px){.attacks{grid-template-columns:1fr 1fr}.opts{grid-template-columns:1fr}.fighter{max-width:130px}#bossF.mega{max-width:150px}.arena{height:200px}.bosscard svg{width:70px;height:84px}}
+@media(max-width:560px){.attacks{grid-template-columns:1fr 1fr}.opts{grid-template-columns:1fr}.fighter{max-width:130px}#bossF.mega{max-width:150px}.arena{height:200px}.bosscard svg{width:70px;height:84px}.spells{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -155,6 +163,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
   <h2 class="center">Nasazeno</h2>
   <div class="slots" id="profSlots"></div>
   <h2 class="center">Inventář</h2>
+  <div class="tabs" id="profTabs"></div>
   <div class="shopgrid" id="profInv"></div>
   <p class="center"><button class="btn gold" id="profShop">🛒 Obchod</button> <button class="btn blue" id="profBack">⬅ Zpět do věže</button></p>
 </section>
@@ -201,6 +210,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
 </section>
 
 </div>
+<div id="toast"></div>
 
 <script>
 "use strict";
@@ -210,39 +220,39 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
 // Po vyčerpání zón se zóny opakují (a bossové dostanou číslo II, III…) s dál rostoucí obtížností.
 const LEVELS = {
   A1:{label:"Začátečník", coins:25, hp:80, dmg:12, zones:[
-    {theme:"Jídlo", icon:"🍎", boss:{name:"Gobbo Hladovec", skin:"#7cc34a", horns:false}, words:["jablko=apple","chléb=bread","mléko=milk","voda=water","sýr=cheese","vejce=egg","maso=meat","ryba=fish","rýže=rice","káva=coffee","polévka=soup","cukr=sugar","sůl=salt","máslo=butter","pomeranč=orange","banán=banana","zelenina=vegetables","ovoce=fruit","čaj=tea","dort=cake"]},
-    {theme:"Zvířata", icon:"🐶", boss:{name:"Zvířecí Medvěd", skin:"#a0673a", horns:false}, words:["pes=dog","kočka=cat","pták=bird","kůň=horse","kráva=cow","prase=pig","ovce=sheep","slon=elephant","myš=mouse","králík=rabbit","žába=frog","had=snake","lev=lion","tygr=tiger","opice=monkey","medvěd=bear","vlk=wolf","kachna=duck","slepice=hen","motýl=butterfly"]},
-    {theme:"Barvy a čísla", icon:"🎨", boss:{name:"Barevný Skřet", skin:"#d96b9a", horns:true}, words:["červená=red","modrá=blue","zelená=green","žlutá=yellow","černá=black","bílá=white","jedna=one","pět=five","deset=ten","sto=hundred","růžová=pink","hnědá=brown","šedá=grey","fialová=purple","dvě=two","tři=three","čtyři=four","sedm=seven","dvacet=twenty","tisíc=thousand"]},
-    {theme:"Dům a věci", icon:"🏠", boss:{name:"Domácí Kostlivec", skin:"#d8d8c0", horns:false}, words:["stůl=table","židle=chair","postel=bed","dveře=door","lampa=lamp","kniha=book","klíč=key","hodiny=clock","taška=bag","telefon=phone","zrcadlo=mirror","koberec=carpet","polštář=pillow","hrnek=cup","talíř=plate","vidlička=fork","nůž=knife","lžíce=spoon","pračka=washing machine","lednice=fridge"]},
-    {theme:"Lidské tělo", icon:"🧍", boss:{name:"Tělesný Yetti", skin:"#9fd3e6", horns:false}, words:["hlava=head","ruka=hand","noha=leg","oko=eye","ucho=ear","nos=nose","ústa=mouth","srdce=heart","záda=back","zub=tooth","vlasy=hair","prst=finger","koleno=knee","rameno=shoulder","krk=neck","břicho=stomach","tvář=cheek","chodidlo=foot","loket=elbow","kůže=skin"]}
+    {theme:"Jídlo", icon:"🍎", boss:{name:"Gobbo Hladovec"}, words:["jablko=apple","chléb=bread","mléko=milk","voda=water","sýr=cheese","vejce=egg","maso=meat","ryba=fish","rýže=rice","káva=coffee","polévka=soup","cukr=sugar","sůl=salt","máslo=butter","pomeranč=orange","banán=banana","zelenina=vegetables","ovoce=fruit","čaj=tea","dort=cake"]},
+    {theme:"Zvířata", icon:"🐶", boss:{name:"Zvířecí Medvěd"}, words:["pes=dog","kočka=cat","pták=bird","kůň=horse","kráva=cow","prase=pig","ovce=sheep","slon=elephant","myš=mouse","králík=rabbit","žába=frog","had=snake","lev=lion","tygr=tiger","opice=monkey","medvěd=bear","vlk=wolf","kachna=duck","slepice=hen","motýl=butterfly"]},
+    {theme:"Barvy a čísla", icon:"🎨", boss:{name:"Barevný Skřet"}, words:["červená=red","modrá=blue","zelená=green","žlutá=yellow","černá=black","bílá=white","jedna=one","pět=five","deset=ten","sto=hundred","růžová=pink","hnědá=brown","šedá=grey","fialová=purple","dvě=two","tři=three","čtyři=four","sedm=seven","dvacet=twenty","tisíc=thousand"]},
+    {theme:"Dům a věci", icon:"🏠", boss:{name:"Domácí Kostlivec"}, words:["stůl=table","židle=chair","postel=bed","dveře=door","lampa=lamp","kniha=book","klíč=key","hodiny=clock","taška=bag","telefon=phone","zrcadlo=mirror","koberec=carpet","polštář=pillow","hrnek=cup","talíř=plate","vidlička=fork","nůž=knife","lžíce=spoon","pračka=washing machine","lednice=fridge"]},
+    {theme:"Lidské tělo", icon:"🧍", boss:{name:"Tělesný Yetti"}, words:["hlava=head","ruka=hand","noha=leg","oko=eye","ucho=ear","nos=nose","ústa=mouth","srdce=heart","záda=back","zub=tooth","vlasy=hair","prst=finger","koleno=knee","rameno=shoulder","krk=neck","břicho=stomach","tvář=cheek","chodidlo=foot","loket=elbow","kůže=skin"]}
   ]},
   A2:{label:"Mírně pokročilý", coins:45, hp:110, dmg:15, zones:[
-    {theme:"Cestování", icon:"✈️", boss:{name:"Cestovní Troll", skin:"#5f8fa8", horns:false}, words:["letiště=airport","jízdenka=ticket","zavazadlo=luggage","nádraží=station","hotel=hotel","mapa=map","zpoždění=delay","pas=passport","přístav=harbour","dovolená=holiday","kufr=suitcase","let=flight","řidič=driver","turista=tourist","pláž=beach","stan=tent","výlet=trip","průvodce=guide","hranice=border","rezervace=booking"]},
-    {theme:"Rodina a domov", icon:"👪", boss:{name:"Rodinný Obr", skin:"#c98a4b", horns:false}, words:["sestra=sister","strýc=uncle","babička=grandmother","soused=neighbour","kuchyně=kitchen","zahrada=garden","schody=stairs","okno=window","střecha=roof","ložnice=bedroom","otec=father","matka=mother","bratr=brother","syn=son","dcera=daughter","manžel=husband","manželka=wife","dítě=child","příbuzný=relative","vnuk=grandson"]},
-    {theme:"Škola a práce", icon:"🎒", boss:{name:"Škodolibý Imp", skin:"#e0533d", horns:true}, words:["učitel=teacher","zkouška=exam","úkol=homework","plat=salary","šéf=boss","schůzka=meeting","kancelář=office","povolání=job","student=student","knihovna=library","tabule=blackboard","lekce=lesson","slovník=dictionary","poznámka=note","známka=grade","pracovník=worker","továrna=factory","lékař=doctor","kuchař=cook","rozvrh=timetable"]},
-    {theme:"Sport", icon:"⚽", boss:{name:"Sportovní Minotaur", skin:"#8a5a3a", horns:true}, words:["míč=ball","závod=race","vítězit=win","prohrát=lose","tým=team","plavat=swim","běhat=run","hřiště=playground","hráč=player","trenér=coach","branka=goal","skóre=score","stadion=stadium","kolo=bicycle","lyže=skis","rozhodčí=referee","medaile=medal","soutěž=contest","trénink=training","šampion=champion"]},
-    {theme:"Nákupy", icon:"🛍️", boss:{name:"Nákupní Mumie", skin:"#d9c7a0", horns:false}, words:["obchod=shop","cena=price","sleva=discount","peněženka=wallet","hotovost=cash","účet=bill","oblečení=clothes","boty=shoes","drahý=expensive","levný=cheap","košík=basket","pokladna=checkout","prodavač=shop assistant","zboží=goods","objednat=order","vrátit=return","velikost=size","výprodej=sale","kupón=coupon","supermarket=supermarket"]}
+    {theme:"Cestování", icon:"✈️", boss:{name:"Cestovní Troll"}, words:["letiště=airport","jízdenka=ticket","zavazadlo=luggage","nádraží=station","hotel=hotel","mapa=map","zpoždění=delay","pas=passport","přístav=harbour","dovolená=holiday","kufr=suitcase","let=flight","řidič=driver","turista=tourist","pláž=beach","stan=tent","výlet=trip","průvodce=guide","hranice=border","rezervace=booking"]},
+    {theme:"Rodina a domov", icon:"👪", boss:{name:"Rodinný Obr"}, words:["sestra=sister","strýc=uncle","babička=grandmother","soused=neighbour","kuchyně=kitchen","zahrada=garden","schody=stairs","okno=window","střecha=roof","ložnice=bedroom","otec=father","matka=mother","bratr=brother","syn=son","dcera=daughter","manžel=husband","manželka=wife","dítě=child","příbuzný=relative","vnuk=grandson"]},
+    {theme:"Škola a práce", icon:"🎒", boss:{name:"Škodolibý Imp"}, words:["učitel=teacher","zkouška=exam","úkol=homework","plat=salary","šéf=boss","schůzka=meeting","kancelář=office","povolání=job","student=student","knihovna=library","tabule=blackboard","lekce=lesson","slovník=dictionary","poznámka=note","známka=grade","pracovník=worker","továrna=factory","lékař=doctor","kuchař=cook","rozvrh=timetable"]},
+    {theme:"Sport", icon:"⚽", boss:{name:"Sportovní Minotaur"}, words:["míč=ball","závod=race","vítězit=win","prohrát=lose","tým=team","plavat=swim","běhat=run","hřiště=playground","hráč=player","trenér=coach","branka=goal","skóre=score","stadion=stadium","kolo=bicycle","lyže=skis","rozhodčí=referee","medaile=medal","soutěž=contest","trénink=training","šampion=champion"]},
+    {theme:"Nákupy", icon:"🛍️", boss:{name:"Nákupní Mumie"}, words:["obchod=shop","cena=price","sleva=discount","peněženka=wallet","hotovost=cash","účet=bill","oblečení=clothes","boty=shoes","drahý=expensive","levný=cheap","košík=basket","pokladna=checkout","prodavač=shop assistant","zboží=goods","objednat=order","vrátit=return","velikost=size","výprodej=sale","kupón=coupon","supermarket=supermarket"]}
   ]},
   B1:{label:"Středně pokročilý", coins:80, hp:150, dmg:18, zones:[
-    {theme:"Práce a kariéra", icon:"💼", boss:{name:"Drak Kancelářský", skin:"#b53b3b", horns:true}, words:["zaměstnanec=employee","pohovor=interview","povýšení=promotion","termín=deadline","zkušenost=experience","dovednost=skill","rozpočet=budget","výhoda=advantage","společnost=company","životopis=resume","kolega=colleague","vedoucí=manager","kariéra=career","rezignovat=resign","školení=training course","výpověď=notice","nezaměstnaný=unemployed","odměna=reward","spolupráce=cooperation","úspěch=success"]},
-    {theme:"Počasí a příroda", icon:"🌋", boss:{name:"Bouřná Harpyje", skin:"#6c7fd1", horns:false}, words:["bouřka=thunderstorm","mlha=fog","sucho=drought","povodeň=flood","údolí=valley","útes=cliff","větrno=windy","zeměkoule=globe","prostředí=environment","vlna=wave","zemětřesení=earthquake","hurikán=hurricane","ledovec=glacier","sopka=volcano","bažina=swamp","pobřeží=coast","vodopád=waterfall","příliv=tide","půda=soil","mráz=frost"]},
-    {theme:"Zdraví", icon:"🏥", boss:{name:"Zdravotní Vlkodlak", skin:"#8c8c9e", horns:false}, words:["bolest=pain","lék=medicine","nemocnice=hospital","zranění=injury","recept=prescription","horečka=fever","kašel=cough","léčba=treatment","alergie=allergy","zotavit se=recover","lékárna=pharmacy","sestra=nurse","chirurg=surgeon","vyšetření=examination","virus=virus","očkování=vaccination","stres=stress","únava=fatigue","obvaz=bandage","dieta=diet"]},
-    {theme:"Emoce a vztahy", icon:"💭", boss:{name:"Citový Kentaur", skin:"#d98a4a", horns:false}, words:["překvapený=surprised","rozzlobený=angry","nervózní=nervous","žárlivý=jealous","hrdý=proud","osamělý=lonely","přátelství=friendship","důvěra=trust","omluva=apology","vztah=relationship","rozčarovaný=disappointed","úzkost=anxiety","vděčný=grateful","vzrušený=excited","ostych=shyness","nadšení=enthusiasm","hádka=quarrel","smířit se=reconcile","zklamání=disappointment","sebevědomí=confidence"]},
-    {theme:"Město a doprava", icon:"🏙️", boss:{name:"Městský Kraken", skin:"#3f7fa0", horns:false}, words:["křižovatka=crossroads","chodník=pavement","přechod=crossing","předměstí=suburb","náměstí=square","most=bridge","metro=underground","parkoviště=car park","radnice=town hall","semafor=traffic lights","nákupní centrum=shopping centre","sídliště=housing estate","stavba=construction","ulička=alley","památka=monument","kostel=church","divadlo=theatre","hřbitov=cemetery","nábřeží=embankment","mrakodrap=skyscraper"]}
+    {theme:"Práce a kariéra", icon:"💼", boss:{name:"Drak Kancelářský"}, words:["zaměstnanec=employee","pohovor=interview","povýšení=promotion","termín=deadline","zkušenost=experience","dovednost=skill","rozpočet=budget","výhoda=advantage","společnost=company","životopis=resume","kolega=colleague","vedoucí=manager","kariéra=career","rezignovat=resign","školení=training course","výpověď=notice","nezaměstnaný=unemployed","odměna=reward","spolupráce=cooperation","úspěch=success"]},
+    {theme:"Počasí a příroda", icon:"🌋", boss:{name:"Bouřná Harpyje"}, words:["bouřka=thunderstorm","mlha=fog","sucho=drought","povodeň=flood","údolí=valley","útes=cliff","větrno=windy","zeměkoule=globe","prostředí=environment","vlna=wave","zemětřesení=earthquake","hurikán=hurricane","ledovec=glacier","sopka=volcano","bažina=swamp","pobřeží=coast","vodopád=waterfall","příliv=tide","půda=soil","mráz=frost"]},
+    {theme:"Zdraví", icon:"🏥", boss:{name:"Zdravotní Vlkodlak"}, words:["bolest=pain","lék=medicine","nemocnice=hospital","zranění=injury","recept=prescription","horečka=fever","kašel=cough","léčba=treatment","alergie=allergy","zotavit se=recover","lékárna=pharmacy","sestra=nurse","chirurg=surgeon","vyšetření=examination","virus=virus","očkování=vaccination","stres=stress","únava=fatigue","obvaz=bandage","dieta=diet"]},
+    {theme:"Emoce a vztahy", icon:"💭", boss:{name:"Citový Kentaur"}, words:["překvapený=surprised","rozzlobený=angry","nervózní=nervous","žárlivý=jealous","hrdý=proud","osamělý=lonely","přátelství=friendship","důvěra=trust","omluva=apology","vztah=relationship","rozčarovaný=disappointed","úzkost=anxiety","vděčný=grateful","vzrušený=excited","ostych=shyness","nadšení=enthusiasm","hádka=quarrel","smířit se=reconcile","zklamání=disappointment","sebevědomí=confidence"]},
+    {theme:"Město a doprava", icon:"🏙️", boss:{name:"Městský Kraken"}, words:["křižovatka=crossroads","chodník=pavement","přechod=crossing","předměstí=suburb","náměstí=square","most=bridge","metro=underground","parkoviště=car park","radnice=town hall","semafor=traffic lights","nákupní centrum=shopping centre","sídliště=housing estate","stavba=construction","ulička=alley","památka=monument","kostel=church","divadlo=theatre","hřbitov=cemetery","nábřeží=embankment","mrakodrap=skyscraper"]}
   ]},
   B2:{label:"Pokročilý", coins:130, hp:190, dmg:22, zones:[
-    {theme:"Názory a diskuze", icon:"🗣️", boss:{name:"Lord Argument", skin:"#7a4fb5", horns:true}, words:["souhlasit=agree","tvrdit=claim","důkaz=evidence","závěr=conclusion","přesvědčit=convince","výzva=challenge","předpoklad=assumption","zlepšit=improve","zvážit=consider","následek=consequence","popírat=deny","namítat=object","ospravedlnit=justify","tvrzení=statement","kritizovat=criticise","podpořit=support","vyvodit=conclude","odporovat=contradict","debata=debate","přijatelný=acceptable"]},
-    {theme:"Technologie", icon:"💻", boss:{name:"Technický Golem", skin:"#4f9aa0", horns:false}, words:["vylepšení=upgrade","zařízení=device","stáhnout=download","heslo=password","obrazovka=screen","aplikace=application","připojení=connection","zálohovat=back up","vynález=invention","výkon=performance","software=software","hardware=hardware","algoritmus=algorithm","umělá inteligence=artificial intelligence","šifrování=encryption","databáze=database","sledovat=track","bezdrátový=wireless","odinstalovat=uninstall","vývojář=developer"]},
-    {theme:"Společnost", icon:"⚖️", boss:{name:"Právní Chiméra", skin:"#b58a3f", horns:true}, words:["vláda=government","zákon=law","občan=citizen","volby=election","svoboda=freedom","spravedlnost=justice","nerovnost=inequality","daň=tax","oběť=victim","odpovědnost=responsibility","menšina=minority","většina=majority","demonstrace=protest","reforma=reform","diskriminace=discrimination","chudoba=poverty","bohatství=wealth","korupce=corruption","parlament=parliament","soudce=judge"]},
-    {theme:"Životní prostředí", icon:"🌍", boss:{name:"Ekologická Hydra", skin:"#4aa05a", horns:false}, words:["oteplování=warming","znečištění=pollution","odpad=waste","obnovitelný=renewable","vyhynulý=extinct","zdroje=resources","palivo=fuel","ochrana=protection","divoká zvěř=wildlife","emise=emission","skleníkový efekt=greenhouse effect","recyklovat=recycle","biodiverzita=biodiversity","ohrožený=endangered","klimatický=climate","skládka=landfill","ekosystém=ecosystem","odlesňování=deforestation","spotřeba=consumption","hnojivo=fertiliser"]},
-    {theme:"Byznys", icon:"📈", boss:{name:"Obchodní Ďábel", skin:"#a0302c", horns:true}, words:["zisk=profit","ztráta=loss","investovat=invest","konkurence=competition","smlouva=contract","vyjednávat=negotiate","dodavatel=supplier","zákazník=customer","akcie=shares","podnikatel=entrepreneur","příjem=income","výdaje=expenses","fúze=merger","půjčka=loan","úrok=interest","pojištění=insurance","inflace=inflation","vlastník=owner","trh=market","dlužník=debtor"]}
+    {theme:"Názory a diskuze", icon:"🗣️", boss:{name:"Lord Argument"}, words:["souhlasit=agree","tvrdit=claim","důkaz=evidence","závěr=conclusion","přesvědčit=convince","výzva=challenge","předpoklad=assumption","zlepšit=improve","zvážit=consider","následek=consequence","popírat=deny","namítat=object","ospravedlnit=justify","tvrzení=statement","kritizovat=criticise","podpořit=support","vyvodit=conclude","odporovat=contradict","debata=debate","přijatelný=acceptable"]},
+    {theme:"Technologie", icon:"💻", boss:{name:"Technický Golem"}, words:["vylepšení=upgrade","zařízení=device","stáhnout=download","heslo=password","obrazovka=screen","aplikace=application","připojení=connection","zálohovat=back up","vynález=invention","výkon=performance","software=software","hardware=hardware","algoritmus=algorithm","umělá inteligence=artificial intelligence","šifrování=encryption","databáze=database","sledovat=track","bezdrátový=wireless","odinstalovat=uninstall","vývojář=developer"]},
+    {theme:"Společnost", icon:"⚖️", boss:{name:"Právní Chiméra"}, words:["vláda=government","zákon=law","občan=citizen","volby=election","svoboda=freedom","spravedlnost=justice","nerovnost=inequality","daň=tax","oběť=victim","odpovědnost=responsibility","menšina=minority","většina=majority","demonstrace=protest","reforma=reform","diskriminace=discrimination","chudoba=poverty","bohatství=wealth","korupce=corruption","parlament=parliament","soudce=judge"]},
+    {theme:"Životní prostředí", icon:"🌍", boss:{name:"Ekologická Hydra"}, words:["oteplování=warming","znečištění=pollution","odpad=waste","obnovitelný=renewable","vyhynulý=extinct","zdroje=resources","palivo=fuel","ochrana=protection","divoká zvěř=wildlife","emise=emission","skleníkový efekt=greenhouse effect","recyklovat=recycle","biodiverzita=biodiversity","ohrožený=endangered","klimatický=climate","skládka=landfill","ekosystém=ecosystem","odlesňování=deforestation","spotřeba=consumption","hnojivo=fertiliser"]},
+    {theme:"Byznys", icon:"📈", boss:{name:"Obchodní Ďábel"}, words:["zisk=profit","ztráta=loss","investovat=invest","konkurence=competition","smlouva=contract","vyjednávat=negotiate","dodavatel=supplier","zákazník=customer","akcie=shares","podnikatel=entrepreneur","příjem=income","výdaje=expenses","fúze=merger","půjčka=loan","úrok=interest","pojištění=insurance","inflace=inflation","vlastník=owner","trh=market","dlužník=debtor"]}
   ]},
   C1:{label:"Expert", coins:200, hp:240, dmg:26, zones:[
-    {theme:"Pokročilá slovní zásoba", icon:"🎭", boss:{name:"Mistr Idiomů", skin:"#2f2f5a", horns:true}, words:["pomíjivý=ephemeral","všudypřítomný=ubiquitous","houževnatost=resilience","nevyhnutelný=inevitable","dvojznačný=ambiguous","kompromis=compromise","uvážlivý=prudent","zdánlivý=apparent","podkopat=undermine","úsilí=endeavour","nepolapitelný=elusive","výstižný=concise","pochybný=dubious","nadbytečný=superfluous","bezchybný=impeccable","zákeřný=insidious","přehlížet=overlook","tvrdohlavý=obstinate","rozptýlený=scattered","rozsáhlý=extensive"]},
-    {theme:"Abstraktní pojmy", icon:"🧠", boss:{name:"Stínový Mudrc", skin:"#4a4a4a", horns:false}, words:["dilema=dilemma","nuance=nuance","předsudek=prejudice","soucit=compassion","skepticismus=scepticism","paradox=paradox","odhodlání=determination","rozmanitost=diversity","udržitelnost=sustainability","intuice=intuition","nepřátelství=hostility","pokora=humility","marnost=futility","samolibost=complacency","svědomí=conscience","ctnost=virtue","touha=yearning","zloba=malice","ctižádost=ambition","nostalgie=nostalgia"]},
-    {theme:"Zkouškové výrazy", icon:"📝", boss:{name:"Pán Zkázy", skin:"#1a1a1a", horns:true}, words:["zmírnit=alleviate","zdráhavý=reluctant","výmluvný=eloquent","opomíjet=neglect","doplňovat=complement","úsudek=judgement","všeobecný=widespread","potlačit=suppress","zásadní=crucial","dosáhnout=accomplish","podstatný=substantial","souhrnný=comprehensive","zjevný=evident","podnět=stimulus","omezení=constraint","hodnotit=evaluate","odvodit=derive","vyvolat=trigger","předložit=submit","přispět=contribute"]},
-    {theme:"Filozofie", icon:"🏛️", boss:{name:"Filozofický Fénix", skin:"#d97a2a", horns:false}, words:["vědomí=consciousness","existence=existence","smysl=meaning","morálka=morality","svobodná vůle=free will","předpoklad=premise","rozpor=contradiction","pravda=truth","přesvědčení=belief","rozum=reason","etika=ethics","empirický=empirical","dualismus=dualism","logika=logic","subjektivní=subjective","objektivní=objective","hypotéza=hypothesis","axiom=axiom","podstata=essence","racionální=rational"]},
-    {theme:"Vybrané výrazy", icon:"🖋️", boss:{name:"Král Jazyka", skin:"#7a2fa0", horns:true}, words:["přehánět=exaggerate","zaujatý=biased","váhavý=hesitant","vyvrátit=refute","vyčerpávající=exhaustive","zdůraznit=emphasise","zřejmý=obvious","nepatrný=subtle","odolný=robust","namáhavý=arduous","ohromit=astonish","zahrnovat=encompass","zbrklý=hasty","úmyslný=deliberate","pochlebovat=flatter","ušlechtilý=noble","výstřední=eccentric","hojný=abundant","okamžitý=instantaneous","vynikající=outstanding"]}
+    {theme:"Pokročilá slovní zásoba", icon:"🎭", boss:{name:"Mistr Idiomů"}, words:["pomíjivý=ephemeral","všudypřítomný=ubiquitous","houževnatost=resilience","nevyhnutelný=inevitable","dvojznačný=ambiguous","kompromis=compromise","uvážlivý=prudent","zdánlivý=apparent","podkopat=undermine","úsilí=endeavour","nepolapitelný=elusive","výstižný=concise","pochybný=dubious","nadbytečný=superfluous","bezchybný=impeccable","zákeřný=insidious","přehlížet=overlook","tvrdohlavý=obstinate","rozptýlený=scattered","rozsáhlý=extensive"]},
+    {theme:"Abstraktní pojmy", icon:"🧠", boss:{name:"Stínový Mudrc"}, words:["dilema=dilemma","nuance=nuance","předsudek=prejudice","soucit=compassion","skepticismus=scepticism","paradox=paradox","odhodlání=determination","rozmanitost=diversity","udržitelnost=sustainability","intuice=intuition","nepřátelství=hostility","pokora=humility","marnost=futility","samolibost=complacency","svědomí=conscience","ctnost=virtue","touha=yearning","zloba=malice","ctižádost=ambition","nostalgie=nostalgia"]},
+    {theme:"Zkouškové výrazy", icon:"📝", boss:{name:"Pán Zkázy"}, words:["zmírnit=alleviate","zdráhavý=reluctant","výmluvný=eloquent","opomíjet=neglect","doplňovat=complement","úsudek=judgement","všeobecný=widespread","potlačit=suppress","zásadní=crucial","dosáhnout=accomplish","podstatný=substantial","souhrnný=comprehensive","zjevný=evident","podnět=stimulus","omezení=constraint","hodnotit=evaluate","odvodit=derive","vyvolat=trigger","předložit=submit","přispět=contribute"]},
+    {theme:"Filozofie", icon:"🏛️", boss:{name:"Filozofický Fénix"}, words:["vědomí=consciousness","existence=existence","smysl=meaning","morálka=morality","svobodná vůle=free will","předpoklad=premise","rozpor=contradiction","pravda=truth","přesvědčení=belief","rozum=reason","etika=ethics","empirický=empirical","dualismus=dualism","logika=logic","subjektivní=subjective","objektivní=objective","hypotéza=hypothesis","axiom=axiom","podstata=essence","racionální=rational"]},
+    {theme:"Vybrané výrazy", icon:"🖋️", boss:{name:"Král Jazyka"}, words:["přehánět=exaggerate","zaujatý=biased","váhavý=hesitant","vyvrátit=refute","vyčerpávající=exhaustive","zdůraznit=emphasise","zřejmý=obvious","nepatrný=subtle","odolný=robust","namáhavý=arduous","ohromit=astonish","zahrnovat=encompass","zbrklý=hasty","úmyslný=deliberate","pochlebovat=flatter","ušlechtilý=noble","výstřední=eccentric","hojný=abundant","okamžitý=instantaneous","vynikající=outstanding"]}
   ]}
 };
 const LEVEL_KEYS = Object.keys(LEVELS);
@@ -255,9 +265,29 @@ const ATTACKS = [
   {id:"heal",   name:"💖 Léčení",   cost:20, heal:35, pow:"HEAL", color:"green"}
 ];
 
-/* ----- vybavení: rarity zelená < modrá < žlutá; atk = % poškození, hp = max HP, en = % energie, coin = % mincí ----- */
+/* ----- vybavení -----
+   Typ předmětu (it.slot) určuje, do kterých slotů jde nasadit (TYPES[typ].slots). Rarity: green < blue < yellow.
+   Bonusy: atk = % poškození kouzel, hp = max HP, def = % snížení přijatého poškození (max 60), en = % energie, coin = % mincí. */
 const RARITY = {green:{name:"Zelená"}, blue:{name:"Modrá"}, yellow:{name:"Žlutá"}};
-const SLOTS = {weapon:"⚔️ Zbraně", armor:"👕 Oblečení", jewelry:"💍 Šperky"};
+const TYPES = {
+  weapon:   {label:"⚔️ Zbraň",    slots:["weapon"]},
+  shield:   {label:"🛡️ Štít",     slots:["shield"]},
+  helmet:   {label:"⛑️ Helma",    slots:["helmet"]},
+  shoulders:{label:"🦾 Ramena",   slots:["shoulders"]},
+  armor:    {label:"👕 Brnění",   slots:["armor"]},
+  gloves:   {label:"🧤 Rukavice", slots:["gloves"]},
+  boots:    {label:"🥾 Boty",     slots:["boots"]},
+  ring:     {label:"💍 Prsten",   slots:["ring1","ring2"]},
+  earring:  {label:"✨ Náušnice", slots:["earring1","earring2"]},
+  belt:     {label:"🎗️ Opasek",   slots:["belt"]},
+  amulet:   {label:"📿 Amulet",   slots:["amulet"]},
+  trinket:  {label:"🔮 Trinket",  slots:["trinket1","trinket2"]}
+};
+const TYPE_KEYS = Object.keys(TYPES);
+const SLOT_KEYS = TYPE_KEYS.flatMap(t => TYPES[t].slots);
+const SLOT_LABEL = {weapon:"Zbraň",shield:"Štít",helmet:"Helma",shoulders:"Ramena",armor:"Brnění",gloves:"Rukavice",boots:"Boty",
+  ring1:"Prsten 1",ring2:"Prsten 2",earring1:"Náušnice 1",earring2:"Náušnice 2",belt:"Opasek",amulet:"Amulet",trinket1:"Trinket 1",trinket2:"Trinket 2"};
+// ručně ladené zbraně a brnění (mají vlastní SVG v WEAPON_ART / ARMOR_ART)
 const ITEMS = [
   {id:"w1",slot:"weapon",rar:"green", name:"Dřevěný meč",     icon:"🗡️", price:120,  atk:10},
   {id:"w2",slot:"weapon",rar:"green", name:"Železná sekera",  icon:"🪓", price:200,  atk:15},
@@ -270,28 +300,51 @@ const ITEMS = [
   {id:"a3",slot:"armor", rar:"blue",  name:"Kroužková zbroj", icon:"🛡️", price:700,  hp:55},
   {id:"a4",slot:"armor", rar:"blue",  name:"Kouzelnický hábit",icon:"🥼", price:900,  hp:70},
   {id:"a5",slot:"armor", rar:"yellow",name:"Dračí zbroj",     icon:"🐲", price:3200, hp:130},
-  {id:"a6",slot:"armor", rar:"yellow",name:"Plášť archanděla",icon:"👼", price:4800, hp:170},
-  {id:"j1",slot:"jewelry",rar:"green", name:"Měděný prsten",   icon:"💍", price:130,  en:10},
-  {id:"j2",slot:"jewelry",rar:"green", name:"Korálový náhrdelník",icon:"📿", price:180, coin:10},
-  {id:"j3",slot:"jewelry",rar:"blue",  name:"Safírový prsten", icon:"💎", price:800,  en:20},
-  {id:"j4",slot:"jewelry",rar:"blue",  name:"Stříbrný amulet", icon:"🔮", price:950,  coin:25},
-  {id:"j5",slot:"jewelry",rar:"yellow",name:"Korunní diamant", icon:"👑", price:3400, en:40, coin:15},
-  {id:"j6",slot:"jewelry",rar:"yellow",name:"Zlatý amulet bohatství",icon:"🏆", price:5000, coin:60, en:10}
+  {id:"a6",slot:"armor", rar:"yellow",name:"Plášť archanděla",icon:"👼", price:4800, hp:170}
 ];
+// ostatní typy se generují: 2× zelená, 2× modrá, 2× žlutá; bonus roste podle rarity (×1 / ×2,6 / ×6), každý druhý kus je o 25 % lepší
+const RAR6 = ["green","green","blue","blue","yellow","yellow"], TIER = {green:1, blue:2.6, yellow:6}, BASE_PRICE = {green:100, blue:700, yellow:3200};
+function gen(type, names, icons, stats, factor){
+  names.forEach((name, i) => {
+    const rar = RAR6[i], odd = i % 2, k = TIER[rar] * (odd ? 1.25 : 1);
+    const it = {id:type+(i+1), slot:type, rar, name, icon:icons[i % icons.length], v:odd, price:Math.round(BASE_PRICE[rar]*(odd?1.3:1)*factor/10)*10};
+    for(const st in stats) it[st] = Math.max(1, Math.round(stats[st]*k));
+    ITEMS.push(it);
+  });
+}
+gen("shield",   ["Dřevěný štít","Kulatý štít","Železný štít","Rytířský štít","Dračí štít","Štít strážce"], ["🛡️"], {def:2, hp:5}, 1);
+gen("helmet",   ["Kožená čepice","Železná přilba","Okovaná přilba","Rytířská helma","Dračí helma","Helma krále"], ["⛑️","🪖","👑"], {hp:8, def:1}, .9);
+gen("shoulders",["Kožená ramena","Železná ramena","Ocelová ramena","Ostnatá ramena","Dračí ramena","Ramena titána"], ["🦾"], {atk:2, hp:6}, 1);
+gen("gloves",   ["Kožené rukavice","Pracovní rukavice","Ocelové rukavice","Bojové rukavice","Dračí rukavice","Rukavice berserkera"], ["🧤"], {atk:3}, .8);
+gen("boots",    ["Kožené boty","Cestovní boty","Okované boty","Rychlé boty","Dračí boty","Okřídlené boty"], ["🥾"], {en:3, hp:4}, .8);
+gen("ring",     ["Měděný prsten","Cínový prsten","Safírový prsten","Rubínový prsten","Diamantový prsten","Prsten moci"], ["💍"], {atk:2, en:2}, .9);
+gen("earring",  ["Měděné náušnice","Perlové náušnice","Safírové náušnice","Stříbrné náušnice","Zlaté náušnice","Diamantové náušnice"], ["✨"], {coin:2, en:1}, .7);
+gen("belt",     ["Provazový opasek","Kožený opasek","Ocelový opasek","Rytířský opasek","Zlatý opasek","Opasek šampiona"], ["🎗️"], {hp:10, def:1}, .8);
+gen("amulet",   ["Korálový amulet","Dřevěný amulet","Stříbrný amulet","Měsíční amulet","Zlatý amulet bohatství","Amulet draka"], ["📿"], {coin:4, en:1}, 1.1);
+gen("trinket",  ["Králičí tlapka","Šťastný šesták","Kouzelná lahvička","Starý kompas","Hodiny času","Dračí šupina"], ["🍀","🧪","🧭","⏳","🐉"], {en:2, coin:2}, 1);
 const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+const OLD_JEWELRY_REFUND = {j1:130, j2:180, j3:800, j4:950, j5:3400, j6:5000}; // starý slot "šperky" – při načtení uložené hry se vrátí v mincích
 // šance na kořist po zabití: obyčejný nepřítel / boss zóny (čím lepší rarita, tím menší šance)
 const DROP = {normal:{chance:0.35, w:{green:70, blue:25, yellow:5}}, boss:{chance:1, w:{green:45, blue:40, yellow:15}}};
 
 /* ================= STAV ================= */
 const SAVE_KEY = "anglictina-rpg-save-v2";
-let save = {name:"", level:"A1", xp:0, coins:0, tower:{}, best:{}, owned:[], equip:{weapon:null, armor:null, jewelry:null}};
-let battle = null, shopSlot = "weapon", timerId = null;
+const emptyEquip = () => Object.fromEntries(SLOT_KEYS.map(k => [k, null]));
+let save = {name:"", level:"A1", xp:0, coins:0, tower:{}, best:{}, owned:[], equip:emptyEquip()};
+let battle = null, shopType = "weapon", profType = "all", timerId = null, toastId = null;
 const $ = id => document.getElementById(id);
 
 function loadSave(){
   try{
     const s = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if(s && s.level){ save = Object.assign(save, s); return; }
+    if(s && s.level){
+      save = Object.assign(save, s);
+      const eq = emptyEquip();
+      for(const k of SLOT_KEYS) if(s.equip && ITEM[s.equip[k]]) eq[k] = s.equip[k];
+      save.equip = eq;
+      save.owned = (save.owned || []).filter(id => { if(ITEM[id]) return true; save.coins += OLD_JEWELRY_REFUND[id] || 0; return false; });
+      return;
+    }
     const old = JSON.parse(localStorage.getItem("anglictina-rpg-save-v1")); // migrace z v1 (jméno, úroveň, xp)
     if(old){ save.name = old.name || ""; save.level = old.level || "A1"; save.xp = old.xp || 0; }
   }catch(e){}
@@ -300,16 +353,58 @@ function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }
 const heroLevel = () => 1 + Math.floor(save.xp / 100);
 const floorNow = () => save.tower[save.level] || 1;
 const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
-const equipped = slot => save.equip[slot] ? ITEM[save.equip[slot]] : null;
+const equipped = key => save.equip[key] ? ITEM[save.equip[key]] : null;
 function totals(){
-  const t = {atk:0, hp:0, en:0, coin:0};
-  for(const slot in SLOTS){ const it = equipped(slot); if(it) for(const k in t) t[k] += it[k] || 0; }
+  const t = {atk:0, hp:0, def:0, en:0, coin:0};
+  for(const k of SLOT_KEYS){ const it = equipped(k); if(it) for(const s in t) t[s] += it[s] || 0; }
+  t.def = Math.min(60, t.def);
   return t;
 }
 const heroMaxHp = () => 100 + (heroLevel()-1)*10 + totals().hp;
+const attackDmg = a => Math.round(a.dmg * (1 + (heroLevel()-1)*0.05) * (1 + totals().atk/100)); // poškození kouzla s levelem a vybavením
 function statsText(it){
-  return [it.atk && `+${it.atk} % poškození`, it.hp && `+${it.hp} HP`, it.en && `+${it.en} % energie`, it.coin && `+${it.coin} % mincí`].filter(Boolean).join(" · ");
+  return [it.atk && `+${it.atk} % poškození`, it.hp && `+${it.hp} HP`, it.def && `+${it.def} % obrana`, it.en && `+${it.en} % energie`, it.coin && `+${it.coin} % mincí`].filter(Boolean).join(" · ");
 }
+/* ----- nasazování a náhled změn ----- */
+const freeSlot = it => TYPES[it.slot].slots.find(k => !save.equip[k]) || TYPES[it.slot].slots[0];
+function equipItem(it, key){
+  for(const k of SLOT_KEYS) if(save.equip[k] === it.id) save.equip[k] = null;
+  save.equip[key || freeSlot(it)] = it.id;
+}
+function snap(){
+  const t = totals();
+  return {"❤️ Životy":heroMaxHp(), "🛡️ Obrana":t.def+" %", "🔋 Energie":"+"+t.en+" %", "🪙 Mince":"+"+t.coin+" %",
+    [ATTACKS[0].name]:attackDmg(ATTACKS[0]), [ATTACKS[1].name]:attackDmg(ATTACKS[1]), [ATTACKS[2].name]:attackDmg(ATTACKS[2])};
+}
+function diffText(a, b){
+  const d = Object.keys(a).filter(k => a[k] !== b[k]).map(k => `${k}: ${a[k]} → <b>${b[k]}</b>`);
+  return d.length ? d.join(" · ") : "beze změny";
+}
+function previewEquip(it){ // co se změní, když kus nasadím (stav se vrátí zpět)
+  const prev = JSON.stringify(save.equip), before = snap();
+  equipItem(it); const after = snap();
+  save.equip = JSON.parse(prev);
+  return diffText(before, after);
+}
+function toast(html){
+  const t = $("toast"); t.innerHTML = html; t.style.display = "block";
+  clearTimeout(toastId); toastId = setTimeout(() => t.style.display = "none", 4000);
+}
+function equipAction(it, a, key){
+  const before = snap();
+  if(a === "on") equipItem(it, key);
+  else if(a === "off"){ for(const k of SLOT_KEYS) if(save.equip[k] === it.id) save.equip[k] = null; }
+  else if(a === "sell"){
+    if(!confirm(`Prodat ${it.name} za ${sellPrice(it)} mincí?`)) return;
+    save.owned.splice(save.owned.indexOf(it.id), 1);
+    for(const k of SLOT_KEYS) if(save.equip[k] === it.id) save.equip[k] = null;
+    save.coins += sellPrice(it);
+  }
+  persist();
+  const after = snap(), d = diffText(before, after);
+  if(a !== "sell" || d !== "beze změny") toast(`${a === "on" ? "Nasazeno" : a === "off" ? "Sundáno" : "Prodáno"}: ${it.name}<br>${d}`);
+}
+const sellPrice = it => Math.floor(it.price / 2);
 
 /* ----- věž: generování soupeřů a obtížnosti pro dané patro ----- */
 // deterministický generátor: stejné patro = stejný nepřítel (náhled i souboj), každé patro jiný
@@ -320,13 +415,16 @@ function rngFor(str){
 }
 const pick = (rng, arr) => arr[Math.floor(rng()*arr.length)];
 const ADJ = ["Zlobivý","Hladový","Mrzutý","Vzteklý","Líný","Prohnaný","Chlupatý","Šílený","Smradlavý","Ospalý","Divoký","Hrbatý","Zákeřný","Slizký","Nafoukaný","Pomstychtivý"];
-const NOUN = ["Goblin","Skřet","Troll","Imp","Ogr","Slizoun","Netopýr","Kostlivec","Yetti","Golem","Démon","Vlkodlak","Zombík","Šotek","Pavoukoun","Škrabal"];
+const NOUN = ["Goblin","Skřet","Troll","Imp","Ogr","Slizoun","Netopýr","Kostlivec","Yetti","Golem","Démon","Vlkodlak","Zombík","Šotek","Pavoukoun","Faraón"];
+// vzhled bosse zóny podle druhu
+const BOSS_SPECIES = {"Gobbo Hladovec":"Goblin","Zvířecí Medvěd":"Yetti","Barevný Skřet":"Skřet","Domácí Kostlivec":"Kostlivec","Tělesný Yetti":"Yetti",
+  "Cestovní Troll":"Troll","Rodinný Obr":"Ogr","Škodolibý Imp":"Imp","Sportovní Minotaur":"Démon","Nákupní Mumie":"Faraón","Drak Kancelářský":"Démon",
+  "Bouřná Harpyje":"Netopýr","Zdravotní Vlkodlak":"Vlkodlak","Citový Kentaur":"Ogr","Městský Kraken":"Slizoun","Lord Argument":"Šotek","Technický Golem":"Golem",
+  "Právní Chiméra":"Démon","Ekologická Hydra":"Pavoukoun","Obchodní Ďábel":"Démon","Mistr Idiomů":"Šotek","Stínový Mudrc":"Kostlivec","Pán Zkázy":"Démon",
+  "Filozofický Fénix":"Netopýr","Král Jazyka":"Zombík"};
 const EYE_COL = ["#d9372b","#2f7fd1","#3fa34d","#8a3fc7","#f2b705","#ff7a00"];
 function makeLook(rng){
-  const hue = Math.floor(rng()*360);
-  return { skin:`hsl(${hue} 55% 52%)`, body:`hsl(${(hue+160)%360} 35% 32%)`, belly:`hsl(${(hue+160)%360} 30% 58%)`,
-    head:Math.floor(rng()*4), eyes:pick(rng,[1,2,2,2,3]), eye:pick(rng,EYE_COL), mouth:Math.floor(rng()*4),
-    horns:Math.floor(rng()*4), ears:Math.floor(rng()*3), acc:Math.floor(rng()*5) };
+  return { j:Math.floor(rng()*30)-15, eye:pick(rng,EYE_COL), acc:Math.floor(rng()*5) };
 }
 function getEnemy(level, f){
   const L = LEVELS[level];
@@ -334,14 +432,14 @@ function getEnemy(level, f){
   const isBoss = f % ZONE_LEN === 0;
   const rng = rngFor(level+":"+f);
   const look = makeLook(rng);
-  let name;
+  let name, species;
   if(isBoss){
-    look.skin = zone.boss.skin; look.horns = zone.boss.horns ? 1 : 2; look.acc = 0; look.mouth = 0; look.eyes = 2; look.head = 0;
+    species = BOSS_SPECIES[zone.boss.name] || "Démon"; look.acc = 0;
     name = "👑 " + zone.boss.name + (zround ? " " + ["","II","III","IV","V","VI","VII","VIII","IX","X"][Math.min(zround,9)] : "");
-  } else name = pick(rng,ADJ) + " " + pick(rng,NOUN);
+  } else { const adj = pick(rng,ADJ); species = pick(rng,NOUN); name = adj + " " + species; }
   const growthHp = 1 + 0.12*(f-1), growthDmg = 1 + 0.06*(f-1);
   return {
-    name, look, isBoss, floor:f, theme:zone.theme, icon:zone.icon, words:zone.words, zone:zi,
+    name, look, species, isBoss, floor:f, theme:zone.theme, icon:zone.icon, words:zone.words, zone:zi,
     hp: Math.round(L.hp * growthHp * (isBoss ? 2.2 : 0.9 + rng()*0.25)),
     dmg: Math.round(L.dmg * growthDmg * (isBoss ? 1.4 : 0.9 + rng()*0.2))
   };
@@ -355,7 +453,7 @@ function getDifficulty(f, isBoss){
 }
 
 /* ================= GRAFIKA (SVG, velkohlavé postavy) ================= */
-/* ----- hrdina: každý kus vybavení má vlastní vzhled ----- */
+/* ----- hrdina: vykreslují se všechny nasazené kusy ----- */
 const sword = (blade, guard) => `<rect x="98" y="30" width="10" height="78" rx="3" fill="${blade}"/><rect x="90" y="104" width="26" height="8" rx="3" fill="${guard}"/>`;
 const handle = `<rect x="100" y="30" width="7" height="88" rx="3" fill="#8a5a2b"/>`;
 const WEAPON_ART = {
@@ -367,7 +465,6 @@ const WEAPON_ART = {
   w5: sword("#fff6c0","#f2b705") + `<circle cx="103" cy="108" r="4" fill="#4fc3ff"/>`,
   w6: `<rect x="100" y="14" width="7" height="104" rx="3" fill="#8a5a2b"/><path d="M103 -12 L114 18 L92 18Z" fill="#ffd84a"/><path d="M107 40 L120 52 L107 60Z" fill="#d9372b"/>`
 };
-const sleeve = "#ffd9b0";
 const ARMOR_ART = {
   none:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#8a6a4a"/>`},
   a1:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#a0703a"/>`,
@@ -375,79 +472,181 @@ const ARMOR_ART = {
   a2:{back:`<path d="M34 98 L20 146 L100 146 L86 98Z" fill="#2e7d3a"/>`, body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#3fa34d"/>`,
       front:`<circle cx="60" cy="104" r="5" fill="#f2b705"/>`},
   a3:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#aab4bc"/>`,
-      front:`<path d="M42 108 h36 M42 116 h36 M42 124 h36" stroke="#6d7a84" stroke-width="2" fill="none"/><circle cx="36" cy="106" r="9" fill="#2f7fd1"/><circle cx="84" cy="106" r="9" fill="#2f7fd1"/>`},
+      front:`<path d="M42 108 h36 M42 116 h36 M42 124 h36" stroke="#6d7a84" stroke-width="2" fill="none"/>`},
   a4:{body:`<rect x="34" y="100" width="52" height="46" rx="10" fill="#5b3fa0"/>`,
       front:`<circle cx="46" cy="114" r="2.5" fill="#ffd84a" stroke="none"/><circle cx="72" cy="124" r="2.5" fill="#ffd84a" stroke="none"/><circle cx="56" cy="134" r="2.5" fill="#ffd84a" stroke="none"/><rect x="34" y="118" width="52" height="5" fill="#ffd84a"/>`,
       top:`<ellipse cx="60" cy="34" rx="48" ry="9" fill="#5b3fa0"/><path d="M34 34 L58 -10 L86 34Z" fill="#5b3fa0"/><rect x="38" y="26" width="46" height="6" fill="#ffd84a" stroke="none"/>`},
   a5:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#b53b3b"/>`,
-      front:`<path d="M44 108 q4 4 8 0 q4 4 8 0 q4 4 8 0 M44 118 q4 4 8 0 q4 4 8 0 q4 4 8 0 M44 128 q4 4 8 0 q4 4 8 0 q4 4 8 0" fill="none" stroke="#7a1f1f" stroke-width="2.5"/><path d="M26 106 L34 84 L46 104Z M94 106 L86 84 L74 104Z" fill="#f2b705"/>`},
+      front:`<path d="M44 108 q4 4 8 0 q4 4 8 0 q4 4 8 0 M44 118 q4 4 8 0 q4 4 8 0 q4 4 8 0 M44 128 q4 4 8 0 q4 4 8 0 q4 4 8 0" fill="none" stroke="#7a1f1f" stroke-width="2.5"/>`},
   a6:{back:`<path d="M38 104 Q-8 70 4 30 Q24 66 40 80Z M82 104 Q128 70 116 30 Q96 66 80 80Z" fill="#fff"/>`, body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#fffbe9"/>`,
       front:`<rect x="38" y="100" width="44" height="6" fill="#f2b705"/><rect x="38" y="127" width="44" height="6" fill="#f2b705"/>`,
       top:`<ellipse cx="60" cy="-6" rx="24" ry="7" fill="none" stroke="#f2b705" stroke-width="5"/>`}
 };
-const JEWEL_ART = {
-  j1:`<circle cx="37" cy="127" r="6" fill="none" stroke="#c96a2b" stroke-width="3"/>`,
-  j2:`<path d="M40 98 Q60 122 80 98" fill="none" stroke="#ff7a8a" stroke-width="7" stroke-dasharray="0.1 9" stroke-linecap="round"/>`,
-  j3:`<circle cx="37" cy="127" r="7" fill="none" stroke="#cfd6dc" stroke-width="2.5"/><circle cx="37" cy="121" r="4.5" fill="#7fb8ff"/>`,
-  j4:`<path d="M42 98 Q60 118 78 98" fill="none" stroke="#cfd6dc" stroke-width="3"/><circle cx="60" cy="112" r="8" fill="#cfd6dc"/><circle cx="60" cy="112" r="3.5" fill="#8a3fc7" stroke="none"/>`,
-  j5:`<path d="M30 30 L36 4 L48 20 L60 -2 L72 20 L84 4 L90 30Z" fill="#ffd84a"/><circle cx="60" cy="14" r="3.5" fill="#7fe0ff" stroke="none"/><circle cx="40" cy="20" r="2.5" fill="#d9372b" stroke="none"/><circle cx="80" cy="20" r="2.5" fill="#d9372b" stroke="none"/>`,
-  j6:`<path d="M42 98 Q60 126 78 98" fill="none" stroke="#f2b705" stroke-width="4"/><circle cx="60" cy="116" r="10" fill="#ffd84a"/><circle cx="60" cy="116" r="4" fill="#d9372b" stroke="none"/>`
+// parametrické kusy: c = hlavní barva podle rarity, d = doplňková, v = varianta tvaru (0/1), side = 0 levá / 1 pravá strana
+const COL = {green:["#6fbf5a","#3a7a34"], blue:["#4f93e8","#2a5db0"], yellow:["#ffd84a","#c98f00"]};
+const GEAR_ART = {
+  helmet:(c,d,v)=> `<path d="M18 50 Q18 6 60 6 Q102 6 102 50Z" fill="${c}"/><rect x="16" y="42" width="88" height="9" rx="3" fill="${d}"/>` +
+    (v ? `<path d="M60 6 Q72 -12 94 -6 Q78 4 66 10Z" fill="${d}"/><rect x="56" y="48" width="8" height="20" rx="2" fill="${d}"/>` : `<circle cx="60" cy="20" r="5" fill="${d}"/>`),
+  shoulders:(c,d,v)=> [[34,106],[86,106]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="11" fill="${c}"/><circle cx="${x}" cy="${y}" r="5" fill="${d}" stroke="none"/>` +
+    (v ? `<path d="M${x-6} ${y-8} L${x} ${y-22} L${x+6} ${y-8}Z" fill="${d}"/>` : "")).join(""),
+  gloves:(c,d,v)=> [[37,126],[92,126]].map(([x,y]) => `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="${c}"/><rect x="${x-10}" y="${y-10}" width="20" height="6" rx="2" fill="${d}"/>` +
+    (v ? `<path d="M${x-6} ${y+8} l3 5 l3 -5 l3 5 l3 -5" fill="none" stroke="${d}" stroke-width="3"/>` : "")).join(""),
+  boots:(c,d,v)=> [40,64].map(x => `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="${c}"/><rect x="${x-2}" y="126" width="20" height="7" rx="2" fill="${d}"/>` +
+    (v ? `<path d="M${x+16} 140 l10 -4 l-2 12z" fill="${d}"/>` : "")).join(""),
+  shield:(c,d,v)=> v ? `<path d="M6 94 H38 V120 Q22 142 6 120Z" fill="${c}"/><path d="M22 98 V128 M10 110 H34" stroke="${d}" stroke-width="4" fill="none"/>`
+                     : `<circle cx="22" cy="114" r="16" fill="${c}"/><circle cx="22" cy="114" r="7" fill="${d}"/>`,
+  ring:(c,d,v,s)=> { const x = s ? 93 : 37; return `<circle cx="${x}" cy="129" r="7" fill="none" stroke="${d}" stroke-width="3"/><circle cx="${x}" cy="122" r="${v?5:3.5}" fill="${c}"/>`; },
+  earring:(c,d,v,s)=> { const x = s ? 104 : 16; return v ? `<circle cx="${x}" cy="76" r="7" fill="none" stroke="${d}" stroke-width="3"/><circle cx="${x}" cy="85" r="3.5" fill="${c}"/>`
+                                                        : `<circle cx="${x}" cy="70" r="3.5" fill="${d}"/><path d="M${x} 74 l-5 9 l5 7 l5 -7z" fill="${c}"/>`; },
+  belt:(c,d,v)=> `<rect x="38" y="121" width="44" height="9" fill="${d}"/><rect x="53" y="118" width="14" height="15" rx="2" fill="${c}"/>` +
+    (v ? `<circle cx="44" cy="125.5" r="2" fill="${c}" stroke="none"/><circle cx="76" cy="125.5" r="2" fill="${c}" stroke="none"/>` : ""),
+  amulet:(c,d,v)=> `<path d="M42 98 Q60 120 78 98" fill="none" stroke="${d}" stroke-width="3"/>` +
+    (v ? `<path d="M60 108 L69 118 L60 130 L51 118Z" fill="${c}"/>` : `<circle cx="60" cy="116" r="8" fill="${c}"/><circle cx="60" cy="116" r="3" fill="${d}" stroke="none"/>`),
+  trinket:(c,d,v,s)=> { const x = s ? 80 : 40; return `<path d="M${x} 131 V137" stroke="${d}" stroke-width="2" fill="none"/>` +
+    (v ? `<rect x="${x-3}" y="137" width="6" height="4" fill="${d}"/><circle cx="${x}" cy="145" r="5" fill="${c}"/>` : `<circle cx="${x}" cy="142" r="5.5" fill="${c}"/><circle cx="${x}" cy="142" r="2" fill="${d}" stroke="none"/>`); }
 };
+function gearSVG(key){
+  const it = equipped(key);
+  if(!it) return "";
+  const [c,d] = COL[it.rar], side = key.endsWith("2") ? 1 : 0;
+  const art = GEAR_ART[it.slot](c, d, it.v, side);
+  return it.rar === "yellow" ? `<g style="filter:drop-shadow(0 0 3px #ffd84a)">${art}</g>` : art;
+}
 function heroSVG(){
-  const w = equipped("weapon"), a = equipped("armor"), j = equipped("jewelry");
+  const w = equipped("weapon"), a = equipped("armor");
   const A = ARMOR_ART[a ? a.id : "none"];
   const glow = w && w.rar === "yellow" ? ' style="filter:drop-shadow(0 0 5px #ffd84a)"' : "";
+  const defaultBoots = equipped("boots") ? "" : `<rect x="40" y="132" width="16" height="14" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" fill="#5e3a18"/>`;
   return `<svg viewBox="0 -14 120 164" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  ${A.back || ""}
-  <rect x="40" y="132" width="16" height="14" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" fill="#5e3a18"/>
-  ${A.body}${A.front || ""}
+  ${A.back || ""}${defaultBoots}
+  ${A.body}${A.front || ""}${gearSVG("boots")}${gearSVG("belt")}${gearSVG("trinket1")}${gearSVG("trinket2")}
   <g${glow} transform="rotate(14 100 100)">${WEAPON_ART[w ? w.id : "none"]}</g>
-  <rect x="30" y="102" width="14" height="24" rx="6" fill="${sleeve}"/><circle cx="22" cy="114" r="15" fill="#d9372b"/><circle cx="22" cy="114" r="6" fill="#f2b705"/>
-  <rect x="78" y="102" width="14" height="24" rx="6" fill="${sleeve}" transform="rotate(-20 85 105)"/>
+  <rect x="30" y="102" width="14" height="24" rx="6" fill="#ffd9b0"/>${gearSVG("shield")}
+  <rect x="78" y="102" width="14" height="24" rx="6" fill="#ffd9b0" transform="rotate(-20 85 105)"/>
+  ${gearSVG("gloves")}${gearSVG("ring1")}${gearSVG("ring2")}${gearSVG("shoulders")}
   <circle cx="60" cy="58" r="42" fill="#ffd9b0"/>
   <path d="M18 52 Q60 -14 102 52 Q60 30 18 52Z" fill="#c4491c"/>
   <circle cx="44" cy="62" r="11" fill="#fff"/><circle cx="76" cy="62" r="11" fill="#fff"/>
   <circle cx="47" cy="64" r="5" fill="#2b1a10"/><circle cx="73" cy="64" r="5" fill="#2b1a10"/>
   <path d="M42 82 Q60 98 78 82" fill="#fff"/>
   <path d="M30 48 L54 54 M90 48 L66 54" fill="none"/>
-  ${A.top || ""}${j ? JEWEL_ART[j.id] : ""}</svg>`;
+  ${A.top || ""}${gearSVG("helmet")}${gearSVG("earring1")}${gearSVG("earring2")}${gearSVG("amulet")}</svg>`;
 }
-/* ----- nepřátelé: každý vzniká z jiné kombinace tvaru hlavy, očí, tlamy, rohů, uší a doplňků ----- */
+
+/* ----- nepřátelé: tvar podle druhu (druh = poslední slovo jména); drobnosti (barevný odstín, doplněk, barva očí) se liší ----- */
+const body = (c, b) => `<rect x="30" y="98" width="60" height="40" rx="12" fill="${c}"/><ellipse cx="60" cy="120" rx="16" ry="14" fill="${b}" stroke="none"/>`;
+const feet = s => `<rect x="34" y="134" width="18" height="12" rx="4" fill="${s}"/><rect x="68" y="134" width="18" height="12" rx="4" fill="${s}"/>`;
+const arms = (s, y=88) => `<rect x="2" y="${y}" width="22" height="16" rx="6" fill="${s}"/><rect x="96" y="${y}" width="22" height="16" rx="6" fill="${s}"/>`;
+const eyes2 = (y, col, r=10, pr=4.5) => `<circle cx="42" cy="${y}" r="${r}" fill="#fff8c0"/><circle cx="78" cy="${y}" r="${r}" fill="#fff8c0"/><circle cx="44" cy="${y+2}" r="${pr}" fill="${col}"/><circle cx="76" cy="${y+2}" r="${pr}" fill="${col}"/>`;
+const brows = y => `<path d="M26 ${y-16} L54 ${y-7} M94 ${y-16} L66 ${y-7}" fill="none" stroke-width="6"/>`;
+const fangs = my => `<path d="M30 ${my} Q60 ${my+24} 90 ${my}Z" fill="#3a0d0d"/><path d="M38 ${my} L44 ${my+10} L50 ${my+2} M70 ${my+2} L76 ${my+10} L82 ${my}" fill="#fff"/>`;
+const SP = {
+  Goblin:L => { const s = `hsl(${100+L.j} 55% 48%)`;
+    return `<path d="M18 52 L-8 34 L16 78Z M102 52 L128 34 L104 78Z" fill="${s}"/>${body("hsl(30 40% 30%)","hsl(30 35% 45%)")}${feet(s)}${arms(s)}
+      <ellipse cx="60" cy="62" rx="46" ry="42" fill="${s}"/>${eyes2(62,"#d9372b",11,4)}${brows(62)}<path d="M56 74 L60 82 L64 74Z" fill="${s}"/>${fangs(86)}`; },
+  "Skřet":L => { const s = `hsl(${85+L.j} 32% 40%)`;
+    return `${body("hsl(20 20% 25%)","hsl(20 20% 38%)")}${feet(s)}${arms(s)}<circle cx="22" cy="98" r="11" fill="#6d7a84"/><circle cx="98" cy="98" r="11" fill="#6d7a84"/>
+      <path d="M16 50 L2 36 L20 70Z M104 50 L118 36 L100 70Z" fill="${s}"/><rect x="14" y="22" width="92" height="82" rx="20" fill="${s}"/>
+      ${eyes2(60,"#ff7a00",8,4)}${brows(60)}<path d="M40 90 L34 68 L48 86Z M80 90 L86 68 L72 86Z" fill="#fffbe9"/><path d="M42 90 H78" stroke-width="6" fill="none"/>`; },
+  Troll:L => { const s = `hsl(${150+L.j} 25% 42%)`;
+    return `<path d="M30 10 L38 -4 L46 10 M52 8 L60 -8 L68 8 M76 10 L84 -4 L92 10" fill="none" stroke="#3a5a2a" stroke-width="5"/>
+      <rect x="22" y="94" width="76" height="46" rx="16" fill="hsl(30 30% 30%)"/>${feet(s)}${arms(s,86)}
+      <circle cx="10" cy="62" r="10" fill="${s}"/><circle cx="110" cy="62" r="10" fill="${s}"/><ellipse cx="60" cy="68" rx="52" ry="38" fill="${s}"/>
+      <circle cx="42" cy="58" r="7" fill="#fff8c0"/><circle cx="78" cy="58" r="7" fill="#fff8c0"/><circle cx="43" cy="59" r="3" fill="#d9372b"/><circle cx="77" cy="59" r="3" fill="#d9372b"/>
+      ${brows(58)}<ellipse cx="60" cy="74" rx="13" ry="10" fill="hsl(150 22% 32%)"/><path d="M30 88 Q60 100 90 88" fill="none" stroke-width="5"/>
+      <path d="M40 90 L36 76 L48 88Z M80 90 L84 76 L72 88Z" fill="#fffbe9"/><circle cx="30" cy="48" r="3" fill="#3a5a2a" stroke="none"/><circle cx="92" cy="80" r="3" fill="#3a5a2a" stroke="none"/>`; },
+  Imp:L => { const s = `hsl(${5+L.j} 70% 50%)`;
+    return `<path d="M30 96 Q-10 60 -6 100 Q10 96 18 116 Q26 104 34 118Z M90 96 Q130 60 126 100 Q110 96 102 116 Q94 104 86 118Z" fill="#8a1f1f"/>
+      <path d="M92 130 Q126 130 122 100" fill="none" stroke="${s}" stroke-width="6"/><path d="M122 100 l-8 -2 l8 -10 l8 10z" fill="${s}"/>
+      ${body("#5b1a1a","#7a2a2a")}${feet(s)}${arms(s)}<path d="M20 44 L10 8 L40 30Z M100 44 L110 8 L80 30Z" fill="#2b1a10"/>
+      <path d="M16 56 L-4 44 L14 74Z M104 56 L124 44 L106 74Z" fill="${s}"/><ellipse cx="60" cy="62" rx="44" ry="40" fill="${s}"/>${eyes2(60,"#2b1a10",10,4)}${brows(60)}
+      <path d="M32 84 Q60 108 88 84" fill="#3a0d0d"/><path d="M40 85 L45 94 L50 87 M70 87 L75 94 L80 85" fill="#fff"/>`; },
+  Ogr:L => { const s = `hsl(${60+L.j} 42% 50%)`;
+    return `<path d="M106 40 L120 44 L112 106 L102 102Z" fill="#8a5a2b"/><path d="M118 52 l8 2 M116 66 l8 2" stroke="#5e3a18" stroke-width="3"/>
+      <rect x="22" y="92" width="76" height="48" rx="18" fill="${s}"/><path d="M26 124 H94 V140 H26Z" fill="#8a5a2b"/>${feet(s)}${arms(s,84)}
+      <ellipse cx="60" cy="60" rx="44" ry="42" fill="${s}"/><circle cx="14" cy="62" r="8" fill="${s}"/><circle cx="106" cy="62" r="8" fill="${s}"/>
+      ${eyes2(54,"#2b1a10",8,4)}${brows(54)}<ellipse cx="60" cy="68" rx="9" ry="7" fill="hsl(60 35% 40%)"/><path d="M26 84 Q60 74 94 84 L88 100 Q60 108 32 100Z" fill="#3a0d0d"/>
+      <path d="M38 86 L34 70 L46 82Z M82 86 L86 70 L74 82Z" fill="#fffbe9"/>`; },
+  Slizoun:L => { const s = `hsl(${130+L.j} 70% 50%)`;
+    return `<path d="M6 144 Q-4 104 18 70 Q36 18 60 18 Q86 18 102 70 Q124 104 114 144Z" fill="${s}"/><path d="M20 144 V152 M60 144 V156 M96 144 V150" stroke="${s}" stroke-width="9"/>
+      <ellipse cx="40" cy="44" rx="10" ry="6" fill="#fff" opacity=".6" stroke="none"/><circle cx="34" cy="120" r="5" fill="#fff" opacity=".5" stroke="none"/><circle cx="88" cy="110" r="7" fill="#fff" opacity=".5" stroke="none"/>
+      ${eyes2(66,"#2b1a10",12,5)}<path d="M36 94 Q60 116 84 94" fill="none" stroke-width="5"/>`; },
+  "Netopýr":L => { const s = `hsl(${270+L.j} 25% 28%)`;
+    return `<path d="M30 86 Q0 30 -10 70 Q2 72 4 96 Q14 88 20 108 Q26 96 34 110Z M90 86 Q120 30 130 70 Q118 72 116 96 Q106 88 100 108 Q94 96 86 110Z" fill="#4a3a63"/>
+      ${body(s,"hsl(270 15% 45%)")}${feet(s)}<path d="M24 44 L16 -8 L50 26Z M96 44 L104 -8 L70 26Z" fill="${s}"/><path d="M26 36 L22 4 L42 26Z M94 36 L98 4 L78 26Z" fill="#ff9fb2" stroke="none"/>
+      <ellipse cx="60" cy="62" rx="40" ry="38" fill="${s}"/>${eyes2(58,"#ff2b2b",9,4)}<path d="M54 74 L60 80 L66 74Z" fill="#1a1a1a"/>
+      <path d="M44 84 Q60 98 76 84" fill="#3a0d0d"/><path d="M50 86 L53 96 L57 87 M63 87 L67 96 L70 86" fill="#fff"/>`; },
+  Kostlivec:L => { const b = "#f1ead6";
+    return `<rect x="36" y="98" width="48" height="40" rx="10" fill="#2b1a10"/><path d="M42 108 H78 M42 118 H78 M42 128 H78 M60 98 V138" stroke="${b}" stroke-width="5" fill="none"/>
+      <rect x="40" y="136" width="14" height="10" rx="3" fill="${b}"/><rect x="66" y="136" width="14" height="10" rx="3" fill="${b}"/><rect x="6" y="92" width="14" height="8" rx="4" fill="${b}"/><rect x="100" y="92" width="14" height="8" rx="4" fill="${b}"/>
+      <path d="M20 96 H36 M84 96 H100" stroke="${b}" stroke-width="6" fill="none"/>
+      <ellipse cx="60" cy="58" rx="42" ry="40" fill="${b}"/><rect x="38" y="84" width="44" height="22" rx="6" fill="${b}"/>
+      <ellipse cx="42" cy="58" rx="13" ry="15" fill="#1a1a1a"/><ellipse cx="78" cy="58" rx="13" ry="15" fill="#1a1a1a"/>
+      <circle cx="42" cy="60" r="3.5" fill="${L.eye}" stroke="none"/><circle cx="78" cy="60" r="3.5" fill="${L.eye}" stroke="none"/>
+      <path d="M60 72 L54 84 H66Z" fill="#1a1a1a"/><path d="M44 94 H76 M52 86 V104 M60 86 V104 M68 86 V104" stroke-width="3" fill="none"/>`; },
+  Yetti:L => { const f = "hsl(200 45% 94%)";
+    return `${body(f,"hsl(200 40% 98%)")}<rect x="30" y="132" width="24" height="16" rx="7" fill="${f}"/><rect x="66" y="132" width="24" height="16" rx="7" fill="${f}"/>
+      <rect x="0" y="84" width="26" height="22" rx="9" fill="${f}"/><rect x="94" y="84" width="26" height="22" rx="9" fill="${f}"/>
+      <path d="M12 62 L4 44 L18 46 L16 26 L30 36 L34 16 L46 28 L60 10 L74 28 L86 16 L90 36 L104 26 L102 46 L116 44 L108 62 L118 80 L100 84 L104 102 L84 96 L60 110 L36 96 L16 102 L20 84 L2 80Z" fill="${f}"/>
+      <ellipse cx="60" cy="68" rx="32" ry="28" fill="#9fd3e6"/>${eyes2(62,"#2b1a10",9,4.5)}${brows(62)}${fangs(84)}`; },
+  Golem:L => { const s = `hsl(210 8% 52%)`;
+    return `<rect x="22" y="94" width="76" height="46" rx="6" fill="${s}"/><rect x="26" y="136" width="26" height="12" fill="${s}"/><rect x="68" y="136" width="26" height="12" fill="${s}"/>
+      <rect x="-4" y="88" width="28" height="30" rx="5" fill="${s}"/><rect x="96" y="88" width="28" height="30" rx="5" fill="${s}"/>
+      <path d="M40 104 L46 120 L40 132 M80 100 L74 116" fill="none" stroke="#3b4248" stroke-width="3"/><circle cx="36" cy="100" r="6" fill="#4a8a3a" stroke="none"/><circle cx="92" cy="130" r="5" fill="#4a8a3a" stroke="none"/>
+      <rect x="22" y="22" width="76" height="68" rx="8" fill="${s}"/><path d="M44 24 L52 40 L44 54 M84 90 L76 74" fill="none" stroke="#3b4248" stroke-width="3"/>
+      <rect x="32" y="48" width="20" height="14" rx="3" fill="#ffb300"/><rect x="68" y="48" width="20" height="14" rx="3" fill="#ffb300"/><path d="M36 78 H84" stroke-width="6" fill="none"/>`; },
+  "Démon":L => { const s = `hsl(${350+L.j} 60% 38%)`;
+    return `<path d="M30 92 Q-12 50 -8 96 Q8 92 16 114 Q24 100 32 116Z M90 92 Q132 50 128 96 Q112 92 104 114 Q96 100 88 116Z" fill="#2b1a10"/>
+      <path d="M96 130 Q126 130 122 102" fill="none" stroke="${s}" stroke-width="6"/><path d="M122 102 l-8 -2 l8 -10 l8 10z" fill="${s}"/>
+      ${body("#2b1a10","#4a2a2a")}${feet(s)}${arms(s)}<path d="M26 40 Q-8 30 2 -8 Q16 18 38 24Z M94 40 Q128 30 118 -8 Q104 18 82 24Z" fill="#2b1a10"/>
+      <ellipse cx="60" cy="62" rx="44" ry="42" fill="${s}"/><circle cx="42" cy="60" r="10" fill="#ffd400"/><circle cx="78" cy="60" r="10" fill="#ffd400"/>
+      <rect x="40" y="52" width="4" height="16" fill="#1a1a1a" stroke="none"/><rect x="76" y="52" width="4" height="16" fill="#1a1a1a" stroke="none"/>${brows(60)}
+      <path d="M48 98 L60 120 L72 98Z" fill="#2b1a10"/>${fangs(82)}`; },
+  Vlkodlak:L => { const f = `hsl(${25+L.j} 45% 32%)`;
+    return `${body(f,"hsl(30 35% 48%)")}<rect x="30" y="132" width="22" height="14" rx="5" fill="${f}"/><rect x="68" y="132" width="22" height="14" rx="5" fill="${f}"/>
+      <rect x="2" y="86" width="24" height="20" rx="8" fill="${f}"/><rect x="94" y="86" width="24" height="20" rx="8" fill="${f}"/><path d="M6 106 l3 8 l3 -8 M14 106 l3 8 l3 -8 M98 106 l3 8 l3 -8 M106 106 l3 8 l3 -8" fill="#fff"/>
+      <path d="M22 44 L12 -4 L52 28Z M98 44 L108 -4 L68 28Z" fill="${f}"/><path d="M24 38 L20 8 L42 28Z M96 38 L100 8 L78 28Z" fill="#c98a6b" stroke="none"/>
+      <path d="M14 62 L0 72 L16 80Z M106 62 L120 72 L104 80Z" fill="${f}"/><ellipse cx="60" cy="60" rx="42" ry="40" fill="${f}"/>
+      <ellipse cx="60" cy="82" rx="24" ry="18" fill="hsl(30 35% 52%)"/><ellipse cx="60" cy="74" rx="8" ry="6" fill="#1a1a1a"/>
+      <circle cx="42" cy="54" r="9" fill="#ffe14a"/><circle cx="78" cy="54" r="9" fill="#ffe14a"/><rect x="41" y="47" width="3" height="14" fill="#1a1a1a" stroke="none"/><rect x="77" y="47" width="3" height="14" fill="#1a1a1a" stroke="none"/>${brows(54)}
+      <path d="M44 88 Q60 102 76 88" fill="#3a0d0d"/><path d="M48 90 L51 98 L55 91 M65 91 L69 98 L72 90" fill="#fff"/>`; },
+  "Zombík":L => { const s = `hsl(${95+L.j} 25% 58%)`;
+    return `${feet(s)}<rect x="30" y="98" width="60" height="40" rx="10" fill="#3f5a7a"/><path d="M40 106 L46 116 M72 112 L82 124" stroke="#2b1a10" stroke-width="3"/><path d="M34 126 H48 L52 138 H34Z" fill="${s}"/>
+      <rect x="2" y="90" width="22" height="16" rx="6" fill="${s}"/><rect x="96" y="90" width="22" height="16" rx="6" fill="${s}"/>
+      <path d="M36 28 Q46 6 60 20 Q74 6 84 28Z" fill="#ff9fb2"/><ellipse cx="60" cy="62" rx="44" ry="42" fill="${s}"/>
+      <circle cx="42" cy="60" r="12" fill="#fff"/><circle cx="44" cy="63" r="4" fill="#2b1a10"/><circle cx="78" cy="56" r="8" fill="#fff"/><circle cx="76" cy="60" r="3" fill="#2b1a10"/>
+      <path d="M26 44 L56 52" fill="none" stroke-width="6"/><path d="M32 88 Q60 100 90 86" fill="#3a0d0d"/><path d="M38 88 V94 M48 91 V97 M58 93 V98 M68 92 V97 M78 90 V95" stroke="#fff" stroke-width="3" fill="none"/>
+      <path d="M86 40 L96 52 M88 52 L96 44" stroke="#7a1f1f" stroke-width="3" fill="none"/>`; },
+  "Šotek":L => {
+    return `${body("#2f7fd1","#4f93e8")}<rect x="30" y="118" width="60" height="7" fill="#5e3a18"/><rect x="34" y="136" width="18" height="12" rx="4" fill="#5e3a18"/><rect x="68" y="136" width="18" height="12" rx="4" fill="#5e3a18"/>
+      <rect x="4" y="90" width="20" height="16" rx="6" fill="#ffcfa0"/><rect x="96" y="90" width="20" height="16" rx="6" fill="#ffcfa0"/>
+      <path d="M16 62 L-2 50 L16 80Z M104 62 L122 50 L104 80Z" fill="#ffcfa0"/><ellipse cx="60" cy="64" rx="42" ry="38" fill="#ffcfa0"/>
+      <circle cx="44" cy="58" r="5" fill="#2b1a10"/><circle cx="76" cy="58" r="5" fill="#2b1a10"/><path d="M34 48 L52 52 M86 48 L68 52" fill="none" stroke-width="4"/>
+      <circle cx="60" cy="70" r="10" fill="#ff9a8a"/><path d="M18 76 Q60 156 102 76 Q60 94 18 76Z" fill="#fff"/><path d="M48 88 Q60 96 72 88" fill="none" stroke-width="3"/>
+      <path d="M16 38 L60 -10 L104 38Q60 28 16 38Z" fill="#c0392b"/><rect x="18" y="32" width="84" height="8" rx="3" fill="#8a1f1f"/>`; },
+  Pavoukoun:L => { const s = `hsl(${280+L.j} 40% 22%)`;
+    return `<path d="M30 80 L2 56 L-8 100 M28 92 L-4 96 L-6 134 M30 104 L0 130 L4 150 M32 114 L10 146 L22 158 M90 80 L118 56 L128 100 M92 92 L124 96 L126 134 M90 104 L120 130 L116 150 M88 114 L110 146 L98 158" fill="none" stroke="${s}" stroke-width="5"/>
+      <ellipse cx="60" cy="116" rx="34" ry="28" fill="${s}"/><path d="M48 112 L60 132 L72 112Z" fill="#d9372b" stroke="none"/><ellipse cx="60" cy="66" rx="36" ry="32" fill="${s}"/>
+      <circle cx="46" cy="56" r="7" fill="#fff"/><circle cx="74" cy="56" r="7" fill="#fff"/><circle cx="36" cy="70" r="5" fill="#fff"/><circle cx="84" cy="70" r="5" fill="#fff"/><circle cx="60" cy="52" r="5" fill="#fff"/><circle cx="60" cy="68" r="4" fill="#fff"/>
+      <circle cx="46" cy="57" r="3" fill="${L.eye}" stroke="none"/><circle cx="74" cy="57" r="3" fill="${L.eye}" stroke="none"/><path d="M48 88 Q42 106 54 100Z M72 88 Q78 106 66 100Z" fill="#fff"/>`; },
+  "Faraón":L => { const b = "#e6d8b0", d = "#b9a77a";
+    return `${body(b,"#f3e9c8")}<path d="M34 108 L86 120 M34 124 L86 112" stroke="${d}" stroke-width="4" fill="none"/>${feet(b)}${arms(b)}<path d="M104 96 Q124 110 116 140 Q112 120 100 112" fill="${b}"/>
+      <path d="M12 40 L60 -4 L108 40 L112 92 L92 104 L28 104 L8 92Z" fill="#2f7fd1"/><path d="M12 40 L60 -4 L108 40" fill="none" stroke="#f2b705" stroke-width="5"/>
+      <ellipse cx="60" cy="64" rx="38" ry="38" fill="${b}"/><path d="M26 44 L94 36 M24 58 L96 54 M26 72 L94 74 M32 86 L88 88" stroke="${d}" stroke-width="4" fill="none"/>
+      <rect x="28" y="52" width="64" height="16" rx="6" fill="#1a1a1a"/><circle cx="44" cy="60" r="5" fill="#ffe14a" stroke="none"/><circle cx="76" cy="60" r="5" fill="#ffe14a" stroke="none"/>`; }
+};
+const ACC_OK = ["Goblin","Skřet","Troll","Ogr","Zombík","Imp"]; // druhy, které mají na hlavě místo pro doplněk (obvaz, páska přes oko, jizva…)
+function accSVG(L){
+  const y = 62;
+  return [``,
+    `<circle cx="78" cy="${y}" r="12" fill="#1a1a1a"/><path d="M18 ${y-16} L102 ${y+6}" fill="none" stroke="#1a1a1a" stroke-width="4"/>`,
+    `<path d="M86 ${y-22} L66 ${y+22}" fill="none" stroke="#7a1f1f" stroke-width="4"/><path d="M80 ${y-6} l10 4 M76 ${y+6} l10 4" fill="none" stroke="#7a1f1f" stroke-width="3"/>`,
+    `<path d="M14 44 Q60 18 106 44 L104 56 Q60 32 16 58Z" fill="#d9372b"/>`, ``][L.acc];
+}
 function enemySVG(e){
-  const L = e.look, s = L.skin;
-  const eyeY = [62,66,56,62][L.head], my = eyeY + 22;
-  const head = [
-    `<ellipse cx="60" cy="62" rx="46" ry="44" fill="${s}"/>`,
-    `<ellipse cx="60" cy="68" rx="52" ry="36" fill="${s}"/>`,
-    `<ellipse cx="60" cy="58" rx="38" ry="48" fill="${s}"/>`,
-    `<rect x="14" y="20" width="92" height="84" rx="24" fill="${s}"/>`][L.head];
-  const horns = [``,
-    `<path d="M22 40 L8 6 L40 28Z M98 40 L112 6 L80 28Z" fill="#f4ecd0"/>`,
-    `<path d="M30 30 L38 2 L50 24Z M52 22 L60 -6 L68 22Z M70 24 L82 2 L90 30Z" fill="#f4ecd0"/>`,
-    `<path d="M44 24 L34 -4 M76 24 L86 -4" fill="none" stroke-width="4"/><circle cx="34" cy="-6" r="6" fill="#f2b705"/><circle cx="86" cy="-6" r="6" fill="#f2b705"/>`][L.horns];
-  const ears = [``,
-    `<path d="M16 56 L-4 38 L14 76Z M104 56 L124 38 L106 76Z" fill="${s}"/>`,
-    `<circle cx="12" cy="62" r="11" fill="${s}"/><circle cx="108" cy="62" r="11" fill="${s}"/>`][L.ears];
-  let eyes;
-  if(L.eyes === 1) eyes = `<circle cx="60" cy="${eyeY}" r="17" fill="#fff8c0"/><circle cx="60" cy="${eyeY+2}" r="8" fill="${L.eye}"/><circle cx="60" cy="${eyeY+2}" r="3" fill="#1a1a1a" stroke="none"/>`;
-  else if(L.eyes === 2) eyes = `<circle cx="42" cy="${eyeY}" r="10" fill="#fff8c0"/><circle cx="78" cy="${eyeY}" r="10" fill="#fff8c0"/><circle cx="44" cy="${eyeY+2}" r="4.5" fill="${L.eye}"/><circle cx="76" cy="${eyeY+2}" r="4.5" fill="${L.eye}"/><path d="M26 ${eyeY-16} L54 ${eyeY-7} M94 ${eyeY-16} L66 ${eyeY-7}" fill="none" stroke-width="6"/>`;
-  else eyes = `<circle cx="36" cy="${eyeY+6}" r="8" fill="#fff8c0"/><circle cx="84" cy="${eyeY+6}" r="8" fill="#fff8c0"/><circle cx="60" cy="${eyeY-10}" r="8" fill="#fff8c0"/><circle cx="36" cy="${eyeY+7}" r="3.5" fill="${L.eye}"/><circle cx="84" cy="${eyeY+7}" r="3.5" fill="${L.eye}"/><circle cx="60" cy="${eyeY-9}" r="3.5" fill="${L.eye}"/>`;
-  const mouth = [
-    `<path d="M30 ${my} Q60 ${my+24} 90 ${my}Z" fill="#3a0d0d"/><path d="M38 ${my} L44 ${my+10} L50 ${my+2} M70 ${my+2} L76 ${my+10} L82 ${my}" fill="#fff"/>`,
-    `<path d="M36 ${my+2} Q60 ${my+22} 84 ${my+2}" fill="none" stroke-width="5"/>`,
-    `<path d="M30 ${my} Q60 ${my+24} 90 ${my}Z" fill="#3a0d0d"/><path d="M48 ${my+8} Q60 ${my+28} 72 ${my+8}Z" fill="#ff6f91"/>`,
-    `<rect x="34" y="${my-2}" width="52" height="16" rx="4" fill="#fff"/><path d="M47 ${my-2} V${my+14} M60 ${my-2} V${my+14} M73 ${my-2} V${my+14}" fill="none" stroke-width="2.5"/>`][L.mouth];
-  const acc = [``,
-    `<circle cx="78" cy="${eyeY}" r="12" fill="#1a1a1a"/><path d="M18 ${eyeY-16} L102 ${eyeY+6}" fill="none" stroke="#1a1a1a" stroke-width="4"/>`,
-    `<path d="M86 ${eyeY-22} L66 ${eyeY+22}" fill="none" stroke="#7a1f1f" stroke-width="4"/><path d="M80 ${eyeY-6} l10 4 M76 ${eyeY+6} l10 4" fill="none" stroke="#7a1f1f" stroke-width="3"/>`,
-    `<path d="M14 44 Q60 18 106 44 L104 56 Q60 32 16 58Z" fill="#d9372b"/>`,
-    L.eyes === 3 ? `` : `<path d="M16 46 Q16 8 60 8 Q104 8 104 46Z" fill="#9aa5ad"/><rect x="14" y="42" width="92" height="8" rx="3" fill="#6d7a84"/>`][L.acc];
   const crown = e.isBoss ? `<path d="M34 26 L40 2 L52 18 L60 -6 L68 18 L80 2 L86 26Z" fill="#f2b705"/>` : "";
-  return `<svg viewBox="0 -12 120 162" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  <rect x="30" y="98" width="60" height="40" rx="12" fill="${L.body}"/><ellipse cx="60" cy="120" rx="16" ry="14" fill="${L.belly}" stroke="none"/>
-  <rect x="34" y="134" width="18" height="12" fill="${s}"/><rect x="68" y="134" width="18" height="12" fill="${s}"/>
-  <rect x="2" y="88" width="22" height="16" rx="6" fill="${s}"/><rect x="96" y="88" width="22" height="16" rx="6" fill="${s}"/>
-  ${horns}${ears}${head}${eyes}${mouth}${acc}${crown}</svg>`;
+  return `<svg viewBox="-10 -12 140 162" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+  ${SP[e.species](e.look)}${ACC_OK.includes(e.species) ? accSVG(e.look) : ""}${crown}</svg>`;
 }
 
 /* ================= OBRAZOVKY ================= */
@@ -487,42 +686,45 @@ function renderTower(){
 }
 
 /* ----- vybavení: společné karty pro obchod a inventář ----- */
-function itemCard(it, buttons, cls){
-  return `<div class="item ${it.rar} ${cls||""}"><div class="ic">${it.icon}</div><h3>${it.name}</h3>
-    <span class="rar ${it.rar}">${RARITY[it.rar].name}</span><p>${statsText(it)}</p>${buttons}</div>`;
+function itemCard(it, buttons, withDiff){
+  const equippedNow = SLOT_KEYS.some(k => save.equip[k] === it.id);
+  return `<div class="item ${it.rar}"><div class="ic">${it.icon}</div><h3>${it.name}</h3><div class="slotname">${TYPES[it.slot].label}</div>
+    <span class="rar ${it.rar}">${RARITY[it.rar].name}</span><p>${statsText(it)}</p>
+    ${withDiff && !equippedNow ? `<div class="diff">Po nasazení: ${previewEquip(it)}</div>` : ""}${buttons}</div>`;
 }
-const sellPrice = it => Math.floor(it.price / 2);
-function equipAction(it, a){
-  if(a === "on") save.equip[it.slot] = it.id;
-  else if(a === "off") save.equip[it.slot] = null;
-  else if(a === "sell" && confirm(`Prodat ${it.name} za ${sellPrice(it)} mincí?`)){
-    save.owned.splice(save.owned.indexOf(it.id), 1);
-    if(save.equip[it.slot] === it.id) save.equip[it.slot] = null;
-    save.coins += sellPrice(it);
-  }
-  persist();
+function equipButtons(it){
+  const keys = TYPES[it.slot].slots, onKey = keys.find(k => save.equip[k] === it.id);
+  if(onKey) return `<b>✅ ${keys.length > 1 ? SLOT_LABEL[onKey] : "Nasazeno"}</b><br><button class="btn small" data-a="off" data-id="${it.id}">Sundat</button>`;
+  return keys.map((k,i) => `<button class="btn green small" data-a="on" data-k="${k}" data-id="${it.id}">Nasadit${keys.length > 1 ? " " + (i+1) : ""}</button>`).join("");
+}
+function typeTabs(current, withAll){
+  return (withAll ? [["all","Vše"]] : []).concat(TYPE_KEYS.map(t => [t, TYPES[t].label]))
+    .map(([k,n]) => `<button class="btn ${k===current?"":"off"}" data-t="${k}">${n}</button>`).join("");
+}
+function bindEquip(sel, rerender){
+  document.querySelectorAll(sel + " button[data-a]").forEach(b => b.onclick = () => {
+    const it = ITEM[b.dataset.id], a = b.dataset.a;
+    if(a === "buy"){
+      if(save.coins >= it.price){ save.coins -= it.price; save.owned.push(it.id); const b4 = snap(); equipItem(it); persist(); toast(`Koupeno a nasazeno: ${it.name}<br>${diffText(b4, snap())}`); }
+    } else equipAction(it, a, b.dataset.k);
+    rerender();
+  });
 }
 
 function renderShop(){
   const t = totals();
   $("shopHero").innerHTML = heroSVG();
   $("shopCoins").textContent = `🪙 ${save.coins} mincí`;
-  $("shopTotals").innerHTML = `Bonusy: 💥 +${t.atk} % · ❤️ +${t.hp} HP · ⚡ +${t.en} % · 🪙 +${t.coin} %`;
-  $("shopTabs").innerHTML = Object.entries(SLOTS).map(([k,n]) => `<button class="btn ${k===shopSlot?"":"off"}" data-s="${k}">${n}</button>`).join("");
-  $("shopTabs").querySelectorAll("button").forEach(b => b.onclick = () => { shopSlot = b.dataset.s; renderShop(); });
-  $("shopGrid").innerHTML = ITEMS.filter(i => i.slot === shopSlot).map(it => {
-    const own = save.owned.includes(it.id), on = save.equip[it.slot] === it.id;
-    const btn = on ? `<b>✅ Nasazeno</b><br><button class="btn" data-a="off" data-id="${it.id}">Sundat</button>`
-              : own ? `<button class="btn green" data-a="on" data-id="${it.id}">Nasadit</button>`
-              : `<button class="btn gold" data-a="buy" data-id="${it.id}" ${save.coins<it.price?"disabled":""}>Koupit 🪙 ${it.price}</button>`;
-    return itemCard(it, btn);
+  $("shopTotals").innerHTML = `Bonusy: 💥 +${t.atk} % · ❤️ +${t.hp} HP · 🛡️ ${t.def} % · ⚡ +${t.en} % · 🪙 +${t.coin} %`;
+  $("shopTabs").innerHTML = typeTabs(shopType, false);
+  $("shopTabs").querySelectorAll("button").forEach(b => b.onclick = () => { shopType = b.dataset.t; renderShop(); });
+  $("shopGrid").innerHTML = ITEMS.filter(i => i.slot === shopType).map(it => {
+    const own = save.owned.includes(it.id);
+    const btn = own ? equipButtons(it)
+      : `<button class="btn gold small" data-a="buy" data-id="${it.id}" ${save.coins<it.price?"disabled":""}>Koupit 🪙 ${it.price}</button>`;
+    return itemCard(it, btn, true);
   }).join("");
-  $("shopGrid").querySelectorAll("button[data-a]").forEach(b => b.onclick = () => {
-    const it = ITEM[b.dataset.id], a = b.dataset.a;
-    if(a === "buy"){ if(save.coins >= it.price){ save.coins -= it.price; save.owned.push(it.id); save.equip[it.slot] = it.id; persist(); } }
-    else equipAction(it, a);
-    renderShop();
-  });
+  bindEquip("#shopGrid", renderShop);
   showScreen("s-shop");
 }
 
@@ -532,23 +734,23 @@ function renderProfile(){
   $("profInfo").innerHTML = `<h2 style="margin-top:0">🧙 ${save.name}</h2>
     <div>Level <b>${lvl}</b> · ⭐ ${save.xp} XP</div>
     <div class="bar xp"><i style="width:${save.xp%100}%"></i><span>${save.xp%100} / 100 do dalšího levelu</span></div>
-    <div>❤️ Max. životy: <b>${heroMaxHp()}</b></div>
-    <div>💥 Poškození: <b>+${Math.round((lvl-1)*5 + t.atk)} %</b> (level +${(lvl-1)*5} %, vybavení +${t.atk} %)</div>
-    <div>⚡ Energie z odpovědí: <b>+${t.en} %</b></div>
-    <div>🪙 Bonus mincí: <b>+${t.coin} %</b> · <span class="coins">🪙 ${save.coins}</span></div>
-    <div>🏰 Nejvyšší patro (${save.level}): <b>${save.best[save.level] || 0}</b></div>`;
-  $("profSlots").innerHTML = Object.entries(SLOTS).map(([slot, label]) => {
-    const it = equipped(slot);
-    return it ? itemCard(it, `<button class="btn small" data-a="off" data-id="${it.id}">Sundat</button>`)
-              : `<div class="item empty"><div class="ic">❔</div><h3>${label}</h3><p>Nic nenasazeno</p></div>`;
+    <div>❤️ Max. životy: <b>${heroMaxHp()}</b> · 🛡️ Obrana: <b>${t.def} %</b></div>
+    <div>💥 Poškození kouzel: <b>+${Math.round((lvl-1)*5 + t.atk)} %</b> <small>(level ${(lvl-1)*5} % + vybavení ${t.atk} %)</small></div>
+    <div>⚡ Energie z odpovědí: <b>+${t.en} %</b> · 🪙 Bonus mincí: <b>+${t.coin} %</b></div>
+    <div><span class="coins">🪙 ${save.coins}</span> · 🏰 Nejvyšší patro (${save.level}): <b>${save.best[save.level] || 0}</b></div>
+    <div class="spells">${ATTACKS.filter(a => !a.heal).map(a => `<div>${a.name}<b>${attackDmg(a)}</b>dmg (základ ${a.dmg})</div>`).join("")}<div>${ATTACKS[3].name}<b>+${ATTACKS[3].heal}</b>HP</div></div>`;
+  $("profSlots").innerHTML = SLOT_KEYS.map(k => {
+    const it = equipped(k);
+    return it ? `<div class="item ${it.rar}"><div class="slotname">${SLOT_LABEL[k]}</div><div class="ic">${it.icon}</div><h3>${it.name}</h3><p>${statsText(it)}</p><button class="btn small" data-a="off" data-id="${it.id}">Sundat</button></div>`
+              : `<div class="item empty"><div class="slotname">${SLOT_LABEL[k]}</div><div class="ic">❔</div><p>prázdné</p></div>`;
   }).join("");
-  const own = ITEMS.filter(i => save.owned.includes(i.id));
-  $("profInv").innerHTML = own.length ? own.map(it => {
-    const on = save.equip[it.slot] === it.id;
-    return itemCard(it, `${on ? "<b>✅ Nasazeno</b><br>" : `<button class="btn green small" data-a="on" data-id="${it.id}">Nasadit</button>`}
-      <button class="btn small" data-a="sell" data-id="${it.id}">Prodat 🪙 ${sellPrice(it)}</button>`);
-  }).join("") : `<div class="panel center" style="grid-column:1/-1">Inventář je prázdný. Kup si vybavení v obchodě nebo ho získej po bojích!</div>`;
-  document.querySelectorAll("#profSlots button[data-a], #profInv button[data-a]").forEach(b => b.onclick = () => { equipAction(ITEM[b.dataset.id], b.dataset.a); renderProfile(); });
+  $("profTabs").innerHTML = typeTabs(profType, true);
+  $("profTabs").querySelectorAll("button").forEach(b => b.onclick = () => { profType = b.dataset.t; renderProfile(); });
+  const own = ITEMS.filter(i => save.owned.includes(i.id) && (profType === "all" || i.slot === profType));
+  $("profInv").innerHTML = own.length ? own.map(it =>
+    itemCard(it, `${equipButtons(it)} <button class="btn small" data-a="sell" data-id="${it.id}">Prodat 🪙 ${sellPrice(it)}</button>`, true)).join("")
+    : `<div class="panel center" style="grid-column:1/-1">Tady zatím nic není. Kup si vybavení v obchodě nebo ho získej po bojích!</div>`;
+  bindEquip("#profSlots", renderProfile); bindEquip("#profInv", renderProfile);
   showScreen("s-profile");
 }
 
@@ -562,7 +764,7 @@ function startBattle(){
   $("bossF").classList.toggle("mega", boss.isBoss);
   $("bHeroName").textContent = `🧙 ${save.name}`;
   $("bBossName").textContent = `${f}. patro · ${boss.name}`;
-  $("attacks").innerHTML = ATTACKS.map(a => `<button class="btn ${a.color}" data-a="${a.id}">${a.name}<small>${a.heal?`+${a.heal} HP`:`${a.dmg} dmg`} · ${a.cost} ⚡</small></button>`).join("");
+  $("attacks").innerHTML = ATTACKS.map(a => `<button class="btn ${a.color}" data-a="${a.id}">${a.name}<small>${a.heal?`+${a.heal} HP`:`${attackDmg(a)} dmg`} · ${a.cost} ⚡</small></button>`).join("");
   $("attacks").querySelectorAll("button").forEach(b => b.onclick = () => useAttack(b.dataset.a));
   const d = battle.diff;
   $("log").textContent = `${boss.icon} ${boss.theme}: ${boss.name} se objevil!` + (d.timeLimit ? ` Na odpověď máš ${d.timeLimit.toFixed(0)} s.` : " Odpovídej správně, abys získal energii.");
@@ -655,7 +857,7 @@ function afterTurn(){
 function bossAttack(cb){
   const b = battle;
   if(!b || b.over) return;
-  const dmg = Math.round(b.boss.dmg * (0.8 + Math.random()*0.4));
+  const dmg = Math.max(1, Math.round(b.boss.dmg * (0.8 + Math.random()*0.4) * (1 - totals().def/100)));
   lunge($("bossF"), "lunge-l", () => {
     if(b.over) return;
     b.hero -= dmg;
@@ -676,7 +878,7 @@ function useAttack(id){
     $("log").textContent = "Vyléčil ses.";
     return updateBars();
   }
-  const dmg = Math.round(a.dmg * (1 + (heroLevel()-1)*0.05) * (1 + totals().atk/100));
+  const dmg = attackDmg(a);
   lunge($("heroF"), "lunge-r", () => {
     if(b.over) return;
     b.bossHp -= dmg;
@@ -716,8 +918,13 @@ function endBattle(won){
     if(drop){
       let note;
       if(save.owned.includes(drop.id)){ save.coins += sellPrice(drop); note = `už ho máš – prodáno za 🪙 ${sellPrice(drop)}`; }
-      else { save.owned.push(drop.id); note = "přidáno do inventáře" + (save.equip[drop.slot] ? "" : " a nasazeno"); if(!save.equip[drop.slot]) save.equip[drop.slot] = drop.id; }
-      html += `<h3>🎲 Kořist!</h3><div class="drop ${drop.rar}"><span style="font-size:2.4rem">${drop.icon}</span><br><b>${drop.name}</b><br><span class="rar ${drop.rar}">${RARITY[drop.rar].name}</span><br><small>${statsText(drop)}<br>${note}</small></div>`;
+      else {
+        save.owned.push(drop.id);
+        const free = TYPES[drop.slot].slots.find(k => !save.equip[k]);
+        if(free) save.equip[free] = drop.id;
+        note = "přidáno do inventáře" + (free ? " a nasazeno" : "");
+      }
+      html += `<h3>🎲 Kořist!</h3><div class="drop ${drop.rar}"><span style="font-size:2.4rem">${drop.icon}</span><br><b>${drop.name}</b><br><small>${TYPES[drop.slot].label}</small><br><span class="rar ${drop.rar}">${RARITY[drop.rar].name}</span><br><small>${statsText(drop)}<br>${note}</small></div>`;
     }
     html += `<h3>${boss.isBoss ? "👑 Velká truhla" : "Truhla"} – klikni!</h3><div class="chest" id="chest" title="Otevřít">🎁</div><div id="chestOut"></div>`;
     $("resTitle").textContent = "🏆 Vítězství!";
@@ -733,7 +940,7 @@ function endBattle(won){
   setTimeout(() => {
     $("resBody").innerHTML = html; showScreen("s-result");
     const c = $("chest");
-    if(c) c.onclick = () => { c.classList.add("open"); c.classList.remove("chest"); c.classList.add("chest","open"); c.textContent = "💰"; c.onclick = null;
+    if(c) c.onclick = () => { c.classList.add("open"); c.textContent = "💰"; c.onclick = null;
       $("chestOut").innerHTML = `<p><b>V truhle bylo 🪙 ${chest} mincí!</b></p>`; };
   }, 900);
 }
