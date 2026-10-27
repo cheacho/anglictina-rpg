@@ -154,6 +154,18 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .tground,.tbase{margin:0 auto}
 .q.gram{font-size:1.25rem;line-height:1.4}
 .q .gsent{display:block}
+/* prémiový vzhled vybavení podle rarity */
+.gl-blue{filter:drop-shadow(0 0 3px #5fc8ff) saturate(1.15)}
+.gl-yellow{animation:glowy 2.4s ease-in-out infinite}
+@keyframes glowy{0%,100%{filter:drop-shadow(0 0 3px #ffd84a) saturate(1.25)}50%{filter:drop-shadow(0 0 8px #fff2a0) saturate(1.45) brightness(1.1)}}
+.spark{transform-box:fill-box;transform-origin:center;animation:twinkle 1.9s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(45deg)}}
+.slot.yellow::before,.item.yellow::before{content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.5) 50%,transparent 65%);background-size:250% 100%;animation:sheen 2.8s linear infinite}
+.item{position:relative}.item.yellow::before{border-radius:10px}
+@keyframes sheen{from{background-position:200% 0}to{background-position:-100% 0}}
+.slot.blue{animation:bluepulse 2.6s ease-in-out infinite}
+@keyframes bluepulse{0%,100%{box-shadow:inset 0 0 10px rgba(47,127,209,.6),0 0 6px rgba(47,127,209,.5)}50%{box-shadow:inset 0 0 14px rgba(95,200,255,.8),0 0 12px rgba(95,200,255,.8)}}
+.item.blue{box-shadow:0 0 8px rgba(47,127,209,.5)}
 .blank{display:inline-block;min-width:70px;border-bottom:4px solid var(--red);color:var(--red);letter-spacing:2px}
 @keyframes drift{from{left:-90px}to{left:105%}}
 .fighter::after{content:"";position:absolute;left:10%;right:10%;bottom:-6px;height:14px;border-radius:50%;background:rgba(0,0,0,.3);z-index:-1}
@@ -548,6 +560,8 @@ const SLOT_KEYS = TYPE_KEYS.flatMap(t => TYPES[t].slots);
 const SLOT_LABEL = {weapon:"Zbraň",shield:"Štít",helmet:"Helma",shoulders:"Ramena",armor:"Brnění",gloves:"Rukavice",boots:"Boty",
   ring1:"Prsten 1",ring2:"Prsten 2",earring1:"Náušnice 1",earring2:"Náušnice 2",belt:"Opasek",amulet:"Amulet",trinket1:"Trinket 1",trinket2:"Trinket 2"};
 // ručně ladené zbraně a brnění (mají vlastní SVG v WEAPON_ART / ARMOR_ART)
+// barevné filtry pro varianty vybavení (index = pořadí kusu v typu; 0–5 původní barvy, 6–11 přebarvené varianty)
+const FX = ["","","","","","","hue-rotate(80deg) saturate(1.1)","sepia(.85) saturate(1.8) brightness(.95)","hue-rotate(60deg)","hue-rotate(-50deg)","hue-rotate(260deg) saturate(1.2)","hue-rotate(160deg) saturate(.6) brightness(1.3)"];
 const ITEMS = [
   {id:"w1",slot:"weapon",rar:"green", name:"Dřevěný meč",     icon:"🗡️", price:120,  atk:10},
   {id:"w2",slot:"weapon",rar:"green", name:"Železná sekera",  icon:"🪓", price:200,  atk:15},
@@ -560,28 +574,41 @@ const ITEMS = [
   {id:"a3",slot:"armor", rar:"blue",  name:"Kroužková zbroj", icon:"🛡️", price:700,  hp:55},
   {id:"a4",slot:"armor", rar:"blue",  name:"Kouzelnický hábit",icon:"🥼", price:900,  hp:70},
   {id:"a5",slot:"armor", rar:"yellow",name:"Dračí zbroj",     icon:"🐲", price:3200, hp:130},
-  {id:"a6",slot:"armor", rar:"yellow",name:"Plášť archanděla",icon:"👼", price:4800, hp:170}
+  {id:"a6",slot:"armor", rar:"yellow",name:"Plášť archanděla",icon:"👼", price:4800, hp:170},
+  // další kusy: stejný tvar (`base`) v jiných barvách (`fx` = barevný filtr)
+  {id:"w7", slot:"weapon",rar:"green", name:"Bronzový meč",    icon:"🗡️", price:260,  atk:18,  base:"w1", fx:FX[6]},
+  {id:"w8", slot:"weapon",rar:"green", name:"Bronzová sekera", icon:"🪓", price:340,  atk:24,  base:"w2", fx:FX[7]},
+  {id:"w9", slot:"weapon",rar:"blue",  name:"Fialový palcát",  icon:"🔨", price:1100, atk:44,  base:"w3", fx:FX[8]},
+  {id:"w10",slot:"weapon",rar:"blue",  name:"Hůl bouře",       icon:"🪄", price:1300, atk:52,  base:"w4", fx:FX[9]},
+  {id:"w11",slot:"weapon",rar:"yellow",name:"Čepel stínu",     icon:"⚔️", price:6500, atk:120, base:"w5", fx:FX[10]},
+  {id:"w12",slot:"weapon",rar:"yellow",name:"Kopí slunce",     icon:"🔱", price:8500, atk:150, base:"w6", fx:FX[11]},
+  {id:"a7", slot:"armor", rar:"green", name:"Lesní vesta",     icon:"🦺", price:230,  hp:35,   base:"a1", fx:FX[6]},
+  {id:"a8", slot:"armor", rar:"green", name:"Bronzový plášť",  icon:"🧥", price:300,  hp:45,   base:"a2", fx:FX[7]},
+  {id:"a9", slot:"armor", rar:"blue",  name:"Rytířská zbroj",  icon:"🛡️", price:1000, hp:85,   base:"a3", fx:"sepia(.6) saturate(2) hue-rotate(180deg)"},
+  {id:"a10",slot:"armor", rar:"blue",  name:"Hábit stínů",     icon:"🥼", price:1250, hp:100,  base:"a4", fx:FX[9]},
+  {id:"a11",slot:"armor", rar:"yellow",name:"Zbroj fénixe",    icon:"🐲", price:5800, hp:190,  base:"a5", fx:FX[10]},
+  {id:"a12",slot:"armor", rar:"yellow",name:"Plášť světla",    icon:"👼", price:8000, hp:230,  base:"a6", fx:FX[11]}
 ];
-// ostatní typy se generují: 2× zelená, 2× modrá, 2× žlutá; bonus roste podle rarity (×1 / ×2,6 / ×6), každý druhý kus je o 25 % lepší
-const RAR6 = ["green","green","blue","blue","yellow","yellow"], TIER = {green:1, blue:2.6, yellow:6}, BASE_PRICE = {green:100, blue:700, yellow:3200};
+// ostatní typy se generují: 4× zelená, 4× modrá, 4× žlutá; bonus roste podle rarity (×1 / ×2,6 / ×6) a pořadí v rarity (+18 % za každý stupeň)
+const RAR12 = ["green","green","blue","blue","yellow","yellow","green","green","blue","blue","yellow","yellow"], TIER = {green:1, blue:2.6, yellow:6}, BASE_PRICE = {green:100, blue:700, yellow:3200};
 function gen(type, names, icons, stats, factor){
   names.forEach((name, i) => {
-    const rar = RAR6[i], odd = i % 2, k = TIER[rar] * (odd ? 1.25 : 1);
-    const it = {id:type+(i+1), slot:type, rar, name, icon:icons[i % icons.length], n:i, price:Math.round(BASE_PRICE[rar]*(odd?1.3:1)*factor/10)*10};
+    const rar = RAR12[i], rank = i < 6 ? i % 2 : 2 + i % 2, k = TIER[rar] * (1 + 0.18*rank);
+    const it = {id:type+(i+1), slot:type, rar, name, icon:icons[i % icons.length], n:i, fx:FX[i], price:Math.round(BASE_PRICE[rar]*(1 + 0.3*rank)*factor/10)*10};
     for(const st in stats) it[st] = Math.max(1, Math.round(stats[st]*k));
     ITEMS.push(it);
   });
 }
-gen("shield",   ["Dřevěný štít","Kulatý štít","Železný štít","Rytířský štít","Dračí štít","Štít strážce"], ["🛡️"], {def:2, hp:5}, 1);
-gen("helmet",   ["Kožená čepice","Železná přilba","Okovaná přilba","Rytířská helma","Dračí helma","Helma krále"], ["⛑️","🪖","👑"], {hp:8, def:1}, .9);
-gen("shoulders",["Kožená ramena","Železná ramena","Ocelová ramena","Ostnatá ramena","Dračí ramena","Ramena titána"], ["🦾"], {atk:2, hp:6}, 1);
-gen("gloves",   ["Kožené rukavice","Pracovní rukavice","Ocelové rukavice","Bojové rukavice","Dračí rukavice","Rukavice berserkera"], ["🧤"], {atk:3}, .8);
-gen("boots",    ["Kožené boty","Cestovní boty","Okované boty","Rychlé boty","Dračí boty","Okřídlené boty"], ["🥾"], {en:3, hp:4}, .8);
-gen("ring",     ["Měděný prsten","Cínový prsten","Safírový prsten","Rubínový prsten","Diamantový prsten","Prsten moci"], ["💍"], {atk:2, en:2}, .9);
-gen("earring",  ["Měděné náušnice","Perlové náušnice","Safírové náušnice","Stříbrné náušnice","Zlaté náušnice","Diamantové náušnice"], ["✨"], {coin:2, en:1}, .7);
-gen("belt",     ["Provazový opasek","Kožený opasek","Ocelový opasek","Rytířský opasek","Zlatý opasek","Opasek šampiona"], ["🎗️"], {hp:10, def:1}, .8);
-gen("amulet",   ["Korálový amulet","Dřevěný amulet","Stříbrný amulet","Měsíční amulet","Zlatý amulet bohatství","Amulet draka"], ["📿"], {coin:4, en:1}, 1.1);
-gen("trinket",  ["Králičí tlapka","Šťastný šesták","Kouzelná lahvička","Starý kompas","Hodiny času","Dračí šupina"], ["🍀","🧪","🧭","⏳","🐉"], {en:2, coin:2}, 1);
+gen("shield",   ["Dřevěný štít","Kulatý štít","Železný štít","Rytířský štít","Dračí štít","Štít strážce","Lipový štít","Bronzový štít","Veteránský štít","Štít stínu","Obsidiánový štít","Štít věčné stráže"], ["🛡️"], {def:2, hp:5}, 1);
+gen("helmet",   ["Kožená čepice","Železná přilba","Okovaná přilba","Rytířská helma","Dračí helma","Helma krále","Plstěná čapka","Bronzová přilba","Vikingská helma","Strážcova přilba","Přilba titána","Koruna archanděla"], ["⛑️","🪖","👑"], {hp:8, def:1}, .9);
+gen("shoulders",["Kožená ramena","Železná ramena","Ocelová ramena","Ostnatá ramena","Dračí ramena","Ramena titána","Plátěná ramena","Bronzová ramena","Rytířská ramena","Ramena stráže","Ramena draka","Ramena světla"], ["🦾"], {atk:2, hp:6}, 1);
+gen("gloves",   ["Kožené rukavice","Pracovní rukavice","Ocelové rukavice","Bojové rukavice","Dračí rukavice","Rukavice berserkera","Plátěné rukavice","Bronzové rukavice","Kroužkové rukavice","Rukavice lovce","Rukavice ohně","Rukavice titána"], ["🧤"], {atk:3}, .8);
+gen("boots",    ["Kožené boty","Cestovní boty","Okované boty","Rychlé boty","Dračí boty","Okřídlené boty","Plátěné boty","Bronzové holenice","Lovecké boty","Boty stínu","Boty větru","Boty titána"], ["🥾"], {en:3, hp:4}, .8);
+gen("ring",     ["Měděný prsten","Cínový prsten","Safírový prsten","Rubínový prsten","Diamantový prsten","Prsten moci","Bronzový prsten","Jantarový prsten","Smaragdový prsten","Prsten stínu","Prsten draka","Prsten věčnosti"], ["💍"], {atk:2, en:2}, .9);
+gen("earring",  ["Měděné náušnice","Perlové náušnice","Safírové náušnice","Stříbrné náušnice","Zlaté náušnice","Diamantové náušnice","Bronzové náušnice","Jantarové náušnice","Smaragdové náušnice","Náušnice stínu","Náušnice slunce","Náušnice měsíce"], ["✨"], {coin:2, en:1}, .7);
+gen("belt",     ["Provazový opasek","Kožený opasek","Ocelový opasek","Rytířský opasek","Zlatý opasek","Opasek šampiona","Plátěný opasek","Bronzový opasek","Lovecký opasek","Opasek stínu","Opasek draka","Opasek titána"], ["🎗️"], {hp:10, def:1}, .8);
+gen("amulet",   ["Korálový amulet","Dřevěný amulet","Stříbrný amulet","Měsíční amulet","Zlatý amulet bohatství","Amulet draka","Jantarový amulet","Kamenný amulet","Smaragdový amulet","Amulet stínu","Amulet slunce","Amulet věčnosti"], ["📿"], {coin:4, en:1}, 1.1);
+gen("trinket",  ["Králičí tlapka","Šťastný šesták","Kouzelná lahvička","Starý kompas","Hodiny času","Dračí šupina","Kamínek štěstí","Starý klíč","Kouzelný zvonek","Pírko fénixe","Srdce hory","Oko draka"], ["🍀","🧪","🧭","⏳","🐉"], {en:2, coin:2}, 1);
 const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const OLD_JEWELRY_REFUND = {j1:130, j2:180, j3:800, j4:950, j5:3400, j6:5000}; // starý slot "šperky" – při načtení uložené hry se vrátí v mincích
 // šance na kořist po zabití: obyčejný nepřítel / boss zóny (čím lepší rarita, tím menší šance)
@@ -685,6 +712,7 @@ function equipAction(it, a, key){
   if(a !== "sell" || d !== "beze změny") toast(`${a === "on" ? "Nasazeno" : a === "off" ? "Sundáno" : "Prodáno"}: ${it.name}<br>${d}`);
 }
 const sellPrice = it => Math.floor(it.price / 2);
+const byRarity = (a, b) => ({green:0, blue:1, yellow:2}[a.rar] - {green:0, blue:1, yellow:2}[b.rar]) || a.price - b.price;
 
 /* ----- věž: generování soupeřů a obtížnosti pro dané patro ----- */
 // deterministický generátor: stejné patro = stejný nepřítel (náhled i souboj), každé patro jiný
@@ -705,11 +733,24 @@ const BOSS_SPECIES = {"Gobbo Hladovec":"Goblin","Zvířecí Medvěd":"Yetti","Ba
   "Právní Chiméra":"Škorpion","Ekologická Hydra":"Pavoukoun","Obchodní Ďábel":"Démon","Mistr Idiomů":"Šotek","Stínový Mudrc":"Duch","Pán Zkázy":"Elementál",
   "Filozofický Fénix":"Houbák","Král Jazyka":"Zombík"};
 const EYE_COL = ["#d9372b","#2f7fd1","#3fa34d","#8a3fc7","#f2b705","#ff7a00"];
+// barevné varianty nepřátel (CSS filtr přes celý obrázek): běžná = náhodný odstín/sytost/jas, ostatní mají vlastní jméno
+const TONES = [
+  {w:34, adj:null,        f:r => `hue-rotate(${Math.floor(r()*360)}deg) saturate(${(0.8+r()*0.7).toFixed(2)}) brightness(${(0.92+r()*0.2).toFixed(2)})`},
+  {w:8,  adj:"Stínový",   f:() => "brightness(.55) saturate(.9) contrast(1.1)"},
+  {w:7,  adj:"Albínský",  f:() => "saturate(.15) brightness(1.3)"},
+  {w:7,  adj:"Zlatý",     f:() => "sepia(1) saturate(3.2) hue-rotate(-12deg) brightness(1.1)"},
+  {w:7,  adj:"Mrazivý",   f:() => "hue-rotate(170deg) saturate(.9) brightness(1.2)"},
+  {w:7,  adj:"Ohnivý",    f:() => "hue-rotate(-25deg) saturate(1.8) brightness(1.05)"},
+  {w:7,  adj:"Jedovatý",  f:() => "hue-rotate(75deg) saturate(1.6)"},
+  {w:7,  adj:"Zářivý",    f:() => "saturate(2.2) brightness(1.1)"},
+  {w:6,  adj:"Pastelový", f:r => `hue-rotate(${Math.floor(r()*360)}deg) saturate(.5) brightness(1.2)`}
+];
+function pickTone(rng){ let t = rng() * TONES.reduce((a, c) => a + c.w, 0); for(const x of TONES){ if((t -= x.w) < 0) return x; } return TONES[0]; }
 function makeLook(rng){
   return { j:Math.floor(rng()*30)-15, eye:pick(rng,EYE_COL), acc:Math.floor(rng()*5),
     held: rng() < 0.55 ? 1 + Math.floor(rng()*5) : 0,       // předmět v ruce
     size: 0.88 + rng()*0.24,                                // velikost 88–112 %
-    hue: Math.floor(rng()*140) - 70 };                       // posun odstínu (jiná barva téhož druhu)
+    ...(() => { const t = pickTone(rng); return {filter:t.f(rng), toneAdj:t.adj}; })() }; // barevná varianta
 }
 function shuffleR(arr, rng){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(rng()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
 function getEnemy(level, f){
@@ -727,6 +768,7 @@ function getEnemy(level, f){
     species = shuffleR(NOUN, zr)[slot % NOUN.length];
     let adj = shuffleR(ADJ, zr)[slot % ADJ.length];
     if(ACC_OK.includes(species) && rng() < 0.7) adj = [adj, "Jednooký", "Zjizvený", "Banditský", adj][look.acc]; // jméno podle doplňku
+    if(look.toneAdj && rng() < 0.85) adj = look.toneAdj; // jméno podle barvy (Stínový, Zlatý, Mrazivý…)
     name = adj + " " + species;
   }
   const growthHp = 1 + 0.12*(f-1), growthDmg = 1 + 0.06*(f-1);
@@ -858,22 +900,33 @@ const GEAR_ART = {
     `<path d="M${x-6} 138 Q${x} 133 ${x+6} 138 Q${x+6} 146 ${x} 150 Q${x-6} 146 ${x-6} 138Z" fill="#b53b3b"/><path d="M${x-3} 140 Q${x} 138 ${x+3} 140" stroke="#ffd84a" stroke-width="2" fill="none"/>`
   ][n]; }
 };
+// prémiový vzhled podle rarity: zelená = obyčejná, modrá = záře, žlutá = pulzující zlatá záře + třpytky
+const SPARK_AT = {helmet:[76,4], shoulders:[24,96], gloves:[37,118], boots:[48,142], shield:[12,102], belt:[60,124], amulet:[60,112], ring1:[37,121], ring2:[93,121],
+  earring1:[16,72], earring2:[104,72], trinket1:[40,142], trinket2:[80,142], weapon:[108,12], armor:[50,112]};
+function sparkle(key){
+  const [x,y] = SPARK_AT[key], d = (SLOT_KEYS.indexOf(key) * 0.37) % 2;
+  return `<path class="spark" style="animation-delay:${d.toFixed(2)}s" d="M${x} ${y-6}L${x+1.8} ${y-1.8}L${x+6} ${y}L${x+1.8} ${y+1.8}L${x} ${y+6}L${x-1.8} ${y+1.8}L${x-6} ${y}L${x-1.8} ${y-1.8}Z" fill="#fff" stroke="none"/>`;
+}
+function premium(it, key, inner, noSpark){
+  const fx = it.fx ? ` style="filter:${it.fx}"` : "";
+  return `<g class="gl-${it.rar}"><g${fx}>${inner}</g>${it.rar === "yellow" && !noSpark ? sparkle(key) : ""}</g>`;
+}
 function gearSVG(key){
   const it = equipped(key);
   if(!it) return "";
-  const art = GEAR_ART[it.slot](it.n, key.endsWith("2") ? 1 : 0);
-  return it.rar === "yellow" ? `<g style="filter:drop-shadow(0 0 3px #ffd84a)">${art}</g>` : art;
+  return premium(it, key, GEAR_ART[it.slot](it.n % 6, key.endsWith("2") ? 1 : 0));
 }
 function heroSVG(){
   const w = equipped("weapon"), a = equipped("armor");
-  const A = ARMOR_ART[a ? a.id : "none"], skin = "#ffd9b0";
-  const glow = w && w.rar === "yellow" ? ' style="filter:drop-shadow(0 0 5px #ffd84a)"' : "";
+  const A = ARMOR_ART[a ? (a.base || a.id) : "none"], skin = "#ffd9b0";
+  const wrapA = (s, spark) => a && s ? premium(a, "armor", s, !spark) : (s || "");
   const lower = `<rect x="42" y="124" width="14" height="14" fill="#3b3f5c"/><rect x="64" y="124" width="14" height="14" fill="#3b3f5c"/>` +
     (equipped("boots") ? "" : `<rect x="40" y="132" width="16" height="14" rx="3" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" rx="3" fill="#5e3a18"/>`);
+  const weapon = w ? premium(w, "weapon", `<g transform="rotate(14 100 100)">${WEAPON_ART[w.base || w.id]}</g>`) : `<g transform="rotate(14 100 100)">${WEAPON_ART.none}</g>`;
   return `<svg viewBox="-14 -14 148 164" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  ${A.back || ""}${lower}<rect x="53" y="88" width="14" height="18" fill="${skin}"/>
-  ${A.body}${A.front || ""}<rect x="70" y="103" width="11" height="28" rx="4" fill="#000" opacity=".12" stroke="none"/>${gearSVG("boots")}${gearSVG("belt")}${gearSVG("trinket1")}${gearSVG("trinket2")}
-  <g${glow} transform="rotate(14 100 100)">${WEAPON_ART[w ? w.id : "none"]}</g>
+  ${wrapA(A.back)}${lower}<rect x="53" y="88" width="14" height="18" fill="${skin}"/>
+  ${wrapA(A.body + (A.front || ""), true)}<rect x="70" y="103" width="11" height="28" rx="4" fill="#000" opacity=".12" stroke="none"/>${gearSVG("boots")}${gearSVG("belt")}${gearSVG("trinket1")}${gearSVG("trinket2")}
+  ${weapon}
   <rect x="30" y="102" width="14" height="24" rx="6" fill="${skin}"/><circle cx="37" cy="127" r="8" fill="${skin}"/>${gearSVG("shield")}
   <rect x="78" y="102" width="14" height="24" rx="6" fill="${skin}" transform="rotate(-20 85 105)"/><circle cx="92" cy="125" r="8" fill="${skin}"/><path d="M96 120 q4 2 3 6" fill="none" stroke-width="2.5"/>
   ${gearSVG("gloves")}${gearSVG("ring1")}${gearSVG("ring2")}${gearSVG("shoulders")}
@@ -888,7 +941,7 @@ function heroSVG(){
   <circle cx="50" cy="60" r="2" fill="#fff" stroke="none"/><circle cx="76" cy="60" r="2" fill="#fff" stroke="none"/>
   <path d="M60 68 q-4 8 2 10" fill="none" stroke-width="3"/>
   <path d="M42 83 Q60 100 78 83Z" fill="#7a1f1f"/><path d="M47 85 H73 L70 89 H50Z" fill="#fff" stroke="none"/>
-  ${A.top || ""}${gearSVG("helmet")}${gearSVG("earring1")}${gearSVG("earring2")}${gearSVG("amulet")}</svg>`;
+  ${wrapA(A.top)}${gearSVG("helmet")}${gearSVG("earring1")}${gearSVG("earring2")}${gearSVG("amulet")}</svg>`;
 }
 
 /* ----- nepřátelé: tvar podle druhu (druh = poslední slovo jména); drobnosti (barevný odstín, doplněk, barva očí) se liší ----- */
@@ -1070,9 +1123,9 @@ function accSVG(L){
 function enemySVG(e){
   const L = e.look, crown = e.isBoss ? `<path d="M34 26 L40 2 L52 18 L60 -6 L68 18 L80 2 L86 26Z" fill="#f2b705"/>` : "";
   const held = !e.isBoss && HELD_OK.includes(e.species) ? HELD[L.held] : "";
-  const hue = e.isBoss ? 0 : L.hue, size = e.isBoss ? 1 : L.size; // nebossové mají jiný odstín a velikost
+  const tone = e.isBoss ? "none" : L.filter, size = e.isBoss ? 1 : L.size; // nebossové mají jinou barvu (odstín, sytost, jas) a velikost
   return `<svg viewBox="-10 -12 140 162" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  <g style="filter:hue-rotate(${hue}deg)"><g transform="translate(60 146) scale(${size}) translate(-60 -146)">${SP[e.species](L)}${ACC_OK.includes(e.species) ? accSVG(L) : ""}${held}</g></g>${crown}</svg>`;
+  <g style="filter:${tone}"><g transform="translate(60 146) scale(${size}) translate(-60 -146)">${SP[e.species](L)}${ACC_OK.includes(e.species) ? accSVG(L) : ""}${held}</g></g>${crown}</svg>`;
 }
 
 /* ================= OBRAZOVKY ================= */
@@ -1225,7 +1278,7 @@ function renderShop(){
   $("shopTotals").innerHTML = `Bonusy: 💥 +${t.atk} % · ❤️ +${t.hp} HP · 🛡️ ${t.def} % · ⚡ +${t.en} % · 🪙 +${t.coin} %`;
   $("shopTabs").innerHTML = typeTabs(shopType, false);
   $("shopTabs").querySelectorAll("button").forEach(b => b.onclick = () => { shopType = b.dataset.t; renderShop(); });
-  $("shopGrid").innerHTML = ITEMS.filter(i => i.slot === shopType).map(it => {
+  $("shopGrid").innerHTML = ITEMS.filter(i => i.slot === shopType).sort(byRarity).map(it => {
     const own = save.owned.includes(it.id);
     const btn = own ? equipButtons(it)
       : `<button class="btn gold small" data-a="buy" data-id="${it.id}" ${save.coins<it.price?"disabled":""}>Koupit 🪙 ${it.price}</button>`;
@@ -1265,7 +1318,7 @@ function renderProfile(){
     : `<p class="center"><i>Klikni na slot nebo předmět v inventáři – uvidíš jeho vlastnosti a změnu poškození.</i></p>`;
   $("profTabs").innerHTML = typeTabs(profType, true);
   $("profTabs").querySelectorAll("button").forEach(b => b.onclick = () => { profType = b.dataset.t; renderProfile(); });
-  const own = ITEMS.filter(i => save.owned.includes(i.id) && (profType === "all" || i.slot === profType));
+  const own = ITEMS.filter(i => save.owned.includes(i.id) && (profType === "all" || i.slot === profType)).sort(byRarity);
   $("profInv").innerHTML = own.length ? own.map(it => {
     const on = SLOT_KEYS.some(k => save.equip[k] === it.id);
     return `<div class="slot ${it.rar} ${profSel === it.id ? "sel" : ""}" data-id="${it.id}" title="${it.name} – ${statsText(it)}">${it.icon}${on ? "<b class=\"on\">✔</b>" : ""}<small>${TYPES[it.slot].label.split(" ")[0]}</small></div>`;

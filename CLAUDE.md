@@ -59,3 +59,8 @@ samostatného klíče `anglictina-rpg-save-test`, takže skutečný postup zůst
   Šance `GRAMMAR_CHANCE` (30 %), vlastní zásoba `G:úroveň`, na B2/C1 (a vyšších patrech) se odpověď píše. Porovnání odpovědí řeší `norm()` (velikost písmen, apostrofy, mezery).
 - Přidání gramatiky = nový řetězec v `GRAMMAR` (dbát na to, aby špatné možnosti opravdu byly špatně).
 - Věž se dá scrollovat nahoru i dolů (`drawTower`, `onTowerScroll` dokreslují patra); tlačítka Nahoru / Aktuální patro / Dolů.
+
+## Barevné varianty a prémiový vzhled
+- **Nepřátelé:** `TONES` (+ `pickTone`) dává každému nebossovi barevný CSS filtr (náhodný odstín/sytost/jas nebo pojmenovaná varianta: Stínový, Albínský, Zlatý, Mrazivý, Ohnivý, Jedovatý, Zářivý, Pastelový); jméno se podle ní často přejmenuje. Bossové mají původní barvy.
+- **Vybavení:** každý typ má 12 kusů (4× zelená, 4× modrá, 4× žlutá; `gen()` + ručně zbraně `w1–w12` a brnění `a1–a12`). Kusy 7–12 mají stejný tvar jako 1–6 (`base` / `n % 6`), jen přebarvený filtrem `fx` (pole `FX`).
+- **Rarita = vzhled na postavě** (`premium()`): zelená bez efektů, modrá s modrou září (`.gl-blue`), žlutá s pulzující zlatou září (`.gl-yellow`) a třpytkami (`sparkle()`, `.spark`); v inventáři žlutá s lesklým pruhem (`sheen`) a modrá s pulzujícím rámem.
