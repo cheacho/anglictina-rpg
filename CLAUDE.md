@@ -30,8 +30,8 @@ a je vidět na postavě. Uživatel si na začátku zvolí pokročilost A1–C1; 
 - Prostředí (`ENVS`, `envOf`, `applyEnv`): 8 prostředí (louka, les, hrad, sopka, led, nad mraky, noc, vesmír) se mění každou zónu (10 pater) a určují pozadí arény v souboji i barvu zdí ve věži. Nové prostředí = položka v `ENVS`.
 - Věž (data): `getEnemy(level, patro)` – nepřítel je deterministický podle (úroveň, patro) díky `rngFor`. HP +12 %/patro, dmg +6 %/patro;
   boss zóny ×2,2 HP, ×1,4 dmg. `getDifficulty` – časový limit (od 6. patra), psaní odpovědí (od 9.), frekvence útoků bosse.
-- **Nepřátelé:** jméno = přídavné jméno + druh (`NOUN`); `SP[druh](look)` vykreslí druh (16 druhů: Goblin, Skřet, Troll, Imp, Ogr, Slizoun, Netopýr,
-  Kostlivec, Yetti, Golem, Démon, Vlkodlak, Zombík, Šotek, Pavoukoun, Faraón). Bossové zón mají druh v `BOSS_SPECIES` + korunu. `look` jen mění odstín, barvu očí a doplněk.
+- **Nepřátelé:** jméno = přídavné jméno + druh (`NOUN`, 26 druhů); v rámci jedné zóny (10 pater) se druh ani přídavné jméno neopakuje (zamíchané pořadí podle zóny, `shuffleR`). `SP[druh](look)` vykreslí druh (Goblin, Skřet, Troll, Imp, Ogr, Slizoun, Netopýr,
+  Kostlivec, Yetti, Golem, Démon, Vlkodlak, Zombík, Šotek, Pavoukoun, Faraón, Duch, Drak, Houbák, Strašák, Rytíř, Mág, Krab, Škorpion, Elementál, Žabák). Bossové zón mají druh v `BOSS_SPECIES` + korunu. `look` navíc mění posun odstínu (`hue`), velikost, doplněk (páska, jizva, šátek) a předmět v ruce (`HELD`); jméno se řídí doplňkem (Jednooký, Zjizvený…).
 - **Hrdina:** `heroSVG()` skládá `ARMOR_ART`, `WEAPON_ART` (ručně podle id) a `GEAR_ART[typ](n, strana)` (každý z 6 kusů typu má vlastní tvar a barvy podle pořadí `it.n`) přes `gearSVG(slotKey)`.
   Nový typ/kus vybavení = položka v `ITEMS`/`gen()` + případně kresba v `*_ART`.
 - Odměny (`endBattle`): základ `LEVELS[l].coins * (1 + 0,1*(patro-1)) * (1 + bonus mincí)`, ×1,2 bezchybně, porážka 25 %; truhla po výhře

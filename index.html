@@ -694,29 +694,41 @@ function rngFor(str){
   return () => { h = Math.imul(h ^ h>>>16, 2246822507); h = Math.imul(h ^ h>>>13, 3266489909); return ((h ^= h>>>16) >>> 0) / 4294967296; };
 }
 const pick = (rng, arr) => arr[Math.floor(rng()*arr.length)];
-const ADJ = ["Zlobivý","Hladový","Mrzutý","Vzteklý","Líný","Prohnaný","Chlupatý","Šílený","Smradlavý","Ospalý","Divoký","Hrbatý","Zákeřný","Slizký","Nafoukaný","Pomstychtivý"];
-const NOUN = ["Goblin","Skřet","Troll","Imp","Ogr","Slizoun","Netopýr","Kostlivec","Yetti","Golem","Démon","Vlkodlak","Zombík","Šotek","Pavoukoun","Faraón"];
+const ADJ = ["Zlobivý","Hladový","Mrzutý","Vzteklý","Líný","Prohnaný","Chlupatý","Šílený","Smradlavý","Ospalý","Divoký","Hrbatý","Zákeřný","Slizký","Nafoukaný","Pomstychtivý",
+  "Rozzuřený","Hrozivý","Tlustý","Pitomý","Zvědavý","Chamtivý","Strašidelný","Vychytralý","Mlsný","Podrážděný","Zapšklý","Jedovatý"];
+const NOUN = ["Goblin","Skřet","Troll","Imp","Ogr","Slizoun","Netopýr","Kostlivec","Yetti","Golem","Démon","Vlkodlak","Zombík","Šotek","Pavoukoun","Faraón",
+  "Duch","Drak","Houbák","Strašák","Rytíř","Mág","Krab","Škorpion","Elementál","Žabák"];
 // vzhled bosse zóny podle druhu
 const BOSS_SPECIES = {"Gobbo Hladovec":"Goblin","Zvířecí Medvěd":"Yetti","Barevný Skřet":"Skřet","Domácí Kostlivec":"Kostlivec","Tělesný Yetti":"Yetti",
-  "Cestovní Troll":"Troll","Rodinný Obr":"Ogr","Škodolibý Imp":"Imp","Sportovní Minotaur":"Démon","Nákupní Mumie":"Faraón","Drak Kancelářský":"Démon",
-  "Bouřná Harpyje":"Netopýr","Zdravotní Vlkodlak":"Vlkodlak","Citový Kentaur":"Ogr","Městský Kraken":"Slizoun","Lord Argument":"Šotek","Technický Golem":"Golem",
-  "Právní Chiméra":"Démon","Ekologická Hydra":"Pavoukoun","Obchodní Ďábel":"Démon","Mistr Idiomů":"Šotek","Stínový Mudrc":"Kostlivec","Pán Zkázy":"Démon",
-  "Filozofický Fénix":"Netopýr","Král Jazyka":"Zombík"};
+  "Cestovní Troll":"Troll","Rodinný Obr":"Ogr","Škodolibý Imp":"Imp","Sportovní Minotaur":"Démon","Nákupní Mumie":"Faraón","Drak Kancelářský":"Drak",
+  "Bouřná Harpyje":"Netopýr","Zdravotní Vlkodlak":"Vlkodlak","Citový Kentaur":"Rytíř","Městský Kraken":"Krab","Lord Argument":"Mág","Technický Golem":"Golem",
+  "Právní Chiméra":"Škorpion","Ekologická Hydra":"Pavoukoun","Obchodní Ďábel":"Démon","Mistr Idiomů":"Šotek","Stínový Mudrc":"Duch","Pán Zkázy":"Elementál",
+  "Filozofický Fénix":"Houbák","Král Jazyka":"Zombík"};
 const EYE_COL = ["#d9372b","#2f7fd1","#3fa34d","#8a3fc7","#f2b705","#ff7a00"];
 function makeLook(rng){
-  return { j:Math.floor(rng()*30)-15, eye:pick(rng,EYE_COL), acc:Math.floor(rng()*5) };
+  return { j:Math.floor(rng()*30)-15, eye:pick(rng,EYE_COL), acc:Math.floor(rng()*5),
+    held: rng() < 0.55 ? 1 + Math.floor(rng()*5) : 0,       // předmět v ruce
+    size: 0.88 + rng()*0.24,                                // velikost 88–112 %
+    hue: Math.floor(rng()*140) - 70 };                       // posun odstínu (jiná barva téhož druhu)
 }
+function shuffleR(arr, rng){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(rng()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
 function getEnemy(level, f){
   const L = LEVELS[level];
   const zi = Math.floor((f-1) / ZONE_LEN), zone = L.zones[zi % L.zones.length], zround = Math.floor(zi / L.zones.length);
   const isBoss = f % ZONE_LEN === 0;
-  const rng = rngFor(level+":"+f);
+  const rng = rngFor(level+":"+f), zr = rngFor(level+":zone"+zi), slot = (f-1) % ZONE_LEN;
   const look = makeLook(rng);
   let name, species;
   if(isBoss){
     species = BOSS_SPECIES[zone.boss.name] || "Démon"; look.acc = 0;
     name = "👑 " + zone.boss.name + (zround ? " " + ["","II","III","IV","V","VI","VII","VIII","IX","X"][Math.min(zround,9)] : "");
-  } else { const adj = pick(rng,ADJ); species = pick(rng,NOUN); name = adj + " " + species; }
+  } else {
+    // v rámci jedné zóny se druh ani přídavné jméno neopakuje (zamíchané pořadí podle zóny)
+    species = shuffleR(NOUN, zr)[slot % NOUN.length];
+    let adj = shuffleR(ADJ, zr)[slot % ADJ.length];
+    if(ACC_OK.includes(species) && rng() < 0.7) adj = [adj, "Jednooký", "Zjizvený", "Banditský", adj][look.acc]; // jméno podle doplňku
+    name = adj + " " + species;
+  }
   const growthHp = 1 + 0.12*(f-1), growthDmg = 1 + 0.06*(f-1);
   return {
     name, look, species, isBoss, floor:f, theme:zone.theme, icon:zone.icon, words:zone.words, zone:zi,
@@ -981,7 +993,73 @@ const SP = {
       <ellipse cx="60" cy="64" rx="38" ry="38" fill="${b}"/><path d="M26 44 L94 36 M24 58 L96 54 M26 72 L94 74 M32 86 L88 88" stroke="${d}" stroke-width="4" fill="none"/>
       <rect x="28" y="52" width="64" height="16" rx="6" fill="#1a1a1a"/><circle cx="44" cy="60" r="5" fill="#ffe14a" stroke="none"/><circle cx="76" cy="60" r="5" fill="#ffe14a" stroke="none"/>`; }
 };
-const ACC_OK = ["Goblin","Skřet","Troll","Ogr","Zombík","Imp"]; // druhy, které mají na hlavě místo pro doplněk (obvaz, páska přes oko, jizva…)
+// další druhy nepřátel
+Object.assign(SP, {
+  Duch:L => `<path d="M14 146 V70 Q14 6 60 6 Q106 6 106 70 V146 L94 134 L82 146 L70 134 L58 146 L46 134 L34 146 L24 136Z" fill="#f4f7ff"/>
+    <path d="M16 92 Q-6 100 2 116 Q14 108 20 102Z M104 92 Q126 100 118 116 Q106 108 100 102Z" fill="#f4f7ff"/>
+    <ellipse cx="44" cy="58" rx="9" ry="13" fill="#1a1a2a"/><ellipse cx="76" cy="58" rx="9" ry="13" fill="#1a1a2a"/><circle cx="44" cy="62" r="3" fill="${L.eye}" stroke="none"/><circle cx="76" cy="62" r="3" fill="${L.eye}" stroke="none"/>
+    <ellipse cx="60" cy="92" rx="10" ry="14" fill="#1a1a2a"/><circle cx="30" cy="80" r="6" fill="#9fd0ff" opacity=".6" stroke="none"/><circle cx="90" cy="80" r="6" fill="#9fd0ff" opacity=".6" stroke="none"/>`,
+  Drak:L => { const s = `hsl(${130+L.j} 55% 42%)`, w = `hsl(${15+L.j} 60% 45%)`;
+    return `<path d="M32 96 Q-8 40 -6 92 Q6 86 12 106 Q22 96 32 110Z M88 96 Q128 40 126 92 Q114 86 108 106 Q98 96 88 110Z" fill="${w}"/>
+      <path d="M92 128 Q128 130 124 104 Q120 112 108 112" fill="none" stroke="#2b1a10" stroke-width="14"/><path d="M92 128 Q128 130 124 104 Q120 112 108 112" fill="none" stroke="${s}" stroke-width="8"/>
+      ${body(s,"hsl(50 70% 72%)")}${feet(s)}${arms(s)}<path d="M38 26 L44 4 L52 24Z M54 20 L60 -6 L66 20Z M68 24 L76 4 L82 26Z" fill="${w}"/>
+      <ellipse cx="60" cy="62" rx="42" ry="38" fill="${s}"/><ellipse cx="60" cy="82" rx="24" ry="15" fill="hsl(50 70% 72%)"/><circle cx="52" cy="80" r="3" fill="#2b1a10" stroke="none"/><circle cx="68" cy="80" r="3" fill="#2b1a10" stroke="none"/>
+      <circle cx="42" cy="54" r="9" fill="#ffe14a"/><circle cx="78" cy="54" r="9" fill="#ffe14a"/><rect x="40.5" y="47" width="3" height="14" fill="#1a1a1a" stroke="none"/><rect x="76.5" y="47" width="3" height="14" fill="#1a1a1a" stroke="none"/>${brows(54)}
+      <path d="M44 92 L48 100 L52 93 M68 93 L72 100 L76 92" fill="#fff"/>`; },
+  "Houbák":L => { const c = `hsl(${5+L.j} 70% 48%)`;
+    return `<rect x="34" y="60" width="52" height="80" rx="20" fill="#f1e3c4"/><rect x="30" y="132" width="24" height="14" rx="6" fill="#f1e3c4"/><rect x="66" y="132" width="24" height="14" rx="6" fill="#f1e3c4"/>
+      <rect x="14" y="92" width="22" height="14" rx="7" fill="#f1e3c4"/><rect x="84" y="92" width="22" height="14" rx="7" fill="#f1e3c4"/>
+      <path d="M-6 64 Q-6 -8 60 -8 Q126 -8 126 64 Q60 52 -6 64Z" fill="${c}"/><g fill="#fff" stroke="none"><circle cx="24" cy="30" r="9"/><circle cx="60" cy="14" r="8"/><circle cx="96" cy="30" r="9"/><circle cx="46" cy="40" r="6"/><circle cx="78" cy="42" r="6"/></g>
+      <circle cx="48" cy="84" r="6" fill="#1a1a1a"/><circle cx="72" cy="84" r="6" fill="#1a1a1a"/><circle cx="49.5" cy="82" r="2" fill="#fff" stroke="none"/><circle cx="73.5" cy="82" r="2" fill="#fff" stroke="none"/>
+      <path d="M48 100 Q60 112 72 100" fill="none" stroke-width="4"/><circle cx="38" cy="96" r="5" fill="#ff9a8a" opacity=".6" stroke="none"/><circle cx="82" cy="96" r="5" fill="#ff9a8a" opacity=".6" stroke="none"/>`; },
+  "Strašák":L => `<rect x="56" y="100" width="8" height="48" fill="#8a5a2b"/><rect x="-6" y="88" width="132" height="12" rx="5" fill="#8a5a2b"/>
+    <path d="M-6 92 l-8 -6 M-6 96 l-8 4 M126 92 l8 -6 M126 96 l8 4" stroke="#d9b24a" stroke-width="3" fill="none"/>
+    <rect x="30" y="98" width="60" height="42" rx="6" fill="#c0392b"/><path d="M40 110 h14 v12 h-14Z" fill="#2f7fd1"/><path d="M34 140 l-4 8 M50 140 l2 8 M70 140 l-2 8 M86 140 l4 8" stroke="#d9b24a" stroke-width="3" fill="none"/>
+    <ellipse cx="60" cy="64" rx="38" ry="38" fill="#d9c28a"/><path d="M10 40 Q60 24 110 40 Q60 34 10 40Z M24 40 Q26 -4 60 -8 Q94 -4 96 40Z" fill="#d9b24a"/><rect x="24" y="34" width="72" height="8" fill="#8a5a2b"/>
+    <path d="M32 52 l14 12 M46 52 l-14 12 M74 52 l14 12 M88 52 l-14 12" stroke-width="5" fill="none"/><path d="M36 86 Q60 100 84 86" fill="none" stroke-width="4"/><path d="M44 84 v10 M54 88 v10 M66 88 v10 M76 84 v10" stroke-width="2.5" fill="none"/>`,
+  "Rytíř":L => `<path d="M-6 84 H20 V108 Q7 126 -6 108Z" fill="#d9372b"/><path d="M7 88 V116" stroke="#f1ead6" stroke-width="4" fill="none"/>
+    <rect x="30" y="98" width="60" height="40" rx="10" fill="#aab4bc"/><path d="M60 100 V138 M36 112 H84" stroke="#6d7a84" stroke-width="3" fill="none"/><circle cx="26" cy="100" r="12" fill="#8e99a2"/><circle cx="94" cy="100" r="12" fill="#8e99a2"/>
+    <rect x="34" y="134" width="18" height="12" rx="3" fill="#6d7a84"/><rect x="68" y="134" width="18" height="12" rx="3" fill="#6d7a84"/><rect x="96" y="88" width="22" height="16" rx="6" fill="#8e99a2"/>
+    <path d="M60 8 Q74 -14 100 -4 Q82 8 70 14Z" fill="${L.j > 0 ? "#d9372b" : "#2f7fd1"}"/><path d="M20 100 V48 Q20 8 60 8 Q100 8 100 48 V100Z" fill="#aab4bc"/><rect x="28" y="48" width="64" height="14" rx="4" fill="#1a1a1a"/>
+    <circle cx="46" cy="55" r="4" fill="#ff3b3b" stroke="none"/><circle cx="74" cy="55" r="4" fill="#ff3b3b" stroke="none"/><path d="M60 62 V98 M40 74 H80 M40 86 H80" stroke="#6d7a84" stroke-width="3" fill="none"/>`,
+  "Mág":L => { const r = `hsl(${270+L.j} 45% 32%)`;
+    return `<rect x="108" y="18" width="6" height="128" fill="#8a5a2b"/><circle cx="111" cy="12" r="11" fill="#7fe0ff"/><circle cx="107" cy="8" r="3" fill="#fff" stroke="none"/>
+      <path d="M26 146 L34 98 H86 L94 146Z" fill="${r}"/><path d="M60 98 V146" stroke="#ffd84a" stroke-width="3" fill="none"/><rect x="96" y="90" width="20" height="16" rx="6" fill="#d9c8a8"/><rect x="4" y="90" width="20" height="16" rx="6" fill="#d9c8a8"/>
+      <ellipse cx="60" cy="66" rx="34" ry="34" fill="#d9c8a8"/><path d="M26 74 Q60 150 94 74 Q60 96 26 74Z" fill="#cfd6dc"/>
+      <circle cx="46" cy="58" r="7" fill="#fff"/><circle cx="74" cy="58" r="7" fill="#fff"/><circle cx="47" cy="58" r="3.5" fill="${L.eye}"/><circle cx="73" cy="58" r="3.5" fill="${L.eye}"/><path d="M32 46 L54 52 M88 46 L66 52" stroke-width="5" fill="none"/>
+      <ellipse cx="60" cy="36" rx="50" ry="10" fill="${r}"/><path d="M30 36 L60 -12 L90 36Z" fill="${r}"/><circle cx="60" cy="22" r="3" fill="#ffd84a" stroke="none"/><circle cx="48" cy="30" r="2" fill="#ffd84a" stroke="none"/>`; },
+  Krab:L => { const s = `hsl(${8+L.j} 70% 52%)`;
+    return `<path d="M20 112 L2 128 M24 124 L8 144 M100 112 L118 128 M96 124 L112 144" stroke="${s}" stroke-width="7" fill="none"/><path d="M44 76 V52 M76 76 V52" stroke="${s}" stroke-width="7" fill="none"/>
+      <ellipse cx="60" cy="104" rx="54" ry="34" fill="${s}"/><ellipse cx="60" cy="116" rx="30" ry="14" fill="hsl(30 70% 80%)" stroke="none"/>
+      <path d="M6 84 Q-12 66 4 46 Q10 62 22 62Z" fill="${s}"/><path d="M114 84 Q132 66 116 46 Q110 62 98 62Z" fill="${s}"/><circle cx="12" cy="86" r="12" fill="${s}"/><circle cx="108" cy="86" r="12" fill="${s}"/>
+      <circle cx="44" cy="46" r="10" fill="#fff"/><circle cx="76" cy="46" r="10" fill="#fff"/><circle cx="45" cy="48" r="4.5" fill="#1a1a1a"/><circle cx="75" cy="48" r="4.5" fill="#1a1a1a"/>
+      <path d="M40 100 Q60 116 80 100" fill="#3a0d0d"/><path d="M46 100 v6 M56 102 v7 M66 102 v7 M76 100 v6" stroke="#fff" stroke-width="3" fill="none"/>`; },
+  "Škorpion":L => { const s = `hsl(${32+L.j} 55% 40%)`;
+    return `<path d="M92 108 Q130 100 122 56 Q118 28 94 26" fill="none" stroke="#2b1a10" stroke-width="18"/><path d="M92 108 Q130 100 122 56 Q118 28 94 26" fill="none" stroke="${s}" stroke-width="10"/><path d="M90 20 L74 30 L92 38Z" fill="#d9372b"/>
+      <path d="M22 116 L4 132 M30 126 L14 146 M98 116 L116 132 M90 126 L106 146" stroke="${s}" stroke-width="7" fill="none"/>
+      <ellipse cx="60" cy="108" rx="42" ry="28" fill="${s}"/><path d="M40 98 Q60 106 80 98 M38 110 Q60 120 82 110 M42 122 Q60 130 78 122" stroke="#2b1a10" stroke-width="3" fill="none"/>
+      <path d="M14 86 Q-10 78 -2 52 Q8 60 12 72Z" fill="${s}"/><path d="M106 86 Q130 78 122 52 Q112 60 108 72Z" fill="${s}"/>
+      <ellipse cx="60" cy="66" rx="30" ry="26" fill="${s}"/><circle cx="48" cy="60" r="6" fill="#fff8c0"/><circle cx="72" cy="60" r="6" fill="#fff8c0"/><circle cx="48" cy="61" r="3" fill="${L.eye}" stroke="none"/><circle cx="72" cy="61" r="3" fill="${L.eye}" stroke="none"/><path d="M48 80 Q60 90 72 80" fill="none" stroke-width="4"/>`; },
+  "Elementál":L => `<path d="M60 -10 Q84 28 102 50 Q124 82 106 114 Q98 146 60 148 Q22 146 14 114 Q-4 82 18 50 Q36 28 60 -10Z" fill="#ff7a1a"/>
+    <path d="M60 22 Q78 48 92 64 Q108 90 94 114 Q88 136 60 138 Q32 136 26 114 Q12 90 28 64 Q42 48 60 22Z" fill="#ffd84a" stroke="none"/>
+    <ellipse cx="44" cy="82" rx="8" ry="11" fill="#fff"/><ellipse cx="76" cy="82" rx="8" ry="11" fill="#fff"/><circle cx="45" cy="85" r="4" fill="#1a1a1a" stroke="none"/><circle cx="75" cy="85" r="4" fill="#1a1a1a" stroke="none"/>
+    <path d="M42 108 L50 114 L56 106 L64 114 L70 106 L78 112" fill="none" stroke-width="4"/><path d="M18 100 Q0 88 6 70 Q18 80 24 92Z M102 100 Q120 88 114 70 Q102 80 96 92Z" fill="#ff7a1a"/>`,
+  "Žabák":L => { const s = `hsl(${95+L.j} 55% 45%)`;
+    return `<rect x="30" y="94" width="60" height="44" rx="16" fill="${s}"/><ellipse cx="60" cy="118" rx="22" ry="18" fill="hsl(60 60% 78%)" stroke="none"/>
+      <path d="M30 134 Q10 138 6 148 L34 148Z M90 134 Q110 138 114 148 L86 148Z" fill="${s}"/><rect x="4" y="90" width="22" height="16" rx="7" fill="${s}"/><rect x="94" y="90" width="22" height="16" rx="7" fill="${s}"/>
+      <ellipse cx="60" cy="68" rx="48" ry="36" fill="${s}"/><circle cx="32" cy="36" r="16" fill="${s}"/><circle cx="88" cy="36" r="16" fill="${s}"/>
+      <circle cx="32" cy="36" r="10" fill="#fff8c0"/><circle cx="88" cy="36" r="10" fill="#fff8c0"/><circle cx="33" cy="38" r="5" fill="#1a1a1a" stroke="none"/><circle cx="87" cy="38" r="5" fill="#1a1a1a" stroke="none"/>
+      <path d="M18 78 Q60 106 102 78" fill="none" stroke-width="5"/><path d="M52 90 Q60 112 68 90Z" fill="#ff6f91"/><circle cx="50" cy="66" r="3" fill="#2b1a10" stroke="none"/><circle cx="70" cy="66" r="3" fill="#2b1a10" stroke="none"/>`; }
+});
+// předměty v ruce (náhodně, jen u druhů s rukama)
+const HELD = [``,
+  `<path d="M108 102 L110 44 Q112 36 122 40 Q126 50 118 104Z" fill="#8a5a2b"/><path d="M112 54 l-5 -2 M118 66 l5 -2" stroke="#5e3a18" stroke-width="3"/>`,
+  `<rect x="110" y="30" width="8" height="62" rx="2" fill="#cfd6dc"/><rect x="103" y="90" width="22" height="6" rx="2" fill="#8a5a2b"/><rect x="111" y="96" width="6" height="14" fill="#5e3a18"/>`,
+  `<rect x="111" y="34" width="6" height="74" rx="2" fill="#8a5a2b"/><path d="M117 38 Q138 40 136 62 Q126 56 117 58Z" fill="#aab4bc"/>`,
+  `<rect x="111" y="26" width="6" height="84" rx="2" fill="#8a5a2b"/><circle cx="114" cy="22" r="9" fill="#7fe0ff"/>`,
+  `<circle cx="10" cy="98" r="17" fill="#a0703a"/><circle cx="10" cy="98" r="6" fill="#aab4bc"/>`];
+const HELD_OK = ["Goblin","Skřet","Troll","Imp","Kostlivec","Yetti","Démon","Vlkodlak","Zombík","Šotek","Faraón","Rytíř","Žabák"];
+const ACC_OK = ["Goblin","Skřet","Troll","Ogr","Zombík","Imp","Démon","Vlkodlak","Kostlivec","Netopýr","Drak"]; // druhy, které mají na hlavě místo pro doplněk (obvaz, páska přes oko, jizva…)
 function accSVG(L){
   const y = 62;
   return [``,
@@ -990,9 +1068,11 @@ function accSVG(L){
     `<path d="M14 44 Q60 18 106 44 L104 56 Q60 32 16 58Z" fill="#d9372b"/>`, ``][L.acc];
 }
 function enemySVG(e){
-  const crown = e.isBoss ? `<path d="M34 26 L40 2 L52 18 L60 -6 L68 18 L80 2 L86 26Z" fill="#f2b705"/>` : "";
+  const L = e.look, crown = e.isBoss ? `<path d="M34 26 L40 2 L52 18 L60 -6 L68 18 L80 2 L86 26Z" fill="#f2b705"/>` : "";
+  const held = !e.isBoss && HELD_OK.includes(e.species) ? HELD[L.held] : "";
+  const hue = e.isBoss ? 0 : L.hue, size = e.isBoss ? 1 : L.size; // nebossové mají jiný odstín a velikost
   return `<svg viewBox="-10 -12 140 162" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  ${SP[e.species](e.look)}${ACC_OK.includes(e.species) ? accSVG(e.look) : ""}${crown}</svg>`;
+  <g style="filter:hue-rotate(${hue}deg)"><g transform="translate(60 146) scale(${size}) translate(-60 -146)">${SP[e.species](L)}${ACC_OK.includes(e.species) ? accSVG(L) : ""}${held}</g></g>${crown}</svg>`;
 }
 
 /* ================= OBRAZOVKY ================= */
