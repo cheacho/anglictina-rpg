@@ -51,3 +51,11 @@ statistika slabých slovíček a jejich opakování, žebříček.
 `index.html?test=1` načte hotový postup (hrdina Lv. 50, všechno žluté vybavení, patro 50, 100 000 mincí) a ukládá ho do
 samostatného klíče `anglictina-rpg-save-test`, takže skutečný postup zůstane nedotčený. Volitelné parametry: `&level=A1..C1`,
 `&floor=N`, `&hero=N`, `&coins=N`, `&fresh=1` (znovu vytvořit testovací postup). Implementace: `makeTestSave`, `TEST`, `QS`.
+
+## Otázky: slovíčka a gramatika
+- Každá zóna má 40 slov (`words` + `EXTRA_WORDS`, sloučeno při startu). Výběr otázek (`nextQuestion`, `drawFrom`) se **neopakuje**, dokud nejsou vyčerpána všechna slova zóny:
+  hotová slova se ukládají do `save.seen` (klíč `W:úroveň:zóna`), po vyčerpání se zásoba resetuje. Chybně zodpovězená otázka se do zásoby vrací.
+- **Doplňování do vět:** `GRAMMAR[úroveň]` = řetězce `"věta s ___|správná odpověď|špatná1,špatná2,špatná3|téma"` (časy, kondicionály, trpný rod, předložky, inverze…).
+  Šance `GRAMMAR_CHANCE` (30 %), vlastní zásoba `G:úroveň`, na B2/C1 (a vyšších patrech) se odpověď píše. Porovnání odpovědí řeší `norm()` (velikost písmen, apostrofy, mezery).
+- Přidání gramatiky = nový řetězec v `GRAMMAR` (dbát na to, aby špatné možnosti opravdu byly špatně).
+- Věž se dá scrollovat nahoru i dolů (`drawTower`, `onTowerScroll` dokreslují patra); tlačítka Nahoru / Aktuální patro / Dolů.

@@ -7,7 +7,7 @@ Za správně přeložená slovíčka získáváš energii ⚡ na útoky, za výh
 1. Zadej jméno hrdiny a vyber svou pokročilost (A1–C1). Vyšší úroveň = víc mincí.
 2. Věž je rozdělená do **zón po 10 patrech**, každá zóna má jiné téma slovíček i jiné **prostředí** (louka, les, hrad, sopka, led, mraky, noc, vesmír). Věž je vidět jako budova, po výhře vyšplháš o patro výš.
    Poslední patro zóny hlídá **boss**, který je výrazně silnější.
-3. Souboj: přelož české slovo do angličtiny. Správné odpovědi dávají energii a kombo, chyby a vypršený čas způsobí útok.
+3. Souboj: přelož české slovo do angličtiny nebo **doplň slovo do věty** (časy, kondicionály, trpný rod, předložky… podle úrovně). Otázky se neopakují, dokud nevyčerpáš celou zásobu zóny (40 slov). Správné odpovědi dávají energii a kombo, chyby a vypršený čas způsobí útok.
    Energii utrať za útoky nebo léčení. Patra jsou stále těžší (silnější nepřátelé, časový limit, psaní odpovědí).
 4. Po výhře otevři **truhlu** s mincemi; z nepřátel může padnout i **vybavení** (čím lepší rarita, tím vzácnější).
 5. V **profilu** (postava uprostřed, sloty kolem ní jako v MMO) a inventáři (mřížka předmětů) si nasazuješ vybavení do 15 slotů (zbraň, štít, helma, ramena, brnění, rukavice, boty, 2 prsteny, 2 náušnice, opasek, amulet, 2 trinkety) a vidíš, jak se změní životy, obrana a poškození kouzel. V **obchodě** ho kupuješ. Rarity: zelená, modrá, žlutá. Vše je vidět na tvé postavě.
