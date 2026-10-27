@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Angličtina RPG – Souboj slovíček</title>
+<style>
+:root{
+  --ink:#2b1a10; --wood:#8a5a2b; --wood-d:#5e3a18; --parch:#f6e3b4; --parch-d:#e2c78a;
+  --red:#d9372b; --green:#3fa34d; --blue:#2f7fd1; --gold:#f2b705; --purple:#8a3fc7;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif;color:var(--ink);
+  background:radial-gradient(circle at 50% 0,#ffd98a 0,#e59a4a 45%,#8a4a22 100%) fixed}
+h1,h2,h3{font-family:Impact,"Arial Black",sans-serif;letter-spacing:1px;margin:.2em 0;text-transform:uppercase;text-shadow:2px 2px 0 rgba(255,255,255,.4)}
+#app{max-width:900px;margin:0 auto;padding:16px}
+.screen{display:none}.screen.active{display:block}
+.panel{background:var(--parch);border:5px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);padding:18px;margin:12px 0}
+.btn{font:inherit;font-weight:900;font-size:1.05rem;color:#fff;background:var(--red);border:4px solid var(--ink);border-radius:12px;
+  padding:10px 16px;cursor:pointer;box-shadow:0 4px 0 var(--ink);text-shadow:1px 1px 0 var(--ink);transition:transform .08s}
+.btn:hover:not(:disabled){transform:translateY(-2px)}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{background:#999;cursor:not-allowed;opacity:.7}
+.btn.green{background:var(--green)}.btn.blue{background:var(--blue)}.btn.gold{background:var(--gold);color:var(--ink);text-shadow:none}.btn.purple{background:var(--purple)}
+input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var(--ink);border-radius:10px;width:100%;background:#fffbe9}
+.center{text-align:center}
+.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+.lvl{padding:12px 4px;text-align:center;font-weight:900;font-size:1.3rem;background:#fffbe9;border:4px solid var(--ink);border-radius:12px;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.lvl small{display:block;font-size:.65rem;font-weight:700}
+.lvl.sel{background:var(--gold);transform:translateY(-3px)}
+.hero-pick{display:flex;justify-content:center}
+.hero-pick svg{width:160px;height:200px}
+/* map */
+.bosslist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.bosscard{background:#fffbe9;border:4px solid var(--ink);border-radius:14px;padding:10px;text-align:center}
+.bosscard svg{width:110px;height:130px}
+.bosscard.locked{filter:grayscale(1) brightness(.7)}
+.bosscard.beaten{border-color:var(--green)}
+.stat{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;font-weight:900}
+/* battle */
+.arena{position:relative;background:linear-gradient(#8fd3ff 0,#d8f1ff 55%,#7cc15a 55%,#4c8f35 100%);border:5px solid var(--ink);border-radius:18px;
+  box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);height:250px;overflow:hidden}
+.fighter{position:absolute;bottom:6px;width:42%;max-width:190px;transition:transform .25s}
+.fighter svg{width:100%;height:auto;display:block;filter:drop-shadow(4px 6px 0 rgba(0,0,0,.25))}
+#heroF{left:6%}#bossF{right:6%}
+.fighter.lunge-r{transform:translateX(120px) rotate(6deg)}
+.fighter.lunge-l{transform:translateX(-120px) rotate(-6deg)}
+.fighter.hit{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px) rotate(-5deg)}40%{transform:translateX(14px) rotate(5deg)}60%{transform:translateX(-9px)}80%{transform:translateX(9px)}}
+.float{position:absolute;font-family:Impact,sans-serif;font-size:2.2rem;pointer-events:none;-webkit-text-stroke:2px var(--ink);animation:floatup 1s forwards;z-index:5}
+@keyframes floatup{0%{opacity:1;transform:translateY(0) scale(.6)}30%{transform:translateY(-20px) scale(1.3)}100%{opacity:0;transform:translateY(-80px) scale(1)}}
+.pow{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%) rotate(-8deg);font-family:Impact,sans-serif;font-size:3rem;color:var(--gold);
+  -webkit-text-stroke:3px var(--ink);text-shadow:4px 4px 0 var(--red);animation:pow .6s forwards;pointer-events:none;z-index:6}
+@keyframes pow{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-20deg)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.3) rotate(-8deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1) rotate(-8deg)}}
+.bars{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.bar{height:22px;background:#fff;border:3px solid var(--ink);border-radius:12px;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;transition:width .4s}
+.bar span{position:absolute;inset:0;text-align:center;font-size:.8rem;font-weight:900;line-height:16px}
+.hp i{background:var(--green)}.bhp i{background:var(--red)}.en i{background:var(--blue)}
+.q{font-size:1.6rem;font-weight:900;text-align:center;margin:6px 0 12px}
+.q small{display:block;font-size:.8rem;color:var(--wood-d)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts .btn{background:#fffbe9;color:var(--ink);text-shadow:none}
+.opts .btn.ok{background:var(--green);color:#fff}.opts .btn.bad{background:var(--red);color:#fff}
+.attacks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.attacks .btn{font-size:.85rem;padding:8px 4px}.attacks small{display:block;font-weight:700}
+.combo{text-align:center;font-weight:900;color:var(--red);min-height:1.4em}
+.log{font-size:.9rem;min-height:1.3em;text-align:center;font-style:italic}
+ul.miss{padding-left:20px}
+@media(max-width:560px){.attacks{grid-template-columns:1fr 1fr}.opts{grid-template-columns:1fr}.levels{grid-template-columns:repeat(5,1fr)}.fighter{max-width:130px}.arena{height:200px}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ÚVOD -->
+<section id="s-start" class="screen active">
+  <div class="panel center">
+    <h1>⚔️ Angličtina RPG ⚔️</h1>
+    <p>Poraz bosse znalostí angličtiny! Každé správné slovíčko nabije energii pro tvé útoky.</p>
+    <div class="hero-pick" id="startHero"></div>
+    <p><label for="name"><b>Jméno hrdiny</b></label><input id="name" type="text" maxlength="14" placeholder="Např. Sir Slovíček"></p>
+    <p><b>Tvoje pokročilost</b></p>
+    <div class="levels" id="levels"></div>
+    <button class="btn gold" id="startBtn">▶ Vyrazit do boje</button>
+    <p><button class="btn blue" id="continueBtn" style="display:none">Pokračovat v uložené hře</button></p>
+  </div>
+</section>
+
+<!-- MAPA -->
+<section id="s-map" class="screen">
+  <div class="panel">
+    <div class="stat"><span id="mapHero"></span><span id="mapLevel"></span><span id="mapStats"></span></div>
+  </div>
+  <h2 class="center">Vyber si soupeře</h2>
+  <div class="bosslist" id="bosslist"></div>
+  <p class="center"><button class="btn blue" id="backStart">⬅ Změnit hrdinu / úroveň</button></p>
+</section>
+
+<!-- SOUBOJ -->
+<section id="s-battle" class="screen">
+  <div class="bars">
+    <div><b id="bHeroName"></b><div class="bar hp"><i id="hpFill"></i><span id="hpText"></span></div><div class="bar en" style="margin-top:4px"><i id="enFill"></i><span id="enText"></span></div></div>
+    <div><b id="bBossName"></b><div class="bar bhp"><i id="bhpFill"></i><span id="bhpText"></span></div></div>
+  </div>
+  <div class="arena" id="arena"><div class="fighter" id="heroF"></div><div class="fighter" id="bossF"></div></div>
+  <div class="panel">
+    <div class="combo" id="combo"></div>
+    <div class="q" id="question"></div>
+    <div class="opts" id="opts"></div>
+    <div id="typeBox" style="display:none"><input type="text" id="typeIn" autocomplete="off" autocapitalize="off" placeholder="Napiš anglicky…"><p class="center"><button class="btn green" id="typeOk">Odpovědět</button></p></div>
+    <div class="log" id="log"></div>
+  </div>
+  <div class="panel"><div class="attacks" id="attacks"></div></div>
+  <p class="center"><button class="btn blue" id="fleeBtn">🏃 Utéct</button></p>
+</section>
+
+<!-- VÝSLEDEK -->
+<section id="s-result" class="screen">
+  <div class="panel center">
+    <h1 id="resTitle"></h1>
+    <div id="resBody"></div>
+    <button class="btn gold" id="resBtn">Zpět na mapu</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+/* ================= DATA ================= */
+// Slovíčka: "česky=anglicky". Přidání slov = přidání řetězce do pole bosse.
+const LEVELS = {
+  A1:{label:"Začátečník", bosses:[
+    {name:"Gobbo Hladovec", theme:"Jídlo", skin:"#7cc34a", horns:false, hp:80, dmg:12, words:["jablko=apple","chléb=bread","mléko=milk","voda=water","sýr=cheese","vejce=egg","maso=meat","ryba=fish","rýže=rice","káva=coffee"]},
+    {name:"Zvířecí Medvěd", theme:"Zvířata", skin:"#a0673a", horns:false, hp:90, dmg:13, words:["pes=dog","kočka=cat","pták=bird","kůň=horse","kráva=cow","prase=pig","ovce=sheep","slon=elephant","myš=mouse","králík=rabbit"]},
+    {name:"Barevný Skřet", theme:"Barvy a čísla", skin:"#d96b9a", horns:true, hp:100, dmg:14, words:["červená=red","modrá=blue","zelená=green","žlutá=yellow","černá=black","bílá=white","jedna=one","pět=five","deset=ten","sto=hundred"]}
+  ]},
+  A2:{label:"Mírně pokročilý", bosses:[
+    {name:"Cestovní Troll", theme:"Cestování", skin:"#5f8fa8", horns:false, hp:110, dmg:15, words:["letiště=airport","jízdenka=ticket","zavazadlo=luggage","nádraží=station","hotel=hotel","mapa=map","zpoždění=delay","pas=passport","přístav=harbour","dovolená=holiday"]},
+    {name:"Rodinný Obr", theme:"Rodina a domov", skin:"#c98a4b", horns:false, hp:120, dmg:16, words:["sestra=sister","strýc=uncle","babička=grandmother","soused=neighbour","kuchyně=kitchen","zahrada=garden","schody=stairs","okno=window","střecha=roof","ložnice=bedroom"]},
+    {name:"Škodolibý Imp", theme:"Škola a práce", skin:"#e0533d", horns:true, hp:130, dmg:17, words:["učitel=teacher","zkouška=exam","úkol=homework","plat=salary","šéf=boss","schůzka=meeting","kancelář=office","povolání=job","student=student","knihovna=library"]}
+  ]},
+  B1:{label:"Středně pokročilý", bosses:[
+    {name:"Drak Kancelářský", theme:"Práce a kariéra", skin:"#b53b3b", horns:true, hp:150, dmg:18, words:["zaměstnanec=employee","pohovor=interview","povýšení=promotion","termín=deadline","zkušenost=experience","dovednost=skill","rozpočet=budget","výhoda=advantage","společnost=company","životopis=resume"]},
+    {name:"Bouřná Harpyje", theme:"Počasí a příroda", skin:"#6c7fd1", horns:false, hp:160, dmg:19, words:["bouřka=thunderstorm","mlha=fog","sucho=drought","povodeň=flood","údolí=valley","útes=cliff","větrno=windy","zeměkoule=globe","prostředí=environment","vlna=wave"]},
+    {name:"Zdravotní Vlkodlak", theme:"Zdraví", skin:"#8c8c9e", horns:false, hp:170, dmg:20, words:["bolest=pain","lék=medicine","nemocnice=hospital","zranění=injury","recept=prescription","horečka=fever","kašel=cough","léčba=treatment","alergie=allergy","zotavit se=recover"]}
+  ]},
+  B2:{label:"Pokročilý", bosses:[
+    {name:"Lord Argument", theme:"Názory a diskuze", skin:"#7a4fb5", horns:true, hp:190, dmg:22, words:["souhlasit=agree","tvrdit=claim","důkaz=evidence","závěr=conclusion","přesvědčit=convince","výzva=challenge","předpoklad=assumption","zlepšit=improve","zvážit=consider","následek=consequence"]},
+    {name:"Technický Golem", theme:"Technologie", skin:"#4f9aa0", horns:false, hp:200, dmg:23, words:["vylepšení=upgrade","zařízení=device","stáhnout=download","heslo=password","obrazovka=screen","aplikace=application","připojení=connection","zálohovat=back up","vynález=invention","výkon=performance"]},
+    {name:"Právní Chiméra", theme:"Společnost", skin:"#b58a3f", horns:true, hp:210, dmg:24, words:["vláda=government","zákon=law","občan=citizen","volby=election","svoboda=freedom","spravedlnost=justice","nerovnost=inequality","daň=tax","oběť=victim","odpovědnost=responsibility"]}
+  ]},
+  C1:{label:"Expert", bosses:[
+    {name:"Mistr Idiomů", theme:"Pokročilá slovní zásoba", skin:"#2f2f5a", horns:true, hp:240, dmg:26, words:["pomíjivý=ephemeral","všudypřítomný=ubiquitous","houževnatost=resilience","nevyhnutelný=inevitable","dvojznačný=ambiguous","kompromis=compromise","uvážlivý=prudent","zdánlivý=apparent","podkopat=undermine","úsilí=endeavour"]},
+    {name:"Stínový Mudrc", theme:"Abstraktní pojmy", skin:"#4a4a4a", horns:false, hp:260, dmg:28, words:["dilema=dilemma","nuance=nuance","předsudek=prejudice","soucit=compassion","skepticismus=scepticism","paradox=paradox","odhodlání=determination","rozmanitost=diversity","udržitelnost=sustainability","intuice=intuition"]},
+    {name:"Pán Zkázy", theme:"Finální boss", skin:"#1a1a1a", horns:true, hp:300, dmg:32, words:["zmírnit=alleviate","zdráhavý=reluctant","výmluvný=eloquent","opomíjet=neglect","doplňovat=complement","úsudek=judgement","všeobecný=widespread","potlačit=suppress","zásadní=crucial","dosáhnout=accomplish"]}
+  ]}
+};
+const LEVEL_KEYS = Object.keys(LEVELS);
+const TYPING_LEVELS = ["B2","C1"]; // na těchto úrovních se odpověď píše
+const ATTACKS = [
+  {id:"slash",  name:"⚔️ Seknutí",  cost:10, dmg:15, pow:"SLASH!", color:"gold"},
+  {id:"fire",   name:"🔥 Ohnivá koule", cost:25, dmg:40, pow:"BOOM!", color:"red"},
+  {id:"ultra",  name:"⚡ Ultimátní úder", cost:50, dmg:100, pow:"K.O.!!", color:"purple"},
+  {id:"heal",   name:"💖 Léčení",   cost:20, heal:35, pow:"HEAL", color:"green"}
+];
+
+/* ================= STAV ================= */
+const SAVE_KEY = "anglictina-rpg-save-v1";
+let save = {name:"", level:"A1", xp:0, beaten:{}}; // beaten["A1:0"]=true
+let battle = null;
+const $ = id => document.getElementById(id);
+
+function loadSave(){ try{ const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if(s && s.level) save = Object.assign(save, s); return !!s; }catch(e){ return false; } }
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+const heroLevel = () => 1 + Math.floor(save.xp / 100);
+const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+/* ================= GRAFIKA (SVG, velkohlavé postavy) ================= */
+function heroSVG(){
+  return `<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="38" y="100" width="44" height="34" rx="8" fill="#2f7fd1"/>
+  <rect x="40" y="132" width="16" height="14" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" fill="#5e3a18"/>
+  <rect x="96" y="40" width="8" height="70" fill="#ddd" transform="rotate(12 100 100)"/><rect x="92" y="104" width="22" height="7" fill="#f2b705" transform="rotate(12 100 100)"/>
+  <circle cx="60" cy="58" r="42" fill="#ffd9b0"/>
+  <path d="M18 52 Q60 -14 102 52 Q60 30 18 52Z" fill="#c4491c"/>
+  <circle cx="44" cy="62" r="11" fill="#fff"/><circle cx="76" cy="62" r="11" fill="#fff"/>
+  <circle cx="47" cy="64" r="5" fill="#2b1a10"/><circle cx="73" cy="64" r="5" fill="#2b1a10"/>
+  <path d="M42 82 Q60 98 78 82" fill="#fff"/>
+  <path d="M30 48 L54 54 M90 48 L66 54" fill="none"/></svg>`;
+}
+function bossSVG(b){
+  const horns = b.horns ? `<path d="M22 40 L8 6 L40 28Z M98 40 L112 6 L80 28Z" fill="#f4ecd0"/>` : "";
+  return `<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="30" y="98" width="60" height="40" rx="12" fill="#5e3a18"/>
+  <rect x="34" y="134" width="18" height="12" fill="${b.skin}"/><rect x="68" y="134" width="18" height="12" fill="${b.skin}"/>
+  <rect x="2" y="88" width="22" height="16" rx="6" fill="${b.skin}"/><rect x="96" y="88" width="22" height="16" rx="6" fill="${b.skin}"/>
+  ${horns}
+  <ellipse cx="60" cy="62" rx="46" ry="44" fill="${b.skin}"/>
+  <path d="M30 46 L52 56 M90 46 L68 56" fill="none" stroke-width="6"/>
+  <circle cx="42" cy="62" r="10" fill="#fff8c0"/><circle cx="78" cy="62" r="10" fill="#fff8c0"/>
+  <circle cx="44" cy="64" r="4" fill="#d9372b"/><circle cx="76" cy="64" r="4" fill="#d9372b"/>
+  <path d="M30 84 Q60 108 90 84 Z" fill="#3a0d0d"/>
+  <path d="M38 84 L44 94 L50 86 M70 86 L76 94 L82 84" fill="#fff"/></svg>`;
+}
+
+/* ================= OBRAZOVKY ================= */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
+  window.scrollTo(0,0);
+}
+
+function renderStart(){
+  $("startHero").innerHTML = heroSVG();
+  $("name").value = save.name || "";
+  $("levels").innerHTML = LEVEL_KEYS.map(k => `<div class="lvl ${k===save.level?"sel":""}" data-k="${k}">${k}<small>${LEVELS[k].label}</small></div>`).join("");
+  $("levels").querySelectorAll(".lvl").forEach(el => el.onclick = () => { save.level = el.dataset.k; renderStart(); });
+  $("continueBtn").style.display = save.name ? "inline-block" : "none";
+}
+
+function renderMap(){
+  const lv = LEVELS[save.level];
+  $("mapHero").textContent = `🧙 ${save.name} (Lv. ${heroLevel()})`;
+  $("mapLevel").textContent = `Úroveň ${save.level} – ${lv.label}`;
+  $("mapStats").textContent = `⭐ XP: ${save.xp}`;
+  $("bosslist").innerHTML = lv.bosses.map((b,i) => {
+    const beaten = !!save.beaten[save.level+":"+i];
+    const locked = i > 0 && !save.beaten[save.level+":"+(i-1)];
+    return `<div class="bosscard ${locked?"locked":""} ${beaten?"beaten":""}">
+      ${bossSVG(b)}<h3>${b.name}</h3><div>Téma: <b>${b.theme}</b></div>
+      <div>❤️ ${b.hp} ${beaten?"· ✅ poražen":""}</div>
+      <p><button class="btn red" data-i="${i}" ${locked?"disabled":""}>${locked?"🔒 Zamčeno":(beaten?"Znovu bojovat":"⚔️ Bojovat")}</button></p></div>`;
+  }).join("");
+  $("bosslist").querySelectorAll("button[data-i]").forEach(btn => btn.onclick = () => startBattle(+btn.dataset.i));
+  showScreen("s-map");
+}
+
+/* ================= SOUBOJ ================= */
+function startBattle(i){
+  const boss = LEVELS[save.level].bosses[i];
+  const maxHp = 100 + (heroLevel()-1)*10;
+  battle = { boss, idx:i, heroMax:maxHp, hero:maxHp, bossHp:boss.hp, energy:0, combo:0, turn:0, mistakes:{}, correct:0,
+             deck:[], q:null, locked:false, typing: TYPING_LEVELS.includes(save.level), over:false };
+  $("heroF").innerHTML = heroSVG();
+  $("bossF").innerHTML = bossSVG(boss);
+  $("bHeroName").textContent = `🧙 ${save.name}`;
+  $("bBossName").textContent = `👹 ${boss.name}`;
+  $("attacks").innerHTML = ATTACKS.map(a => `<button class="btn ${a.color}" data-a="${a.id}">${a.name}<small>${a.heal?`+${a.heal} HP`:`${a.dmg} dmg`} · ${a.cost} ⚡</small></button>`).join("");
+  $("attacks").querySelectorAll("button").forEach(b => b.onclick = () => useAttack(b.dataset.a));
+  $("typeBox").style.display = battle.typing ? "block" : "none";
+  $("opts").style.display = battle.typing ? "none" : "grid";
+  $("log").textContent = `${boss.name} se objevil! Odpovídej správně, abys získal energii.`;
+  showScreen("s-battle");
+  updateBars();
+  nextQuestion();
+}
+
+function updateBars(){
+  const b = battle;
+  const set = (f,t,v,m) => { $(f).style.width = Math.max(0,v/m*100)+"%"; $(t).textContent = `${Math.max(0,Math.round(v))} / ${m}`; };
+  set("hpFill","hpText",b.hero,b.heroMax);
+  set("bhpFill","bhpText",b.bossHp,b.boss.hp);
+  set("enFill","enText",b.energy,100);
+  $("combo").textContent = b.combo >= 2 ? `🔥 Kombo ×${b.combo}!` : "";
+  document.querySelectorAll("#attacks button").forEach(btn => {
+    const a = ATTACKS.find(x => x.id === btn.dataset.a);
+    btn.disabled = b.over || b.energy < a.cost || (a.heal && b.hero >= b.heroMax);
+  });
+}
+
+function nextQuestion(){
+  const b = battle;
+  if(b.deck.length === 0) b.deck = shuffle(b.boss.words);
+  const [cz,en] = b.deck.pop().split("=");
+  b.q = {cz,en}; b.locked = false;
+  $("question").innerHTML = `<small>Přelož do angličtiny:</small>${cz}`;
+  if(b.typing){
+    $("typeIn").value = ""; $("typeIn").disabled = false; $("typeOk").disabled = false; $("typeIn").focus();
+  } else {
+    const pool = b.boss.words.map(w => w.split("=")[1]).filter(w => w !== en);
+    const opts = shuffle([en, ...shuffle(pool).slice(0,3)]);
+    $("opts").innerHTML = opts.map(o => `<button class="btn">${o}</button>`).join("");
+    $("opts").querySelectorAll("button").forEach(btn => btn.onclick = () => answer(btn.textContent, btn));
+  }
+}
+
+function answer(given, btn){
+  const b = battle;
+  if(b.locked || b.over) return;
+  b.locked = true;
+  const ok = given.trim().toLowerCase() === b.q.en.toLowerCase();
+  if(btn) btn.classList.add(ok ? "ok" : "bad");
+  if(!ok && !b.typing) [...$("opts").children].forEach(x => { if(x.textContent === b.q.en) x.classList.add("ok"); });
+  if(b.typing){ $("typeIn").disabled = true; $("typeOk").disabled = true; }
+  b.turn++;
+  if(ok){
+    b.correct++; b.combo++;
+    const gain = 10 + Math.min(b.combo-1,5)*3;
+    b.energy = Math.min(100, b.energy + gain);
+    $("log").textContent = `✅ Správně! +${gain} ⚡`;
+    floatText($("heroF"), `+${gain}⚡`, "#2f7fd1");
+    updateBars();
+    setTimeout(afterTurn, 700);
+  } else {
+    b.combo = 0;
+    b.mistakes[b.q.cz] = b.q.en;
+    $("log").textContent = `❌ Správně: „${b.q.en}“. Boss útočí!`;
+    updateBars();
+    setTimeout(() => bossAttack(afterTurn), 900);
+  }
+}
+
+function afterTurn(){
+  if(battle.over) return;
+  // každé 5. kolo boss zaútočí i bez chyby
+  if(battle.turn % 5 === 0 && battle.hero > 0) return bossAttack(nextQuestion);
+  nextQuestion();
+}
+
+function bossAttack(cb){
+  const b = battle;
+  const dmg = Math.round(b.boss.dmg * (0.8 + Math.random()*0.4));
+  lunge($("bossF"), "lunge-l", () => {
+    b.hero -= dmg;
+    hitFx($("heroF"), `-${dmg}`, "#d9372b", "OUCH!");
+    updateBars();
+    if(b.hero <= 0) return endBattle(false);
+    setTimeout(cb, 600);
+  });
+}
+
+function useAttack(id){
+  const b = battle, a = ATTACKS.find(x => x.id === id);
+  if(!b || b.over || b.energy < a.cost) return;
+  b.energy -= a.cost;
+  if(a.heal){
+    b.hero = Math.min(b.heroMax, b.hero + a.heal);
+    floatText($("heroF"), `+${a.heal} HP`, "#3fa34d"); pow(a.pow);
+    $("log").textContent = "Vyléčil ses.";
+    return updateBars();
+  }
+  const dmg = Math.round(a.dmg * (1 + (heroLevel()-1)*0.05));
+  lunge($("heroF"), "lunge-r", () => {
+    b.bossHp -= dmg;
+    hitFx($("bossF"), `-${dmg}`, "#f2b705", a.pow);
+    $("log").textContent = `Zasáhl jsi bosse za ${dmg}!`;
+    updateBars();
+    if(b.bossHp <= 0) endBattle(true);
+  });
+  updateBars();
+}
+
+function endBattle(won){
+  const b = battle;
+  b.over = true; updateBars();
+  const miss = Object.entries(b.mistakes);
+  let html = "";
+  if(won){
+    const xp = 30 + b.boss.hp/10 | 0;
+    const before = heroLevel();
+    save.xp += xp; save.beaten[save.level+":"+b.idx] = true; persist();
+    html = `<p>Porazil jsi <b>${b.boss.name}</b>!</p><p>⭐ +${xp} XP · správných odpovědí: ${b.correct}</p>` +
+           (heroLevel() > before ? `<p><b>🎉 Nový level hrdiny: ${heroLevel()}!</b></p>` : "");
+    $("resTitle").textContent = "🏆 Vítězství!";
+  } else {
+    html = `<p>${b.boss.name} tě porazil… Zkus to znovu!</p>`;
+    $("resTitle").textContent = "💀 Porážka";
+  }
+  html += miss.length ? `<h3>Slovíčka k procvičení</h3><ul class="miss">${miss.map(([c,e]) => `<li>${c} = <b>${e}</b></li>`).join("")}</ul>` : `<p>Bez jediné chyby! 💯</p>`;
+  setTimeout(() => { $("resBody").innerHTML = html; showScreen("s-result"); }, 900);
+}
+
+/* ===== efekty ===== */
+function floatText(target, text, color){
+  const arena = $("arena"), r = target.getBoundingClientRect(), ar = arena.getBoundingClientRect();
+  const el = document.createElement("div");
+  el.className = "float"; el.textContent = text; el.style.color = color;
+  el.style.left = (r.left - ar.left + r.width/3) + "px"; el.style.top = (r.top - ar.top) + "px";
+  arena.appendChild(el); setTimeout(() => el.remove(), 1000);
+}
+function pow(text){
+  const el = document.createElement("div"); el.className = "pow"; el.textContent = text;
+  $("arena").appendChild(el); setTimeout(() => el.remove(), 600);
+}
+function hitFx(target, text, color, powText){
+  target.classList.add("hit"); setTimeout(() => target.classList.remove("hit"), 400);
+  floatText(target, text, color); pow(powText);
+}
+function lunge(el, cls, cb){
+  el.classList.add(cls);
+  setTimeout(() => { el.classList.remove(cls); cb(); }, 260);
+}
+
+/* ================= UDÁLOSTI ================= */
+$("startBtn").onclick = () => {
+  const n = $("name").value.trim();
+  if(!n){ $("name").focus(); $("name").style.borderColor = "#d9372b"; return; }
+  if(n !== save.name && !save.name){ save.xp = 0; save.beaten = {}; }
+  save.name = n; persist(); renderMap();
+};
+$("continueBtn").onclick = () => renderMap();
+$("backStart").onclick = () => { renderStart(); showScreen("s-start"); };
+$("resBtn").onclick = renderMap;
+$("fleeBtn").onclick = () => { if(battle) battle.over = true; renderMap(); };
+$("typeOk").onclick = () => answer($("typeIn").value);
+$("typeIn").addEventListener("keydown", e => { if(e.key === "Enter") answer($("typeIn").value); });
+
+loadSave(); renderStart();
+</script>
+</body>
+</html>
