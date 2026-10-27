@@ -74,6 +74,28 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .slots .item h3{font-size:.8rem}
 .slots .item .ic{font-size:1.8rem}
+/* paper-doll (profil ve stylu MMO) */
+.panel.dark{background:linear-gradient(#2a2f45,#141726);border-color:#0d0f1a;box-shadow:0 6px 0 #0d0f1a,0 0 0 4px #5b6488;color:#e8ecff}
+.docname{font-family:Impact,sans-serif;font-size:1.4rem;letter-spacing:1px;text-align:center;margin-bottom:8px;color:#ffd84a;text-transform:uppercase}
+.docname small{font-family:inherit;color:#aab4e8}
+.doll{max-width:520px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start;justify-content:center}
+.doll .col{display:flex;flex-direction:column;gap:9px}
+.doll .mid{display:flex;flex-direction:column;align-items:center;gap:10px}
+.doll .portrait{width:100%;max-width:260px;background:radial-gradient(ellipse at 50% 85%,#5b6488 0,#2a2f45 45%,#171a2a 100%);border:3px solid #5b6488;border-radius:14px;padding:6px;position:relative}
+.doll .portrait::after{content:"";position:absolute;left:20%;right:20%;bottom:10px;height:12px;border-radius:50%;background:rgba(0,0,0,.45)}
+.doll .portrait svg{width:100%;height:auto;display:block;position:relative;z-index:1}
+.trk{display:flex;gap:9px}
+.slot{width:62px;height:62px;border-radius:10px;border:3px solid #5b6488;background:radial-gradient(circle,#3e4568,#1c2036);display:flex;align-items:center;justify-content:center;font-size:1.8rem;cursor:pointer;position:relative;box-shadow:inset 0 0 8px #000;color:#fff;transition:transform .08s}
+.slot:hover{transform:scale(1.07)}
+.slot small{position:absolute;bottom:0;left:0;right:0;font-size:.5rem;text-align:center;color:#c9d0f5;background:rgba(0,0,0,.55);border-radius:0 0 6px 6px;line-height:1.3;font-weight:700}
+.slot.empty{opacity:.55;filter:grayscale(1)}
+.slot.green{border-color:var(--r-green);box-shadow:inset 0 0 10px rgba(63,163,77,.6),0 0 6px rgba(63,163,77,.5)}
+.slot.blue{border-color:var(--r-blue);box-shadow:inset 0 0 10px rgba(47,127,209,.6),0 0 8px rgba(47,127,209,.6)}
+.slot.yellow{border-color:var(--r-yellow);box-shadow:inset 0 0 12px rgba(242,183,5,.7),0 0 12px rgba(242,183,5,.8)}
+.slot.sel{outline:3px solid #fff;outline-offset:1px}
+.slot .on{position:absolute;top:-6px;right:-6px;background:var(--green);color:#fff;border:2px solid var(--ink);border-radius:50%;width:20px;height:20px;font-size:.7rem;display:flex;align-items:center;justify-content:center}
+.bag{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,62px));gap:10px;justify-content:center;background:linear-gradient(#2a2f45,#141726);border:5px solid #0d0f1a;border-radius:14px;padding:14px;min-height:90px;color:#e8ecff}
+@media(max-width:560px){.slot{width:48px;height:48px;font-size:1.4rem}.slot small{font-size:.42rem}.doll{gap:6px}.doll .col{gap:6px}.bag{grid-template-columns:repeat(auto-fill,minmax(48px,48px));gap:8px}}
 .slotname{font-size:.7rem;font-weight:900;text-transform:uppercase;color:var(--wood-d)}
 #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;border:3px solid var(--gold);border-radius:12px;padding:8px 14px;font-weight:700;font-size:.85rem;z-index:50;max-width:92vw;text-align:center;display:none}
 /* truhla */
@@ -157,14 +179,19 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
 
 <!-- PROFIL -->
 <section id="s-profile" class="screen">
-  <div class="panel">
-    <div class="prof"><div class="portrait" id="profHero"></div><div class="pinfo" id="profInfo"></div></div>
+  <div class="panel dark">
+    <div class="docname" id="profName"></div>
+    <div class="doll">
+      <div class="col" id="slotsL"></div>
+      <div class="mid"><div class="portrait" id="profHero"></div><div class="trk" id="slotsB"></div></div>
+      <div class="col" id="slotsR"></div>
+    </div>
   </div>
-  <h2 class="center">Nasazeno</h2>
-  <div class="slots" id="profSlots"></div>
+  <div class="panel"><div class="pinfo" id="profInfo"></div></div>
+  <div id="profDetail"></div>
   <h2 class="center">Inventář</h2>
   <div class="tabs" id="profTabs"></div>
-  <div class="shopgrid" id="profInv"></div>
+  <div class="bag" id="profInv"></div>
   <p class="center"><button class="btn gold" id="profShop">🛒 Obchod</button> <button class="btn blue" id="profBack">⬅ Zpět do věže</button></p>
 </section>
 
@@ -331,7 +358,7 @@ const DROP = {normal:{chance:0.35, w:{green:70, blue:25, yellow:5}}, boss:{chanc
 const SAVE_KEY = "anglictina-rpg-save-v2";
 const emptyEquip = () => Object.fromEntries(SLOT_KEYS.map(k => [k, null]));
 let save = {name:"", level:"A1", xp:0, coins:0, tower:{}, best:{}, owned:[], equip:emptyEquip()};
-let battle = null, shopType = "weapon", profType = "all", timerId = null, toastId = null;
+let battle = null, shopType = "weapon", profType = "all", profSel = null, timerId = null, toastId = null;
 const $ = id => document.getElementById(id);
 
 function loadSave(){
@@ -739,18 +766,32 @@ function renderProfile(){
     <div>⚡ Energie z odpovědí: <b>+${t.en} %</b> · 🪙 Bonus mincí: <b>+${t.coin} %</b></div>
     <div><span class="coins">🪙 ${save.coins}</span> · 🏰 Nejvyšší patro (${save.level}): <b>${save.best[save.level] || 0}</b></div>
     <div class="spells">${ATTACKS.filter(a => !a.heal).map(a => `<div>${a.name}<b>${attackDmg(a)}</b>dmg (základ ${a.dmg})</div>`).join("")}<div>${ATTACKS[3].name}<b>+${ATTACKS[3].heal}</b>HP</div></div>`;
-  $("profSlots").innerHTML = SLOT_KEYS.map(k => {
-    const it = equipped(k);
-    return it ? `<div class="item ${it.rar}"><div class="slotname">${SLOT_LABEL[k]}</div><div class="ic">${it.icon}</div><h3>${it.name}</h3><p>${statsText(it)}</p><button class="btn small" data-a="off" data-id="${it.id}">Sundat</button></div>`
-              : `<div class="item empty"><div class="slotname">${SLOT_LABEL[k]}</div><div class="ic">❔</div><p>prázdné</p></div>`;
-  }).join("");
+  /* paper-doll: sloty kolem postavy (jako v MMO) */
+  if(profSel && !save.owned.includes(profSel)) profSel = null;
+  const tile = (key) => {
+    const it = equipped(key), type = TYPE_KEYS.find(t => TYPES[t].slots.includes(key));
+    return `<div class="slot ${it ? it.rar : "empty"} ${it && profSel === it.id ? "sel" : ""}" data-k="${key}" title="${it ? it.name + " – " + statsText(it) : SLOT_LABEL[key] + " (prázdné)"}">${it ? it.icon : TYPES[type].label.split(" ")[0]}<small>${SLOT_LABEL[key]}</small></div>`;
+  };
+  $("profName").innerHTML = `🧙 ${save.name} <small>· Lv. ${lvl}</small>`;
+  $("slotsL").innerHTML = ["helmet","shoulders","armor","gloves","belt","boots","amulet"].map(tile).join("");
+  $("slotsR").innerHTML = ["weapon","shield","earring1","earring2","ring1","ring2"].map(tile).join("");
+  $("slotsB").innerHTML = ["trinket1","trinket2"].map(tile).join("");
+  document.querySelectorAll("#s-profile .doll .slot").forEach(el => el.onclick = () => {
+    const it = equipped(el.dataset.k);
+    if(it) profSel = it.id; else { profSel = null; profType = TYPE_KEYS.find(t => TYPES[t].slots.includes(el.dataset.k)); }
+    renderProfile();
+  });
+  $("profDetail").innerHTML = profSel ? `<div class="shopgrid" style="max-width:260px;margin:0 auto">${itemCard(ITEM[profSel], `${equipButtons(ITEM[profSel])} <button class="btn small" data-a="sell" data-id="${profSel}">Prodat 🪙 ${sellPrice(ITEM[profSel])}</button>`, true)}</div>`
+    : `<p class="center"><i>Klikni na slot nebo předmět v inventáři – uvidíš jeho vlastnosti a změnu poškození.</i></p>`;
   $("profTabs").innerHTML = typeTabs(profType, true);
   $("profTabs").querySelectorAll("button").forEach(b => b.onclick = () => { profType = b.dataset.t; renderProfile(); });
   const own = ITEMS.filter(i => save.owned.includes(i.id) && (profType === "all" || i.slot === profType));
-  $("profInv").innerHTML = own.length ? own.map(it =>
-    itemCard(it, `${equipButtons(it)} <button class="btn small" data-a="sell" data-id="${it.id}">Prodat 🪙 ${sellPrice(it)}</button>`, true)).join("")
-    : `<div class="panel center" style="grid-column:1/-1">Tady zatím nic není. Kup si vybavení v obchodě nebo ho získej po bojích!</div>`;
-  bindEquip("#profSlots", renderProfile); bindEquip("#profInv", renderProfile);
+  $("profInv").innerHTML = own.length ? own.map(it => {
+    const on = SLOT_KEYS.some(k => save.equip[k] === it.id);
+    return `<div class="slot ${it.rar} ${profSel === it.id ? "sel" : ""}" data-id="${it.id}" title="${it.name} – ${statsText(it)}">${it.icon}${on ? "<b class=\"on\">✔</b>" : ""}<small>${TYPES[it.slot].label.split(" ")[0]}</small></div>`;
+  }).join("") : `<div class="center" style="grid-column:1/-1">Tady zatím nic není. Kup si vybavení v obchodě nebo ho získej po bojích!</div>`;
+  $("profInv").querySelectorAll(".slot").forEach(el => el.onclick = () => { profSel = el.dataset.id; renderProfile(); });
+  bindEquip("#profDetail", renderProfile);
   showScreen("s-profile");
 }
 

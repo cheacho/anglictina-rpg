@@ -23,6 +23,7 @@ a je vidět na postavě. Uživatel si na začátku zvolí pokročilost A1–C1; 
 - **Vybavení:** 12 typů (`TYPES`: zbraň, štít, helma, ramena, brnění, rukavice, boty, prsten, náušnice, opasek, amulet, trinket) a 15 slotů
   (`SLOT_KEYS`; prsteny, náušnice a trinkety mají po dvou). `it.slot` = typ, `save.equip[slotKey] = id`. Zbraně a brnění jsou v `ITEMS` ručně,
   ostatní typy generuje `gen()` (2× zelená, 2× modrá, 2× žlutá; bonus ×1 / ×2,6 / ×6). Bonusy: `atk` %dmg, `hp`, `def` % obrana (max 60), `en` %energie, `coin` %mincí.
+- Profil (`renderProfile`) je MMO paper-doll: postava uprostřed, sloty kolem ní (levý sloupec, pravý sloupec, trinkety pod postavou), pod tím karta vybraného předmětu a inventář jako mřížka čtvercových polí; klik na slot/předmět vybere `profSel`.
 - Nasazování: `equipItem`, `equipAction`; `snap()` + `diffText()` počítají změnu statistik a poškození kouzel (náhled v kartě předmětu i toast po nasazení).
   Poškození kouzel = `attackDmg(a)` (základ × level × vybavení) – používá souboj, profil i náhledy.
 - Věž: `getEnemy(level, patro)` – nepřítel je deterministický podle (úroveň, patro) díky `rngFor`. HP +12 %/patro, dmg +6 %/patro;
