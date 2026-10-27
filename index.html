@@ -78,13 +78,13 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .panel.dark{background:linear-gradient(#2a2f45,#141726);border-color:#0d0f1a;box-shadow:0 6px 0 #0d0f1a,0 0 0 4px #5b6488;color:#e8ecff}
 .docname{font-family:Impact,sans-serif;font-size:1.4rem;letter-spacing:1px;text-align:center;margin-bottom:8px;color:#ffd84a;text-transform:uppercase}
 .docname small{font-family:inherit;color:#aab4e8}
-.doll{max-width:520px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start;justify-content:center}
+.doll{max-width:700px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start;justify-content:center}
 .doll .col{display:flex;flex-direction:column;gap:9px}
 .doll .mid{display:flex;flex-direction:column;align-items:center;gap:10px}
-.doll .portrait{width:100%;max-width:260px;background:radial-gradient(ellipse at 50% 85%,#5b6488 0,#2a2f45 45%,#171a2a 100%);border:3px solid #5b6488;border-radius:14px;padding:6px;position:relative}
+.doll .portrait{width:100%;max-width:400px;background:radial-gradient(ellipse at 50% 85%,#5b6488 0,#2a2f45 45%,#171a2a 100%);border:3px solid #5b6488;border-radius:14px;padding:6px;position:relative}
 .doll .portrait::after{content:"";position:absolute;left:20%;right:20%;bottom:10px;height:12px;border-radius:50%;background:rgba(0,0,0,.45)}
 .doll .portrait svg{width:100%;height:auto;display:block;position:relative;z-index:1}
-.trk{display:flex;gap:9px}
+.trk{display:flex;gap:9px;margin-top:22px}
 .slot{width:62px;height:62px;border-radius:10px;border:3px solid #5b6488;background:radial-gradient(circle,#3e4568,#1c2036);display:flex;align-items:center;justify-content:center;font-size:1.8rem;cursor:pointer;position:relative;box-shadow:inset 0 0 8px #000;color:#fff;transition:transform .08s}
 .slot:hover{transform:scale(1.07)}
 .slot small{position:absolute;bottom:0;left:0;right:0;font-size:.5rem;text-align:center;color:#c9d0f5;background:rgba(0,0,0,.55);border-radius:0 0 6px 6px;line-height:1.3;font-weight:700}
@@ -334,7 +334,7 @@ const RAR6 = ["green","green","blue","blue","yellow","yellow"], TIER = {green:1,
 function gen(type, names, icons, stats, factor){
   names.forEach((name, i) => {
     const rar = RAR6[i], odd = i % 2, k = TIER[rar] * (odd ? 1.25 : 1);
-    const it = {id:type+(i+1), slot:type, rar, name, icon:icons[i % icons.length], v:odd, price:Math.round(BASE_PRICE[rar]*(odd?1.3:1)*factor/10)*10};
+    const it = {id:type+(i+1), slot:type, rar, name, icon:icons[i % icons.length], n:i, price:Math.round(BASE_PRICE[rar]*(odd?1.3:1)*factor/10)*10};
     for(const st in stats) it[st] = Math.max(1, Math.round(stats[st]*k));
     ITEMS.push(it);
   });
@@ -509,54 +509,120 @@ const ARMOR_ART = {
       front:`<rect x="38" y="100" width="44" height="6" fill="#f2b705"/><rect x="38" y="127" width="44" height="6" fill="#f2b705"/>`,
       top:`<ellipse cx="60" cy="-6" rx="24" ry="7" fill="none" stroke="#f2b705" stroke-width="5"/>`}
 };
-// parametrické kusy: c = hlavní barva podle rarity, d = doplňková, v = varianta tvaru (0/1), side = 0 levá / 1 pravá strana
-const COL = {green:["#6fbf5a","#3a7a34"], blue:["#4f93e8","#2a5db0"], yellow:["#ffd84a","#c98f00"]};
+// parametrické kusy: n = pořadí předmětu v typu (0–5; 0–1 zelené, 2–3 modré, 4–5 žluté) = každý kus má vlastní tvar i barvy, side = 0 levá / 1 pravá strana
+const mirror = s => `<g transform="translate(120 0) scale(-1 1)">${s}</g>`;
 const GEAR_ART = {
-  helmet:(c,d,v)=> `<path d="M18 50 Q18 6 60 6 Q102 6 102 50Z" fill="${c}"/><rect x="16" y="42" width="88" height="9" rx="3" fill="${d}"/>` +
-    (v ? `<path d="M60 6 Q72 -12 94 -6 Q78 4 66 10Z" fill="${d}"/><rect x="56" y="48" width="8" height="20" rx="2" fill="${d}"/>` : `<circle cx="60" cy="20" r="5" fill="${d}"/>`),
-  shoulders:(c,d,v)=> [[34,106],[86,106]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="11" fill="${c}"/><circle cx="${x}" cy="${y}" r="5" fill="${d}" stroke="none"/>` +
-    (v ? `<path d="M${x-6} ${y-8} L${x} ${y-22} L${x+6} ${y-8}Z" fill="${d}"/>` : "")).join(""),
-  gloves:(c,d,v)=> [[37,126],[92,126]].map(([x,y]) => `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="${c}"/><rect x="${x-10}" y="${y-10}" width="20" height="6" rx="2" fill="${d}"/>` +
-    (v ? `<path d="M${x-6} ${y+8} l3 5 l3 -5 l3 5 l3 -5" fill="none" stroke="${d}" stroke-width="3"/>` : "")).join(""),
-  boots:(c,d,v)=> [40,64].map(x => `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="${c}"/><rect x="${x-2}" y="126" width="20" height="7" rx="2" fill="${d}"/>` +
-    (v ? `<path d="M${x+16} 140 l10 -4 l-2 12z" fill="${d}"/>` : "")).join(""),
-  shield:(c,d,v)=> v ? `<path d="M6 94 H38 V120 Q22 142 6 120Z" fill="${c}"/><path d="M22 98 V128 M10 110 H34" stroke="${d}" stroke-width="4" fill="none"/>`
-                     : `<circle cx="22" cy="114" r="16" fill="${c}"/><circle cx="22" cy="114" r="7" fill="${d}"/>`,
-  ring:(c,d,v,s)=> { const x = s ? 93 : 37; return `<circle cx="${x}" cy="129" r="7" fill="none" stroke="${d}" stroke-width="3"/><circle cx="${x}" cy="122" r="${v?5:3.5}" fill="${c}"/>`; },
-  earring:(c,d,v,s)=> { const x = s ? 104 : 16; return v ? `<circle cx="${x}" cy="76" r="7" fill="none" stroke="${d}" stroke-width="3"/><circle cx="${x}" cy="85" r="3.5" fill="${c}"/>`
-                                                        : `<circle cx="${x}" cy="70" r="3.5" fill="${d}"/><path d="M${x} 74 l-5 9 l5 7 l5 -7z" fill="${c}"/>`; },
-  belt:(c,d,v)=> `<rect x="38" y="121" width="44" height="9" fill="${d}"/><rect x="53" y="118" width="14" height="15" rx="2" fill="${c}"/>` +
-    (v ? `<circle cx="44" cy="125.5" r="2" fill="${c}" stroke="none"/><circle cx="76" cy="125.5" r="2" fill="${c}" stroke="none"/>` : ""),
-  amulet:(c,d,v)=> `<path d="M42 98 Q60 120 78 98" fill="none" stroke="${d}" stroke-width="3"/>` +
-    (v ? `<path d="M60 108 L69 118 L60 130 L51 118Z" fill="${c}"/>` : `<circle cx="60" cy="116" r="8" fill="${c}"/><circle cx="60" cy="116" r="3" fill="${d}" stroke="none"/>`),
-  trinket:(c,d,v,s)=> { const x = s ? 80 : 40; return `<path d="M${x} 131 V137" stroke="${d}" stroke-width="2" fill="none"/>` +
-    (v ? `<rect x="${x-3}" y="137" width="6" height="4" fill="${d}"/><circle cx="${x}" cy="145" r="5" fill="${c}"/>` : `<circle cx="${x}" cy="142" r="5.5" fill="${c}"/><circle cx="${x}" cy="142" r="2" fill="${d}" stroke="none"/>`); }
+  helmet:(n)=> [
+    `<path d="M20 50 Q20 10 60 10 Q100 10 100 50Z" fill="#a0703a"/><path d="M20 44 H100" stroke="#5e3a18" stroke-width="5"/><path d="M60 10 V44" stroke="#5e3a18" stroke-width="3" fill="none"/>`,
+    `<path d="M18 50 Q18 6 60 6 Q102 6 102 50Z" fill="#aab4bc"/><rect x="16" y="42" width="88" height="9" rx="3" fill="#6d7a84"/><rect x="56" y="48" width="8" height="20" rx="2" fill="#6d7a84"/><circle cx="60" cy="20" r="4" fill="#6d7a84"/>`,
+    `<path d="M18 52 Q18 4 60 4 Q102 4 102 52Z" fill="#4f93e8"/><rect x="16" y="42" width="88" height="9" rx="3" fill="#2a5db0"/><path d="M18 50 L12 78 L28 70Z M102 50 L108 78 L92 70Z" fill="#2a5db0"/><path d="M60 4 V-8" stroke="#2a5db0" stroke-width="6"/>`,
+    `<path d="M18 50 Q18 6 60 6 Q102 6 102 50Z" fill="#6fa0e8"/><rect x="16" y="42" width="88" height="9" rx="3" fill="#2a5db0"/><path d="M16 36 Q-8 20 -10 -2 Q10 6 22 22Z M104 36 Q128 20 130 -2 Q110 6 98 22Z" fill="#fff"/>`,
+    `<path d="M18 52 Q18 6 60 6 Q102 6 102 52Z" fill="#b53b3b"/><rect x="16" y="42" width="88" height="9" rx="3" fill="#7a1f1f"/><path d="M24 28 L6 -6 L40 14Z M96 28 L114 -6 L80 14Z" fill="#f1ead6"/><path d="M50 8 L60 -8 L70 8Z" fill="#7a1f1f"/>`,
+    `<path d="M20 50 Q20 12 60 12 Q100 12 100 50Z" fill="#ffd84a"/><rect x="16" y="42" width="88" height="9" rx="3" fill="#c98f00"/><path d="M26 22 L32 -2 L46 14 L60 -8 L74 14 L88 -2 L94 22Z" fill="#ffd84a"/><circle cx="60" cy="6" r="4" fill="#d9372b"/><circle cx="36" cy="16" r="3" fill="#4fc3ff"/><circle cx="84" cy="16" r="3" fill="#4fc3ff"/>`
+  ][n],
+  shoulders:(n)=> [
+    `<ellipse cx="32" cy="106" rx="12" ry="9" fill="#a0703a"/><path d="M22 106 H42" stroke="#5e3a18" stroke-width="3"/>`,
+    `<path d="M20 112 Q22 92 42 96 L40 112Z" fill="#aab4bc"/><path d="M22 106 H40" stroke="#6d7a84" stroke-width="3"/>`,
+    `<path d="M20 112 Q20 90 44 96 L42 114Z" fill="#7fb8ff"/><circle cx="28" cy="104" r="2" fill="#2a5db0" stroke="none"/><circle cx="36" cy="101" r="2" fill="#2a5db0" stroke="none"/>`,
+    `<path d="M20 112 Q20 92 42 96 L42 114Z" fill="#4f93e8"/><path d="M24 98 L28 82 L33 96Z M32 96 L38 80 L41 96Z" fill="#cfd6dc"/>`,
+    `<path d="M18 114 Q18 90 44 94 L42 114Z" fill="#b53b3b"/><path d="M22 96 L16 82 L30 92Z M32 94 L30 78 L40 92Z" fill="#ffd84a"/>`,
+    `<path d="M16 116 Q16 88 46 92 L44 116Z" fill="#ffd84a"/><path d="M16 110 q4 6 8 0 q4 6 8 0 q4 6 8 0" fill="none" stroke="#fff" stroke-width="4"/><circle cx="32" cy="100" r="4" fill="#d9372b"/><path d="M26 92 L24 78 L34 90Z" fill="#c98f00"/>`
+  ].map(s => s + mirror(s))[n],
+  gloves:(n)=> [[37,126],[92,126]].map(([x,y]) => [
+    `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="#a0703a"/>`,
+    `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="#cfae7a"/><path d="M${x-9} ${y-2} h18" stroke="#5e3a18" stroke-width="3"/>`,
+    `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="#aab4bc"/><rect x="${x-10}" y="${y-11}" width="20" height="7" rx="2" fill="#6d7a84"/>`,
+    `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="#4f93e8"/><rect x="${x-10}" y="${y-11}" width="20" height="7" rx="2" fill="#2a5db0"/><path d="M${x-6} ${y+8} l2 5 l2 -5 M${x-1} ${y+8} l2 5 l2 -5 M${x+4} ${y+8} l2 5 l2 -5" fill="#cfd6dc"/>`,
+    `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="#b53b3b"/><path d="M${x-7} ${y+8} l1 8 l3 -8 M${x-2} ${y+8} l1 9 l3 -9 M${x+3} ${y+8} l1 8 l3 -8" fill="#f1ead6"/>`,
+    `<rect x="${x-9}" y="${y-8}" width="18" height="16" rx="6" fill="#ffd84a"/><rect x="${x-10}" y="${y-11}" width="20" height="7" rx="2" fill="#c98f00"/><path d="M${x-6} ${y-11} q2 -9 4 0 q2 -10 4 0 q2 -9 4 0" fill="#ff7a00"/>`
+  ][n]).join(""),
+  boots:(n)=> [40,64].map(x => [
+    `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="#a0703a"/>`,
+    `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="#8a5a2b"/><rect x="${x-2}" y="126" width="20" height="7" rx="2" fill="#cfae7a"/>`,
+    `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="#aab4bc"/><rect x="${x-2}" y="126" width="20" height="7" rx="2" fill="#6d7a84"/>`,
+    `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="#4f93e8"/><path d="M${x} 139 H${x+16}" stroke="#fff" stroke-width="3"/><rect x="${x-2}" y="126" width="20" height="7" rx="2" fill="#2a5db0"/>`,
+    `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="#b53b3b"/><rect x="${x-2}" y="126" width="20" height="7" rx="2" fill="#7a1f1f"/><path d="M${x+16} 134 l8 -3 l-2 10z" fill="#ffd84a"/>`,
+    `<rect x="${x}" y="128" width="16" height="20" rx="4" fill="#ffd84a"/><rect x="${x-2}" y="126" width="20" height="7" rx="2" fill="#c98f00"/><path d="M${x} 134 Q${x-14} 124 ${x-12} 142 Q${x-4} 136 ${x} 142Z" fill="#fff"/>`
+  ][n]).join(""),
+  shield:(n)=> [
+    `<circle cx="22" cy="114" r="16" fill="#a0703a"/><path d="M14 100 V128 M22 98 V130 M30 100 V128" stroke="#5e3a18" stroke-width="2" fill="none"/>`,
+    `<circle cx="22" cy="114" r="16" fill="#aab4bc"/><circle cx="22" cy="114" r="5" fill="#6d7a84"/>`,
+    `<path d="M6 94 H38 V120 Q22 142 6 120Z" fill="#4f93e8"/><path d="M22 98 V130" stroke="#2a5db0" stroke-width="4" fill="none"/>`,
+    `<path d="M4 92 H40 V122 Q22 146 4 122Z" fill="#cfd6dc"/><path d="M22 96 V134 M8 108 H36" stroke="#d9372b" stroke-width="6" fill="none"/>`,
+    `<path d="M6 96 L14 86 L22 94 L30 86 L38 96 V120 Q22 142 6 120Z" fill="#b53b3b"/><path d="M12 106 q5 5 10 0 q5 5 10 0 M12 116 q5 5 10 0 q5 5 10 0" stroke="#7a1f1f" stroke-width="2.5" fill="none"/>`,
+    `<path d="M2 90 H42 V124 Q22 152 2 124Z" fill="#ffd84a"/><path d="M8 96 H36 V122 Q22 142 8 122Z" fill="#fff6c0"/><circle cx="22" cy="112" r="6" fill="#4fc3ff"/>`
+  ][n],
+  ring:(n, s)=> { const x = s ? 93 : 37; return [
+    `<circle cx="${x}" cy="129" r="6.5" fill="none" stroke="#c96a2b" stroke-width="3"/>`,
+    `<circle cx="${x}" cy="129" r="6.5" fill="none" stroke="#cfd6dc" stroke-width="3"/><circle cx="${x}" cy="122.5" r="3" fill="#6fbf5a"/>`,
+    `<circle cx="${x}" cy="129" r="6.5" fill="none" stroke="#cfd6dc" stroke-width="3"/><circle cx="${x}" cy="122.5" r="4.5" fill="#4f93e8"/>`,
+    `<circle cx="${x}" cy="129" r="6.5" fill="none" stroke="#ffd84a" stroke-width="3"/><circle cx="${x}" cy="122.5" r="4.5" fill="#d9372b"/>`,
+    `<circle cx="${x}" cy="129" r="6.5" fill="none" stroke="#ffd84a" stroke-width="3"/><path d="M${x} 114 l6 7 l-6 8 l-6 -8z" fill="#aef0ff"/>`,
+    `<circle cx="${x}" cy="129" r="9" fill="none" stroke="#ffd84a" stroke-width="2" opacity=".6"/><circle cx="${x}" cy="129" r="6.5" fill="none" stroke="#ffd84a" stroke-width="3"/><circle cx="${x-3}" cy="122.5" r="3.5" fill="#d9372b"/><circle cx="${x+4}" cy="122.5" r="3.5" fill="#4fc3ff"/>`
+  ][n]; },
+  earring:(n, s)=> { const x = s ? 104 : 16; return [
+    `<circle cx="${x}" cy="70" r="3.5" fill="#c96a2b"/>`,
+    `<circle cx="${x}" cy="72" r="4.5" fill="#fff"/><circle cx="${x-1.5}" cy="70.5" r="1.4" fill="#cfd6dc" stroke="none"/>`,
+    `<circle cx="${x}" cy="70" r="3" fill="#ffd84a"/><path d="M${x} 74 l-5 9 l5 7 l5 -7z" fill="#4f93e8"/>`,
+    `<circle cx="${x}" cy="76" r="7" fill="none" stroke="#cfd6dc" stroke-width="3"/>`,
+    `<circle cx="${x}" cy="76" r="7" fill="none" stroke="#ffd84a" stroke-width="3"/><circle cx="${x}" cy="83.5" r="3.5" fill="#d9372b"/>`,
+    `<circle cx="${x}" cy="70" r="3" fill="#ffd84a"/><path d="M${x} 72 V88" stroke="#ffd84a" stroke-width="2" fill="none"/><path d="M${x} 88 l-6 6 l6 10 l6 -10z" fill="#aef0ff"/>`
+  ][n]; },
+  belt:(n)=> [
+    `<rect x="38" y="122" width="44" height="6" fill="#d9c28a"/><path d="M42 122 l4 6 M50 122 l4 6 M58 122 l4 6 M66 122 l4 6 M74 122 l4 6" stroke="#a08550" stroke-width="2"/>`,
+    `<rect x="38" y="121" width="44" height="9" fill="#5e3a18"/><rect x="54" y="119" width="12" height="13" rx="2" fill="#cfd6dc"/>`,
+    `<rect x="38" y="121" width="44" height="9" fill="#aab4bc"/><path d="M48 121 V130 M60 121 V130 M72 121 V130" stroke="#6d7a84" stroke-width="2"/><rect x="54" y="119" width="12" height="13" rx="2" fill="#4f93e8"/>`,
+    `<rect x="38" y="121" width="44" height="9" fill="#4f93e8"/><rect x="54" y="119" width="12" height="13" rx="2" fill="#ffd84a"/><rect x="40" y="128" width="10" height="12" rx="3" fill="#a0703a"/>`,
+    `<rect x="38" y="121" width="44" height="9" fill="#c98f00"/><rect x="52" y="118" width="16" height="15" rx="3" fill="#ffd84a"/><circle cx="60" cy="125.5" r="4" fill="#d9372b"/>`,
+    `<rect x="38" y="121" width="44" height="9" fill="#ffd84a"/><path d="M50 125 Q38 112 34 128Z M70 125 Q82 112 86 128Z" fill="#fff"/><circle cx="60" cy="125" r="8" fill="#ffd84a"/><circle cx="60" cy="125" r="3.5" fill="#4fc3ff"/>`
+  ][n],
+  amulet:(n)=> [
+    `<path d="M40 98 Q60 122 80 98" fill="none" stroke="#ff7a8a" stroke-width="7" stroke-dasharray="0.1 9" stroke-linecap="round"/>`,
+    `<path d="M42 98 Q60 118 78 98" fill="none" stroke="#5e3a18" stroke-width="3"/><circle cx="60" cy="114" r="7" fill="#a0703a"/><path d="M57 114 h6 M60 111 v6" stroke="#5e3a18" stroke-width="2"/>`,
+    `<path d="M42 98 Q60 118 78 98" fill="none" stroke="#cfd6dc" stroke-width="3"/><circle cx="60" cy="114" r="8" fill="#cfd6dc"/><circle cx="60" cy="114" r="3" fill="#8a3fc7" stroke="none"/>`,
+    `<path d="M42 98 Q60 118 78 98" fill="none" stroke="#cfd6dc" stroke-width="3"/><path d="M54 106 A9 9 0 1 0 66 118 A7 7 0 1 1 54 106Z" fill="#7fb8ff"/>`,
+    `<path d="M42 98 Q60 118 78 98" fill="none" stroke="#c98f00" stroke-width="3"/><circle cx="60" cy="116" r="9" fill="#ffd84a"/><circle cx="60" cy="116" r="4" fill="#d9372b" stroke="none"/>`,
+    `<path d="M42 98 Q60 118 78 98" fill="none" stroke="#c98f00" stroke-width="3"/><path d="M52 106 Q60 134 68 106Z" fill="#f1ead6"/><circle cx="60" cy="108" r="3" fill="#d9372b" stroke="none"/>`
+  ][n],
+  trinket:(n, s)=> { const x = s ? 80 : 40, ch = `<path d="M${x} 131 V136" stroke="#8a6a4a" stroke-width="2" fill="none"/>`; return ch + [
+    `<ellipse cx="${x}" cy="143" rx="4.5" ry="7" fill="#f1ead6"/><path d="M${x-3} 148 v3 M${x+3} 148 v3" stroke="#a08550" stroke-width="2"/>`,
+    `<circle cx="${x-3}" cy="139" r="3.5" fill="#6fbf5a"/><circle cx="${x+3}" cy="139" r="3.5" fill="#6fbf5a"/><circle cx="${x-3}" cy="145" r="3.5" fill="#6fbf5a"/><circle cx="${x+3}" cy="145" r="3.5" fill="#6fbf5a"/>`,
+    `<rect x="${x-3}" y="136" width="6" height="4" fill="#cfd6dc"/><circle cx="${x}" cy="145" r="5.5" fill="#ff6f91"/>`,
+    `<circle cx="${x}" cy="142" r="6" fill="#ffd84a"/><path d="M${x} 137 L${x+2} 142 L${x} 147 L${x-2} 142Z" fill="#d9372b" stroke="none"/>`,
+    `<path d="M${x-5} 136 H${x+5} L${x} 142 L${x+5} 148 H${x-5} L${x} 142Z" fill="#7fe0ff"/>`,
+    `<path d="M${x-6} 138 Q${x} 133 ${x+6} 138 Q${x+6} 146 ${x} 150 Q${x-6} 146 ${x-6} 138Z" fill="#b53b3b"/><path d="M${x-3} 140 Q${x} 138 ${x+3} 140" stroke="#ffd84a" stroke-width="2" fill="none"/>`
+  ][n]; }
 };
 function gearSVG(key){
   const it = equipped(key);
   if(!it) return "";
-  const [c,d] = COL[it.rar], side = key.endsWith("2") ? 1 : 0;
-  const art = GEAR_ART[it.slot](c, d, it.v, side);
+  const art = GEAR_ART[it.slot](it.n, key.endsWith("2") ? 1 : 0);
   return it.rar === "yellow" ? `<g style="filter:drop-shadow(0 0 3px #ffd84a)">${art}</g>` : art;
 }
 function heroSVG(){
   const w = equipped("weapon"), a = equipped("armor");
-  const A = ARMOR_ART[a ? a.id : "none"];
+  const A = ARMOR_ART[a ? a.id : "none"], skin = "#ffd9b0";
   const glow = w && w.rar === "yellow" ? ' style="filter:drop-shadow(0 0 5px #ffd84a)"' : "";
-  const defaultBoots = equipped("boots") ? "" : `<rect x="40" y="132" width="16" height="14" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" fill="#5e3a18"/>`;
-  return `<svg viewBox="0 -14 120 164" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  ${A.back || ""}${defaultBoots}
-  ${A.body}${A.front || ""}${gearSVG("boots")}${gearSVG("belt")}${gearSVG("trinket1")}${gearSVG("trinket2")}
+  const lower = `<rect x="42" y="124" width="14" height="14" fill="#3b3f5c"/><rect x="64" y="124" width="14" height="14" fill="#3b3f5c"/>` +
+    (equipped("boots") ? "" : `<rect x="40" y="132" width="16" height="14" rx="3" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" rx="3" fill="#5e3a18"/>`);
+  return `<svg viewBox="-14 -14 148 164" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+  ${A.back || ""}${lower}<rect x="53" y="88" width="14" height="18" fill="${skin}"/>
+  ${A.body}${A.front || ""}<rect x="70" y="103" width="11" height="28" rx="4" fill="#000" opacity=".12" stroke="none"/>${gearSVG("boots")}${gearSVG("belt")}${gearSVG("trinket1")}${gearSVG("trinket2")}
   <g${glow} transform="rotate(14 100 100)">${WEAPON_ART[w ? w.id : "none"]}</g>
-  <rect x="30" y="102" width="14" height="24" rx="6" fill="#ffd9b0"/>${gearSVG("shield")}
-  <rect x="78" y="102" width="14" height="24" rx="6" fill="#ffd9b0" transform="rotate(-20 85 105)"/>
+  <rect x="30" y="102" width="14" height="24" rx="6" fill="${skin}"/><circle cx="37" cy="127" r="8" fill="${skin}"/>${gearSVG("shield")}
+  <rect x="78" y="102" width="14" height="24" rx="6" fill="${skin}" transform="rotate(-20 85 105)"/><circle cx="92" cy="125" r="8" fill="${skin}"/><path d="M96 120 q4 2 3 6" fill="none" stroke-width="2.5"/>
   ${gearSVG("gloves")}${gearSVG("ring1")}${gearSVG("ring2")}${gearSVG("shoulders")}
-  <circle cx="60" cy="58" r="42" fill="#ffd9b0"/>
-  <path d="M18 52 Q60 -14 102 52 Q60 30 18 52Z" fill="#c4491c"/>
+  <circle cx="18" cy="62" r="8" fill="${skin}"/><circle cx="102" cy="62" r="8" fill="${skin}"/><path d="M16 60 q3 2 0 6 M104 60 q-3 2 0 6" fill="none" stroke-width="2"/>
+  <circle cx="60" cy="58" r="42" fill="${skin}"/>
+  <circle cx="34" cy="78" r="6" fill="#ff9a8a" opacity=".55" stroke="none"/><circle cx="86" cy="78" r="6" fill="#ff9a8a" opacity=".55" stroke="none"/>
+  <path d="M16 58 Q8 12 60 6 Q112 12 104 58 Q98 34 82 32 Q72 42 58 32 Q42 42 30 34 Q20 40 16 58Z" fill="#c4491c"/>
+  <path d="M56 8 L62 -6 L72 10Z M40 14 L38 0 L52 10Z" fill="#c4491c"/><path d="M36 20 Q54 10 74 14" stroke="#e8743a" stroke-width="4" fill="none"/>
+  <path d="M30 48 Q44 40 54 48 M90 48 Q76 40 66 48" stroke="#7a2e10" stroke-width="5" fill="none"/>
   <circle cx="44" cy="62" r="11" fill="#fff"/><circle cx="76" cy="62" r="11" fill="#fff"/>
-  <circle cx="47" cy="64" r="5" fill="#2b1a10"/><circle cx="73" cy="64" r="5" fill="#2b1a10"/>
-  <path d="M42 82 Q60 98 78 82" fill="#fff"/>
-  <path d="M30 48 L54 54 M90 48 L66 54" fill="none"/>
+  <circle cx="47" cy="64" r="6" fill="#3a2a8a"/><circle cx="73" cy="64" r="6" fill="#3a2a8a"/><circle cx="47" cy="64" r="2.5" fill="#1a1a1a" stroke="none"/><circle cx="73" cy="64" r="2.5" fill="#1a1a1a" stroke="none"/>
+  <circle cx="50" cy="60" r="2" fill="#fff" stroke="none"/><circle cx="76" cy="60" r="2" fill="#fff" stroke="none"/>
+  <path d="M60 68 q-4 8 2 10" fill="none" stroke-width="3"/>
+  <path d="M42 83 Q60 100 78 83Z" fill="#7a1f1f"/><path d="M47 85 H73 L70 89 H50Z" fill="#fff" stroke="none"/>
   ${A.top || ""}${gearSVG("helmet")}${gearSVG("earring1")}${gearSVG("earring2")}${gearSVG("amulet")}</svg>`;
 }
 
