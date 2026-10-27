@@ -106,12 +106,44 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .drop{display:inline-block;background:#fffbe9;border:5px solid var(--ink);border-radius:14px;padding:8px 14px;margin:6px}
 .drop.green{border-color:var(--r-green)}.drop.blue{border-color:var(--r-blue)}.drop.yellow{border-color:var(--r-yellow);box-shadow:0 0 14px var(--r-yellow)}
 /* souboj */
-.arena{position:relative;background:linear-gradient(#8fd3ff 0,#d8f1ff 55%,#7cc15a 55%,#4c8f35 100%);border:5px solid var(--ink);border-radius:18px;
+.arena{position:relative;background:var(--sky,linear-gradient(#8fd3ff 0,#d8f1ff 55%,#7cc15a 55%,#4c8f35 100%));border:5px solid var(--ink);border-radius:18px;
   box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);height:270px;overflow:hidden}
-.arena::before{content:"";position:absolute;right:12%;top:14px;width:54px;height:54px;border-radius:50%;background:#ffe45c;border:4px solid var(--ink);box-shadow:0 0 0 8px rgba(255,228,92,.45)}
-.arena::after{content:"";position:absolute;left:-10%;right:-10%;bottom:38%;height:60px;background:#5fae48;border-top:4px solid var(--ink);border-radius:50% 50% 0 0/100% 100% 0 0}
+.arena::before{content:"";position:absolute;right:12%;top:14px;width:54px;height:54px;border-radius:50%;display:var(--orbd,block);background:var(--orb,#ffe45c);border:4px solid var(--ink);box-shadow:0 0 0 8px rgba(255,228,92,.45)}
+.arena::after{content:"";position:absolute;left:-10%;right:-10%;bottom:38%;height:60px;display:var(--hilld,block);background:var(--hill,#5fae48);border-top:4px solid var(--ink);border-radius:50% 50% 0 0/100% 100% 0 0}
 .cloud{position:absolute;top:20px;width:70px;height:24px;background:#fff;border:4px solid var(--ink);border-radius:20px;animation:drift 18s linear infinite}
 .cloud.c2{top:62px;animation-duration:26s;animation-delay:-9s}
+.arena .deco{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.arena.noclouds .cloud{display:none}
+/* věž */
+.towerview{border:5px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);padding:12px 10px 0;display:flex;flex-direction:column;align-items:center;overflow:hidden;margin-bottom:12px}
+.towerview.starry{background-image:radial-gradient(circle,#fff 1px,transparent 1.6px),radial-gradient(circle,#fff 1px,transparent 1.6px);background-size:70px 70px,110px 110px;background-position:0 0,35px 40px}
+.troof{width:100%;max-width:560px;height:60px;position:relative;display:flex;justify-content:center;align-items:flex-start}
+.troof::before{content:"";position:absolute;left:0;right:0;bottom:0;height:56px;background:#7a3a2a;clip-path:polygon(4% 100%,50% 0,96% 100%);filter:drop-shadow(0 0 0 #000)}
+.troof span{position:relative;font-size:1.8rem;margin-top:-8px}
+.tfloor{width:100%;max-width:560px}
+.tfloor .room{position:relative;border:4px solid var(--ink);margin-top:-4px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:linear-gradient(rgba(0,0,0,.06),rgba(0,0,0,.2)),repeating-linear-gradient(90deg,transparent 0 38px,rgba(0,0,0,.1) 38px 40px),repeating-linear-gradient(0deg,transparent 0 18px,rgba(0,0,0,.12) 18px 20px),var(--wall)}
+.tfloor.cleared .room{min-height:46px;justify-content:center;opacity:.85}
+.tfloor.upcoming .room{min-height:100px}
+.tfloor.current .room{background-blend-mode:normal;box-shadow:0 0 0 4px var(--red),0 0 22px 6px var(--gold);z-index:2}
+.tfloor.boss .room{border-color:#7a5a00;box-shadow:inset 0 0 0 3px var(--gold)}
+.tfloor.boss.current .room{box-shadow:inset 0 0 0 3px var(--gold),0 0 0 4px var(--red),0 0 22px 6px var(--gold)}
+.fnum{position:absolute;left:-4px;top:-4px;background:var(--ink);color:var(--gold);font-family:Impact,sans-serif;padding:2px 10px;border-radius:0 0 10px 0;font-size:1.1rem}
+.crown{position:absolute;right:8px;top:2px;font-size:1.4rem}
+.rtop{display:flex;align-items:flex-end;justify-content:center;gap:18px;width:100%}
+.rtop svg{width:120px;height:auto;display:block;filter:drop-shadow(3px 4px 0 rgba(0,0,0,.3))}
+.hero-mk.climb{animation:climbup 1.6s ease-out}
+@keyframes climbup{0%{transform:translateY(150px);opacity:.3}60%{transform:translateY(-12px);opacity:1}100%{transform:none}}
+.vs{font-family:Impact,sans-serif;font-size:1.6rem;color:var(--gold);-webkit-text-stroke:2px var(--ink);align-self:center}
+.rinfo{text-align:center;background:rgba(255,251,233,.9);border:3px solid var(--ink);border-radius:10px;padding:4px 12px;width:100%}
+.rinfo p{margin:6px 0 2px}
+.rrow{display:flex;align-items:center;gap:12px;background:rgba(255,251,233,.85);border:3px solid var(--ink);border-radius:10px;padding:4px 12px;width:100%}
+.rrow.done{justify-content:center;font-weight:900;color:#2e7d3a}
+.foe.small svg{width:64px;height:74px;filter:brightness(.4) saturate(.6)}
+.tground,.tbase{width:100%;max-width:560px;text-align:center;font-weight:900;padding:10px}
+.tground{background:repeating-linear-gradient(90deg,#4c8f35 0 20px,#5fae48 20px 40px);border:4px solid var(--ink);border-bottom:0;margin-top:-4px}
+.tbase{color:#fff;text-shadow:1px 1px 0 var(--ink)}
+@media(max-width:560px){.rtop svg{width:90px}}
 @keyframes drift{from{left:-90px}to{left:105%}}
 .fighter::after{content:"";position:absolute;left:10%;right:10%;bottom:-6px;height:14px;border-radius:50%;background:rgba(0,0,0,.3);z-index:-1}
 .fighter svg{animation:bob 1.6s ease-in-out infinite;transform-origin:50% 100%}
@@ -172,8 +204,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
     <p class="center" style="margin-bottom:0"><button class="btn blue" id="profileBtn">👤 Profil a inventář</button> <button class="btn gold" id="shopBtn">🛒 Obchod</button></p>
   </div>
   <div class="zonebar" id="zonebar"></div>
-  <h2 class="center">Věž – patro <span id="mapFloor"></span></h2>
-  <div class="bosslist" id="bosslist"></div>
+  <div class="towerview" id="towerView"></div>
   <p class="center"><button class="btn blue" id="backStart">⬅ Změnit hrdinu / úroveň</button></p>
 </section>
 
@@ -212,7 +243,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
     <div><b id="bHeroName"></b><div class="bar hp"><i id="hpFill"></i><span id="hpText"></span></div><div class="bar en" style="margin-top:4px"><i id="enFill"></i><span id="enText"></span></div></div>
     <div><b id="bBossName"></b><div class="bar bhp"><i id="bhpFill"></i><span id="bhpText"></span></div></div>
   </div>
-  <div class="arena" id="arena"><div class="cloud"></div><div class="cloud c2"></div><div class="fighter" id="heroF"></div><div class="fighter" id="bossF"></div></div>
+  <div class="arena" id="arena"><svg class="deco" id="envDeco" viewBox="0 0 400 270" preserveAspectRatio="none" stroke="#2b1a10" stroke-width="3"></svg><div class="cloud"></div><div class="cloud c2"></div><div class="fighter" id="heroF"></div><div class="fighter" id="bossF"></div></div>
   <div class="panel">
     <div class="combo" id="combo"></div>
     <div class="bar tm" id="timerBox" style="display:none"><i id="timerFill"></i><span id="timerText"></span></div>
@@ -238,6 +269,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
 
 </div>
 <div id="toast"></div>
+<div id="testBanner" style="display:none;position:fixed;top:0;left:0;background:#d9372b;color:#fff;font:700 11px sans-serif;padding:2px 8px;border-radius:0 0 8px 0;z-index:60">TESTOVACÍ REŽIM (samostatné uložení)</div>
 
 <script>
 "use strict";
@@ -355,13 +387,33 @@ const OLD_JEWELRY_REFUND = {j1:130, j2:180, j3:800, j4:950, j5:3400, j6:5000}; /
 const DROP = {normal:{chance:0.35, w:{green:70, blue:25, yellow:5}}, boss:{chance:1, w:{green:45, blue:40, yellow:15}}};
 
 /* ================= STAV ================= */
-const SAVE_KEY = "anglictina-rpg-save-v2";
+// Testovací režim: index.html?test=1 (volitelně &level=C1 &floor=50 &hero=50 &coins=100000 &fresh=1) načte hotový postup
+// (vysoký level, všechno žluté vybavení, vysoké patro) a ukládá ho do SAMOSTATNÉHO klíče – skutečný postup se nepřepíše.
+const QS = new URLSearchParams(location.search), TEST = QS.has("test");
+const SAVE_KEY = TEST ? "anglictina-rpg-save-test" : "anglictina-rpg-save-v2";
 const emptyEquip = () => Object.fromEntries(SLOT_KEYS.map(k => [k, null]));
 let save = {name:"", level:"A1", xp:0, coins:0, tower:{}, best:{}, owned:[], equip:emptyEquip()};
 let battle = null, shopType = "weapon", profType = "all", profSel = null, timerId = null, toastId = null;
 const $ = id => document.getElementById(id);
 
+function makeTestSave(){
+  const level = LEVELS[QS.get("level")] ? QS.get("level") : "B2";
+  const floor = Math.max(1, parseInt(QS.get("floor")) || 50), hero = Math.max(1, parseInt(QS.get("hero")) || 50);
+  const owned = ITEMS.filter(i => i.rar === "yellow").map(i => i.id), equip = emptyEquip();
+  for(const t of TYPE_KEYS){ // nasadit nejlepší žluté kusy (druhý kus typu do druhého slotu)
+    const best = ITEMS.filter(i => i.slot === t && i.rar === "yellow").reverse();
+    TYPES[t].slots.forEach((k, i) => { if(best[i]) equip[k] = best[i].id; });
+  }
+  const tower = {}, bestFloor = {};
+  for(const k of LEVEL_KEYS){ tower[k] = floor; bestFloor[k] = floor - 1; }
+  return {name:"Tester", level, xp:(hero-1)*100, coins:parseInt(QS.get("coins")) || 100000, tower, best:bestFloor, owned, equip};
+}
 function loadSave(){
+  if(TEST){
+    $("testBanner").style.display = "block";
+    let has = false; try{ has = !QS.has("fresh") && !!localStorage.getItem(SAVE_KEY); }catch(e){}
+    if(!has){ save = makeTestSave(); persist(); return; }
+  }
   try{
     const s = JSON.parse(localStorage.getItem(SAVE_KEY));
     if(s && s.level){
@@ -755,27 +807,80 @@ function renderStart(){
   $("levels").querySelectorAll(".lvl").forEach(el => el.onclick = () => { save.level = el.dataset.k; renderStart(); });
 }
 
+/* ----- prostředí: mění se každou zónu (10 pater), jak hráč stoupá výš; po 8 zónách se cyklí ----- */
+function starsSVG(n, seed){
+  const r = rngFor("stars"+seed); let s = "";
+  for(let i=0;i<n;i++) s += `<circle cx="${(r()*400).toFixed(0)}" cy="${(r()*140).toFixed(0)}" r="${(0.8+r()*1.6).toFixed(1)}" fill="#fff" stroke="none" opacity="${(0.5+r()*0.5).toFixed(2)}"/>`;
+  return s;
+}
+const tree = (x, h) => `<path d="M${x-20} 152 L${x} ${152-h} L${x+20} 152Z" fill="#2e7d3a"/><path d="M${x-15} 128 L${x} ${128-h*.8} L${x+15} 128Z" fill="#3a9a48"/><rect x="${x-3}" y="150" width="6" height="12" fill="#5e3a18"/>`;
+const puffs = (c, y=150) => `<g fill="${c}">${[20,70,130,200,270,330,385].map((x,i) => `<circle cx="${x}" cy="${y+(i%2?6:0)}" r="${26+(i%3)*6}"/>`).join("")}</g>`;
+// sky = celé pozadí arény (obloha + zem), hill = barva pahorku, orb = slunce/měsíc/planeta, top/bot = barvy oblohy ve věži, wall = barva zdi pater ve věži
+const ENVS = [
+  {name:"Louka", icon:"🌤️", sky:"linear-gradient(#8fd3ff 0,#d8f1ff 55%,#7cc15a 55%,#4c8f35 100%)", hill:"#5fae48", orb:"#ffe45c", top:"#8fd3ff", bot:"#d8f1ff", wall:"#c9b27a", clouds:true, deco:""},
+  {name:"Hluboký les", icon:"🌲", sky:"linear-gradient(#a9dcc0 0,#e1f2d0 55%,#3f8f4a 55%,#255a2c 100%)", hill:"#2f7a3c", orb:"#fff3b0", top:"#a9dcc0", bot:"#e1f2d0", wall:"#7c9a6a", clouds:true,
+    deco:[20,72,128,276,332,384].map((x,i) => tree(x, 70+(i%3)*14)).join("")},
+  {name:"Hradní síň", icon:"🏰", sky:"linear-gradient(#5a5f7a 0,#7a7f98 55%,#8a7a6a 55%,#5e5040 100%)", hill:"", orb:"", top:"#4a4f6a", bot:"#7a7f98", wall:"#8b8fa8", clouds:false,
+    deco:`<defs><pattern id="brk" width="40" height="20" patternUnits="userSpaceOnUse"><path d="M0 0H40M0 10H40M20 0V10M0 10V20M40 10V20" stroke="#4a4e62" stroke-width="2" fill="none"/></pattern></defs><rect x="0" y="0" width="400" height="150" fill="#6b6f85" stroke="none"/><rect x="0" y="0" width="400" height="150" fill="url(#brk)" stroke="none"/>
+      <path d="M165 150 V76 Q200 30 235 76 V150Z" fill="#1a1428"/><rect x="56" y="62" width="8" height="34" fill="#5e3a18"/><ellipse cx="60" cy="54" rx="11" ry="15" fill="#ff9a1f" stroke="none"/><ellipse cx="60" cy="57" rx="5" ry="8" fill="#ffe14a" stroke="none"/>
+      <rect x="336" y="62" width="8" height="34" fill="#5e3a18"/><ellipse cx="340" cy="54" rx="11" ry="15" fill="#ff9a1f" stroke="none"/><ellipse cx="340" cy="57" rx="5" ry="8" fill="#ffe14a" stroke="none"/>`},
+  {name:"Sopka", icon:"🌋", sky:"linear-gradient(#5a1a14 0,#e0552a 55%,#3a1410 55%,#1a0a08 100%)", hill:"#2a1210", orb:"#ffb347", top:"#5a1a14", bot:"#e0552a", wall:"#8a4a3a", clouds:false,
+    deco:`<path d="M230 152 L292 52 L330 52 L392 152Z" fill="#3a1a14"/><path d="M290 52 Q311 34 332 52Z" fill="#ff7a1a"/><circle cx="300" cy="30" r="12" fill="#6a4a44" stroke="none" opacity=".7"/><circle cx="320" cy="16" r="9" fill="#6a4a44" stroke="none" opacity=".6"/>
+      <path d="M0 196 Q100 184 200 200 T400 192 V204 H0Z" fill="#ff7a1a" opacity=".65" stroke="none"/><g fill="#ffb347" stroke="none"><circle cx="60" cy="90" r="2"/><circle cx="140" cy="60" r="2.5"/><circle cx="200" cy="110" r="2"/><circle cx="260" cy="30" r="2"/></g>`},
+  {name:"Ledová hora", icon:"🏔️", sky:"linear-gradient(#a8d8ff 0,#eaf6ff 55%,#f4fbff 55%,#c6e2f5 100%)", hill:"#dff0fb", orb:"#ffffff", top:"#a8d8ff", bot:"#eaf6ff", wall:"#b5d3e8", clouds:true,
+    deco:`<path d="M0 152 L60 70 L112 152Z M80 152 L150 46 L222 152Z M262 152 L332 80 L400 152Z" fill="#b9d3e8"/><path d="M60 70 L44 94 L76 94Z M150 46 L130 82 L170 82Z M332 80 L316 104 L348 104Z" fill="#fff"/>
+      <g fill="#fff" stroke="none">${[[40,30],[120,60],[210,24],[290,50],[360,28],[170,100],[330,110]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="2.5"/>`).join("")}</g>`},
+  {name:"Nad mraky", icon:"☁️", sky:"linear-gradient(#2f6fd6 0,#8fc4ff 55%,#f6fbff 55%,#c8dcf5 100%)", hill:"#ffffff", orb:"#ffe45c", top:"#2f6fd6", bot:"#8fc4ff", wall:"#e8eef8", clouds:true, deco:puffs("#ffffff")},
+  {name:"Noční obloha", icon:"🌙", sky:"linear-gradient(#0e1038 0,#3a2a6a 55%,#4a3a7a 55%,#2a2050 100%)", hill:"#5a4a8a", orb:"#f4f1d0", top:"#0e1038", bot:"#3a2a6a", wall:"#4a3a7a", clouds:false,
+    deco:starsSVG(40,"night") + puffs("#6a5aa0")},
+  {name:"Vesmír", icon:"🪐", sky:"linear-gradient(#05030f 0,#2a1050 55%,#3a2a5a 55%,#1a1030 100%)", hill:"#4a3a6a", orb:"#9fe0ff", top:"#05030f", bot:"#2a1050", wall:"#2a2050", clouds:false,
+    deco:starsSVG(70,"space") + `<circle cx="90" cy="72" r="34" fill="#c45a9a"/><ellipse cx="90" cy="72" rx="58" ry="10" fill="none" stroke="#ffd84a" stroke-width="4" transform="rotate(-18 90 72)"/><circle cx="330" cy="110" r="10" fill="#6a5aa0"/>`}
+];
+const envOf = e => ENVS[e.zone % ENVS.length];
+function applyEnv(env){
+  const a = $("arena");
+  a.style.setProperty("--sky", env.sky); a.style.setProperty("--hill", env.hill || "transparent"); a.style.setProperty("--orb", env.orb || "transparent");
+  a.style.setProperty("--orbd", env.orb ? "block" : "none"); a.style.setProperty("--hilld", env.hill ? "block" : "none");
+  a.classList.toggle("noclouds", !env.clouds);
+  $("envDeco").innerHTML = env.deco;
+}
+
+/* ----- věž: patra se kreslí zdola nahoru, každá zóna má jinou zeď a obloha se mění s výškou ----- */
+let climbPending = false; // po výhře hrdina "vyšplhá" na další patro
 function renderTower(){
-  const lv = LEVELS[save.level], f = floorNow();
+  const lv = LEVELS[save.level], f = floorNow(), climb = climbPending;
+  climbPending = false;
   const cur = getEnemy(save.level, f), zoneStart = cur.zone*ZONE_LEN + 1, pos = f - zoneStart + 1;
+  const env = envOf(cur), next = ENVS[(cur.zone+1) % ENVS.length];
   $("mapHero").textContent = `🧙 ${save.name} (Lv. ${heroLevel()})`;
   $("mapLevel").textContent = `Úroveň ${save.level} – ${lv.label}`;
   $("mapStats").innerHTML = `<span class="coins">🪙 ${save.coins}</span> ⭐ ${save.xp} XP`;
-  $("mapFloor").textContent = f;
-  $("zonebar").innerHTML = `Zóna ${cur.zone+1}: ${cur.icon} ${cur.theme} <small>(patra ${zoneStart}–${zoneStart+ZONE_LEN-1})</small>
+  $("zonebar").innerHTML = `⬆ Patro ${f} · výška ${f*4} m · ${env.icon} ${env.name}<br>Zóna ${cur.zone+1}: ${cur.icon} ${cur.theme} <small>(patra ${zoneStart}–${zoneStart+ZONE_LEN-1})</small>
     <div class="bar"><i style="background:var(--gold);width:${(pos-1)/ZONE_LEN*100}%"></i><span>${pos} / ${ZONE_LEN}${pos===ZONE_LEN?" – BOSS":""}</span></div>`;
-  const rows = [];
-  for(let i = f+2; i >= f; i--){
-    const b = getEnemy(save.level, i), c = i === f;
-    rows.push(`<div class="bosscard ${c?"current":"locked"} ${b.isBoss?"mega":""}">
-      <div class="floor">${i}.<br><small>patro</small></div>${enemySVG(b)}
-      <div class="info"><h3>${b.name}</h3><div>${b.icon} <b>${b.theme}</b></div>
-      <div>❤️ ${b.hp} · 💥 ~${b.dmg}${b.isBoss?" · 👑 boss zóny":""}</div>
-      ${c ? `<p><button class="btn" id="fightBtn">⚔️ Bojovat</button></p>` : ""}</div></div>`);
+  const top = f + 3, bottom = Math.max(1, f - 2), rows = [];
+  for(let i = top; i >= bottom; i--){
+    const b = getEnemy(save.level, i), e = envOf(b);
+    const state = i < f ? "cleared" : i === f ? "current" : "upcoming";
+    let inner;
+    if(state === "current"){
+      inner = `<div class="rtop"><div class="hero-mk ${climb ? "climb" : ""}">${heroSVG()}</div><b class="vs">VS</b><div class="foe">${enemySVG(b)}</div></div>
+        <div class="rinfo"><h3>${b.name}</h3><div>${b.icon} <b>${b.theme}</b> · ❤️ ${b.hp} · 💥 ~${b.dmg}${b.isBoss ? " · 👑 boss zóny" : ""}</div>
+        <p><button class="btn" id="fightBtn">⚔️ Bojovat</button></p></div>`;
+    } else if(state === "upcoming"){
+      inner = `<div class="rrow"><div class="foe small">${enemySVG(b)}</div><div><h3>${b.name}</h3><div>${b.icon} ${b.theme} · ❤️ ${b.hp}${b.isBoss ? " · 👑 boss" : ""}</div></div></div>`;
+    } else inner = `<div class="rrow done">✔ Vyčištěno – ${b.name}</div>`;
+    rows.push(`<div class="tfloor ${state} ${b.isBoss ? "boss" : ""}" style="--wall:${e.wall}"><div class="room"><span class="fnum">${i}</span>${b.isBoss ? `<span class="crown">👑</span>` : ""}${inner}</div></div>`);
   }
-  $("bosslist").innerHTML = rows.join("");
+  $("towerView").style.background = `linear-gradient(to top, ${env.bot}, ${next.top})`;
+  $("towerView").classList.toggle("starry", cur.zone % ENVS.length >= 6);
+  $("towerView").innerHTML = `<div class="troof"><span>🚩</span></div>${rows.join("")}` +
+    (bottom === 1 ? `<div class="tground">🌱 Země</div>` : `<div class="tbase">⬇ níže ${bottom-1} pater</div>`);
   $("fightBtn").onclick = startBattle;
   showScreen("s-map");
+  if(climb){
+    toast(`⬆ Vyšplhal jsi na ${f}. patro – ${env.icon} ${env.name}`);
+    $("fightBtn").scrollIntoView({block:"center"});
+  }
 }
 
 /* ----- vybavení: společné karty pro obchod a inventář ----- */
@@ -869,12 +974,13 @@ function startBattle(){
   $("heroF").innerHTML = heroSVG();
   $("bossF").innerHTML = enemySVG(boss);
   $("bossF").classList.toggle("mega", boss.isBoss);
+  const env = envOf(boss); applyEnv(env);
   $("bHeroName").textContent = `🧙 ${save.name}`;
   $("bBossName").textContent = `${f}. patro · ${boss.name}`;
   $("attacks").innerHTML = ATTACKS.map(a => `<button class="btn ${a.color}" data-a="${a.id}">${a.name}<small>${a.heal?`+${a.heal} HP`:`${attackDmg(a)} dmg`} · ${a.cost} ⚡</small></button>`).join("");
   $("attacks").querySelectorAll("button").forEach(b => b.onclick = () => useAttack(b.dataset.a));
   const d = battle.diff;
-  $("log").textContent = `${boss.icon} ${boss.theme}: ${boss.name} se objevil!` + (d.timeLimit ? ` Na odpověď máš ${d.timeLimit.toFixed(0)} s.` : " Odpovídej správně, abys získal energii.");
+  $("log").textContent = `${env.icon} ${env.name} · ${boss.icon} ${boss.theme}: ${boss.name} se objevil!` + (d.timeLimit ? ` Na odpověď máš ${d.timeLimit.toFixed(0)} s.` : " Odpovídej správně, abys získal energii.");
   showScreen("s-battle");
   updateBars();
   nextQuestion();
@@ -1015,7 +1121,7 @@ function endBattle(won){
   if(won){
     if(!miss.length) reward = Math.round(reward*1.2);
     const xp = 30 + f*2 + (boss.isBoss ? 50 : 0), before = heroLevel();
-    save.xp += xp; save.tower[save.level] = f + 1;
+    save.xp += xp; save.tower[save.level] = f + 1; climbPending = true;
     save.best[save.level] = Math.max(save.best[save.level] || 0, f);
     chest = Math.round(base * (1.5 + f*0.2) * (0.8 + Math.random()*0.5) * cb * (boss.isBoss ? 3 : 1));
     html = `<p>Porazil jsi <b>${boss.name}</b> a postupuješ na <b>${f+1}. patro</b>!</p>

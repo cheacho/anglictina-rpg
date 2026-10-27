@@ -26,7 +26,9 @@ a je vidět na postavě. Uživatel si na začátku zvolí pokročilost A1–C1; 
 - Profil (`renderProfile`) je MMO paper-doll: postava uprostřed, sloty kolem ní (levý sloupec, pravý sloupec, trinkety pod postavou), pod tím karta vybraného předmětu a inventář jako mřížka čtvercových polí; klik na slot/předmět vybere `profSel`.
 - Nasazování: `equipItem`, `equipAction`; `snap()` + `diffText()` počítají změnu statistik a poškození kouzel (náhled v kartě předmětu i toast po nasazení).
   Poškození kouzel = `attackDmg(a)` (základ × level × vybavení) – používá souboj, profil i náhledy.
-- Věž: `getEnemy(level, patro)` – nepřítel je deterministický podle (úroveň, patro) díky `rngFor`. HP +12 %/patro, dmg +6 %/patro;
+- Věž (`renderTower`): patra se kreslí zdola nahoru jako věž (střecha, patra se zdí podle zóny, náhled 3 pater výš a 2 vyčištěných níž, země na dně); obloha ve věži přechází do prostředí další zóny a po výhře hrdina "vyšplhá" (`climbPending`, animace `climbup`).
+- Prostředí (`ENVS`, `envOf`, `applyEnv`): 8 prostředí (louka, les, hrad, sopka, led, nad mraky, noc, vesmír) se mění každou zónu (10 pater) a určují pozadí arény v souboji i barvu zdí ve věži. Nové prostředí = položka v `ENVS`.
+- Věž (data): `getEnemy(level, patro)` – nepřítel je deterministický podle (úroveň, patro) díky `rngFor`. HP +12 %/patro, dmg +6 %/patro;
   boss zóny ×2,2 HP, ×1,4 dmg. `getDifficulty` – časový limit (od 6. patra), psaní odpovědí (od 9.), frekvence útoků bosse.
 - **Nepřátelé:** jméno = přídavné jméno + druh (`NOUN`); `SP[druh](look)` vykreslí druh (16 druhů: Goblin, Skřet, Troll, Imp, Ogr, Slizoun, Netopýr,
   Kostlivec, Yetti, Golem, Démon, Vlkodlak, Zombík, Šotek, Pavoukoun, Faraón). Bossové zón mají druh v `BOSS_SPECIES` + korunu. `look` jen mění odstín, barvu očí a doplněk.
@@ -44,3 +46,8 @@ a je vidět na postavě. Uživatel si na začátku zvolí pokročilost A1–C1; 
 ## Nápady na rozvoj
 Zvuky, více typů cvičení (poslech, věty), speciální schopnosti vybavení, sady vybavení s bonusem, denní série,
 statistika slabých slovíček a jejich opakování, žebříček.
+
+## Testovací režim
+`index.html?test=1` načte hotový postup (hrdina Lv. 50, všechno žluté vybavení, patro 50, 100 000 mincí) a ukládá ho do
+samostatného klíče `anglictina-rpg-save-test`, takže skutečný postup zůstane nedotčený. Volitelné parametry: `&level=A1..C1`,
+`&floor=N`, `&hero=N`, `&coins=N`, `&fresh=1` (znovu vytvořit testovací postup). Implementace: `makeTestSave`, `TEST`, `QS`.

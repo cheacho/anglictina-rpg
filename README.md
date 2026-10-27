@@ -5,7 +5,7 @@ Za správně přeložená slovíčka získáváš energii ⚡ na útoky, za výh
 
 ## Jak hrát
 1. Zadej jméno hrdiny a vyber svou pokročilost (A1–C1). Vyšší úroveň = víc mincí.
-2. Věž je rozdělená do **zón po 10 patrech**, každá zóna má jiné téma slovíček (jídlo, zvířata, cestování…).
+2. Věž je rozdělená do **zón po 10 patrech**, každá zóna má jiné téma slovíček i jiné **prostředí** (louka, les, hrad, sopka, led, mraky, noc, vesmír). Věž je vidět jako budova, po výhře vyšplháš o patro výš.
    Poslední patro zóny hlídá **boss**, který je výrazně silnější.
 3. Souboj: přelož české slovo do angličtiny. Správné odpovědi dávají energii a kombo, chyby a vypršený čas způsobí útok.
    Energii utrať za útoky nebo léčení. Patra jsou stále těžší (silnější nepřátelé, časový limit, psaní odpovědí).
@@ -18,3 +18,7 @@ Hru lze také zprovoznit přes GitHub Pages (Settings → Pages → větev `main
 
 ## Vývoj
 Popis architektury a postup přidávání slovíček, zón a vybavení je v [CLAUDE.md](CLAUDE.md).
+
+## Testování
+Otevři `index.html?test=1` (např. `index.html?test=1&level=C1&floor=80&hero=60`) – hra se načte s postupem vysokého levelu a se vším
+žlutým vybavením. Testovací postup se ukládá odděleně, tvoje skutečná hra se nepřepíše.
