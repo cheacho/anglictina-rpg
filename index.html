@@ -11,11 +11,12 @@
 }
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif;color:var(--ink);
-  background:radial-gradient(circle at 50% 0,#ffd98a 0,#e59a4a 45%,#8a4a22 100%) fixed}
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 3px,transparent 3px 46px),radial-gradient(circle at 50% 0,#ffd98a 0,#e59a4a 45%,#8a4a22 100%) fixed}
+h1{display:inline-block;background:var(--red);color:#fff;border:5px solid var(--ink);border-radius:10px;padding:6px 22px;transform:rotate(-2deg);box-shadow:0 5px 0 var(--ink);text-shadow:3px 3px 0 var(--ink);font-size:2rem}
 h1,h2,h3{font-family:Impact,"Arial Black",sans-serif;letter-spacing:1px;margin:.2em 0;text-transform:uppercase;text-shadow:2px 2px 0 rgba(255,255,255,.4)}
 #app{max-width:900px;margin:0 auto;padding:16px}
 .screen{display:none}.screen.active{display:block}
-.panel{background:var(--parch);border:5px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);padding:18px;margin:12px 0}
+.panel{background:linear-gradient(var(--parch),var(--parch-d));border:5px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);padding:18px;margin:12px 0}
 .btn{font:inherit;font-weight:900;font-size:1.05rem;color:#fff;background:var(--red);border:4px solid var(--ink);border-radius:12px;
   padding:10px 16px;cursor:pointer;box-shadow:0 4px 0 var(--ink);text-shadow:1px 1px 0 var(--ink);transition:transform .08s}
 .btn:hover:not(:disabled){transform:translateY(-2px)}
@@ -39,8 +40,17 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .stat{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;font-weight:900}
 /* battle */
 .arena{position:relative;background:linear-gradient(#8fd3ff 0,#d8f1ff 55%,#7cc15a 55%,#4c8f35 100%);border:5px solid var(--ink);border-radius:18px;
-  box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);height:250px;overflow:hidden}
-.fighter{position:absolute;bottom:6px;width:42%;max-width:190px;transition:transform .25s}
+  box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);height:270px;overflow:hidden}
+.arena::before{content:"";position:absolute;right:12%;top:14px;width:54px;height:54px;border-radius:50%;background:#ffe45c;border:4px solid var(--ink);box-shadow:0 0 0 8px rgba(255,228,92,.45)}
+.arena::after{content:"";position:absolute;left:-10%;right:-10%;bottom:38%;height:60px;background:#5fae48;border-top:4px solid var(--ink);border-radius:50% 50% 0 0/100% 100% 0 0}
+.cloud{position:absolute;top:20px;width:70px;height:24px;background:#fff;border:4px solid var(--ink);border-radius:20px;animation:drift 18s linear infinite}
+.cloud.c2{top:62px;animation-duration:26s;animation-delay:-9s}
+@keyframes drift{from{left:-90px}to{left:105%}}
+.fighter::after{content:"";position:absolute;left:10%;right:10%;bottom:-6px;height:14px;border-radius:50%;background:rgba(0,0,0,.3);z-index:-1}
+.fighter svg{animation:bob 1.6s ease-in-out infinite;transform-origin:50% 100%}
+#bossF svg{animation-delay:-.8s}
+@keyframes bob{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.03) translateY(-3px)}}
+.fighter{z-index:2;position:absolute;bottom:6px;width:42%;max-width:190px;transition:transform .25s}
 .fighter svg{width:100%;height:auto;display:block;filter:drop-shadow(4px 6px 0 rgba(0,0,0,.25))}
 #heroF{left:6%}#bossF{right:6%}
 .fighter.lunge-r{transform:translateX(120px) rotate(6deg)}
@@ -55,7 +65,7 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .bars{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .bar{height:22px;background:#fff;border:3px solid var(--ink);border-radius:12px;overflow:hidden;position:relative}
 .bar i{display:block;height:100%;transition:width .4s}
-.bar span{position:absolute;inset:0;text-align:center;font-size:.8rem;font-weight:900;line-height:16px}
+.bar span{position:absolute;inset:0;text-align:center;font-size:.8rem;font-weight:900;line-height:16px;color:#fff;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill}
 .hp i{background:var(--green)}.bhp i{background:var(--red)}.en i{background:var(--blue)}
 .q{font-size:1.6rem;font-weight:900;text-align:center;margin:6px 0 12px}
 .q small{display:block;font-size:.8rem;color:var(--wood-d)}
@@ -65,7 +75,7 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .attacks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .attacks .btn{font-size:.85rem;padding:8px 4px}.attacks small{display:block;font-weight:700}
 .combo{text-align:center;font-weight:900;color:var(--red);min-height:1.4em}
-.log{font-size:.9rem;min-height:1.3em;text-align:center;font-style:italic}
+.log{margin-top:12px;font-size:.95rem;min-height:1.3em;text-align:center;font-style:italic}
 ul.miss{padding-left:20px}
 @media(max-width:560px){.attacks{grid-template-columns:1fr 1fr}.opts{grid-template-columns:1fr}.levels{grid-template-columns:repeat(5,1fr)}.fighter{max-width:130px}.arena{height:200px}}
 </style>
@@ -103,7 +113,7 @@ ul.miss{padding-left:20px}
     <div><b id="bHeroName"></b><div class="bar hp"><i id="hpFill"></i><span id="hpText"></span></div><div class="bar en" style="margin-top:4px"><i id="enFill"></i><span id="enText"></span></div></div>
     <div><b id="bBossName"></b><div class="bar bhp"><i id="bhpFill"></i><span id="bhpText"></span></div></div>
   </div>
-  <div class="arena" id="arena"><div class="fighter" id="heroF"></div><div class="fighter" id="bossF"></div></div>
+  <div class="arena" id="arena"><div class="cloud"></div><div class="cloud c2"></div><div class="fighter" id="heroF"></div><div class="fighter" id="bossF"></div></div>
   <div class="panel">
     <div class="combo" id="combo"></div>
     <div class="q" id="question"></div>
@@ -182,7 +192,9 @@ function heroSVG(){
   return `<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
   <rect x="38" y="100" width="44" height="34" rx="8" fill="#2f7fd1"/>
   <rect x="40" y="132" width="16" height="14" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" fill="#5e3a18"/>
-  <rect x="96" y="40" width="8" height="70" fill="#ddd" transform="rotate(12 100 100)"/><rect x="92" y="104" width="22" height="7" fill="#f2b705" transform="rotate(12 100 100)"/>
+  <rect x="98" y="30" width="10" height="78" rx="3" fill="#e8eef2" transform="rotate(14 100 100)"/><rect x="90" y="104" width="26" height="8" rx="3" fill="#f2b705" transform="rotate(14 100 100)"/>
+  <rect x="30" y="102" width="14" height="24" rx="6" fill="#ffd9b0"/><circle cx="22" cy="114" r="15" fill="#d9372b"/><circle cx="22" cy="114" r="6" fill="#f2b705"/>
+  <rect x="78" y="102" width="14" height="24" rx="6" fill="#ffd9b0" transform="rotate(-20 85 105)"/>
   <circle cx="60" cy="58" r="42" fill="#ffd9b0"/>
   <path d="M18 52 Q60 -14 102 52 Q60 30 18 52Z" fill="#c4491c"/>
   <circle cx="44" cy="62" r="11" fill="#fff"/><circle cx="76" cy="62" r="11" fill="#fff"/>
