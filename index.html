@@ -24,6 +24,7 @@ h1,h2,h3{font-family:Impact,"Arial Black",sans-serif;letter-spacing:1px;margin:.
 .btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 .btn:disabled{background:#999;cursor:not-allowed;opacity:.7}
 .btn.green{background:var(--green)}.btn.blue{background:var(--blue)}.btn.gold{background:var(--gold);color:var(--ink);text-shadow:none}.btn.purple{background:var(--purple)}
+.btn.small{font-size:.8rem;padding:6px 10px;margin:2px}
 input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var(--ink);border-radius:10px;width:100%;background:#fffbe9}
 .center{text-align:center}
 .levels{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
@@ -34,6 +35,8 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .hero-pick svg{width:160px;height:200px}
 .coins{display:inline-block;background:#fff3b0;border:3px solid var(--ink);border-radius:20px;padding:2px 12px;font-weight:900}
 /* věž */
+.zonebar{text-align:center;font-weight:900;margin-bottom:6px}
+.zonebar .bar{max-width:320px;margin:4px auto 0}
 .bosslist{display:flex;flex-direction:column;gap:12px}
 .bosscard{display:flex;align-items:center;gap:14px;background:#fffbe9;border:4px solid var(--ink);border-radius:14px;padding:10px;position:relative}
 .bosscard svg{width:90px;height:108px;flex:none}
@@ -43,18 +46,35 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .bosscard.mega{background:linear-gradient(#fff3b0,#fffbe9)}
 .floor{font-family:Impact,sans-serif;font-size:1.6rem;background:var(--ink);color:var(--gold);border-radius:10px;padding:6px 10px;text-align:center;min-width:64px}
 .stat{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;font-weight:900}
-/* obchod */
+/* obchod / profil */
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .tabs .btn{flex:1}.tabs .btn.off{background:#b9a77a}
 .shopgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .item{background:#fffbe9;border:5px solid var(--ink);border-radius:14px;padding:10px;text-align:center}
 .item .ic{font-size:2.6rem}
+.item h3{font-size:1rem}
 .item.green{border-color:var(--r-green)}.item.blue{border-color:var(--r-blue)}
 .item.yellow{border-color:var(--r-yellow);box-shadow:0 0 12px var(--r-yellow)}
+.item.empty{border-style:dashed;opacity:.7}
 .rar{display:inline-block;font-size:.7rem;font-weight:900;color:#fff;border-radius:8px;padding:1px 8px;text-transform:uppercase}
 .rar.green{background:var(--r-green)}.rar.blue{background:var(--r-blue)}.rar.yellow{background:var(--r-yellow);color:var(--ink)}
 .shophead{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .shophead svg{width:90px;height:112px}
+.prof{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center}
+.prof .portrait{background:radial-gradient(circle,#fff6d0,#e9c27a);border:5px solid var(--ink);border-radius:18px;padding:8px}
+.prof .portrait svg{width:200px;height:250px;display:block}
+.prof .pinfo{flex:1;min-width:220px;font-weight:700}
+.prof .pinfo .bar{margin:6px 0}
+.xp i{background:var(--gold)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:560px){.slots{grid-template-columns:1fr}}
+/* truhla */
+.chest{font-size:4.5rem;cursor:pointer;display:inline-block;animation:wiggle 1.2s ease-in-out infinite;user-select:none}
+.chest.open{animation:pop .5s}
+@keyframes wiggle{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.08)}}
+@keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.drop{display:inline-block;background:#fffbe9;border:5px solid var(--ink);border-radius:14px;padding:8px 14px;margin:6px}
+.drop.green{border-color:var(--r-green)}.drop.blue{border-color:var(--r-blue)}.drop.yellow{border-color:var(--r-yellow);box-shadow:0 0 14px var(--r-yellow)}
 /* souboj */
 .arena{position:relative;background:linear-gradient(#8fd3ff 0,#d8f1ff 55%,#7cc15a 55%,#4c8f35 100%);border:5px solid var(--ink);border-radius:18px;
   box-shadow:0 6px 0 var(--wood-d),0 0 0 4px var(--wood);height:270px;overflow:hidden}
@@ -68,7 +88,7 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 #bossF svg{animation-delay:-.8s}
 @keyframes bob{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.03) translateY(-3px)}}
 .fighter{z-index:2;position:absolute;bottom:6px;width:42%;max-width:190px;transition:transform .25s}
-#bossF.mega{max-width:200px;width:46%}
+#bossF.mega{max-width:210px;width:46%}
 .fighter svg{width:100%;height:auto;display:block;filter:drop-shadow(4px 6px 0 rgba(0,0,0,.25))}
 #heroF{left:6%}#bossF{right:6%}
 .fighter.lunge-r{transform:translateX(120px) rotate(6deg)}
@@ -96,7 +116,7 @@ input[type=text]{font:inherit;font-size:1.1rem;padding:10px;border:4px solid var
 .combo{text-align:center;font-weight:900;color:var(--red);min-height:1.4em}
 .log{margin-top:12px;font-size:.95rem;min-height:1.3em;text-align:center;font-style:italic}
 ul.miss{padding-left:20px;text-align:left;display:inline-block}
-@media(max-width:560px){.attacks{grid-template-columns:1fr 1fr}.opts{grid-template-columns:1fr}.fighter{max-width:130px}#bossF.mega{max-width:140px}.arena{height:200px}.bosscard svg{width:70px;height:84px}}
+@media(max-width:560px){.attacks{grid-template-columns:1fr 1fr}.opts{grid-template-columns:1fr}.fighter{max-width:130px}#bossF.mega{max-width:150px}.arena{height:200px}.bosscard svg{width:70px;height:84px}}
 </style>
 </head>
 <body>
@@ -106,7 +126,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
 <section id="s-start" class="screen active">
   <div class="panel center">
     <h1>⚔️ Angličtina RPG ⚔️</h1>
-    <p>Vystup na nekonečnou věž! Každé správné slovíčko nabije energii pro tvé útoky, za výhry dostaneš mince na vybavení.</p>
+    <p>Vystup na nekonečnou věž! Každé správné slovíčko nabije energii pro tvé útoky, za výhry dostaneš mince, truhly a kořist.</p>
     <div class="hero-pick" id="startHero"></div>
     <p><label for="name"><b>Jméno hrdiny</b></label><input id="name" type="text" maxlength="14" placeholder="Např. Sir Slovíček"></p>
     <p><b>Tvoje pokročilost</b> <small>(vyšší úroveň = víc mincí)</small></p>
@@ -119,11 +139,24 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
 <section id="s-map" class="screen">
   <div class="panel">
     <div class="stat"><span id="mapHero"></span><span id="mapLevel"></span><span id="mapStats"></span></div>
-    <p class="center" style="margin-bottom:0"><button class="btn gold" id="shopBtn">🛒 Obchod s vybavením</button></p>
+    <p class="center" style="margin-bottom:0"><button class="btn blue" id="profileBtn">👤 Profil a inventář</button> <button class="btn gold" id="shopBtn">🛒 Obchod</button></p>
   </div>
+  <div class="zonebar" id="zonebar"></div>
   <h2 class="center">Věž – patro <span id="mapFloor"></span></h2>
   <div class="bosslist" id="bosslist"></div>
   <p class="center"><button class="btn blue" id="backStart">⬅ Změnit hrdinu / úroveň</button></p>
+</section>
+
+<!-- PROFIL -->
+<section id="s-profile" class="screen">
+  <div class="panel">
+    <div class="prof"><div class="portrait" id="profHero"></div><div class="pinfo" id="profInfo"></div></div>
+  </div>
+  <h2 class="center">Nasazeno</h2>
+  <div class="slots" id="profSlots"></div>
+  <h2 class="center">Inventář</h2>
+  <div class="shopgrid" id="profInv"></div>
+  <p class="center"><button class="btn gold" id="profShop">🛒 Obchod</button> <button class="btn blue" id="profBack">⬅ Zpět do věže</button></p>
 </section>
 
 <!-- OBCHOD -->
@@ -134,7 +167,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
   </div>
   <div class="tabs" id="shopTabs"></div>
   <div class="shopgrid" id="shopGrid"></div>
-  <p class="center"><button class="btn blue" id="shopBack">⬅ Zpět do věže</button></p>
+  <p class="center"><button class="btn blue" id="shopProfile">👤 Profil</button> <button class="btn blue" id="shopBack">⬅ Zpět do věže</button></p>
 </section>
 
 <!-- SOUBOJ -->
@@ -162,6 +195,7 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
     <h1 id="resTitle"></h1>
     <div id="resBody"></div>
     <button class="btn gold" id="resBtn">Zpět do věže</button>
+    <button class="btn blue" id="resProfile">👤 Profil</button>
     <button class="btn blue" id="resShop">🛒 Obchod</button>
   </div>
 </section>
@@ -171,47 +205,49 @@ ul.miss{padding-left:20px;text-align:left;display:inline-block}
 <script>
 "use strict";
 /* ================= DATA ================= */
-// Slovíčka: "česky=anglicky". Přidání slov = přidání řetězce do pole bosse.
-// Patra věže cyklují přes bosse zvolené úrovně a s každým patrem sílí (viz getBoss / getDifficulty).
+// Každá úroveň má ZÓNY (téma slovíček); každá zóna trvá 10 pater, 10. patro je boss zóny.
+// Slovíčka: "česky=anglicky". Přidání slov = přidání řetězce do pole `words` zóny (min. 4 slova).
+// Po vyčerpání zón se zóny opakují (a bossové dostanou číslo II, III…) s dál rostoucí obtížností.
 const LEVELS = {
-  A1:{label:"Začátečník", coins:25, bosses:[
-    {name:"Gobbo Hladovec", theme:"Jídlo", skin:"#7cc34a", horns:false, hp:80, dmg:12, words:["jablko=apple","chléb=bread","mléko=milk","voda=water","sýr=cheese","vejce=egg","maso=meat","ryba=fish","rýže=rice","káva=coffee"]},
-    {name:"Zvířecí Medvěd", theme:"Zvířata", skin:"#a0673a", horns:false, hp:90, dmg:13, words:["pes=dog","kočka=cat","pták=bird","kůň=horse","kráva=cow","prase=pig","ovce=sheep","slon=elephant","myš=mouse","králík=rabbit"]},
-    {name:"Barevný Skřet", theme:"Barvy a čísla", skin:"#d96b9a", horns:true, hp:100, dmg:14, words:["červená=red","modrá=blue","zelená=green","žlutá=yellow","černá=black","bílá=white","jedna=one","pět=five","deset=ten","sto=hundred"]},
-    {name:"Domácí Kostlivec", theme:"Dům a věci", skin:"#d8d8c0", horns:false, hp:105, dmg:14, words:["stůl=table","židle=chair","postel=bed","dveře=door","lampa=lamp","kniha=book","klíč=key","hodiny=clock","taška=bag","telefon=phone"]},
-    {name:"Tělesný Yetti", theme:"Lidské tělo", skin:"#9fd3e6", horns:false, hp:115, dmg:15, words:["hlava=head","ruka=hand","noha=leg","oko=eye","ucho=ear","nos=nose","ústa=mouth","srdce=heart","záda=back","zub=tooth"]}
+  A1:{label:"Začátečník", coins:25, hp:80, dmg:12, zones:[
+    {theme:"Jídlo", icon:"🍎", boss:{name:"Gobbo Hladovec", skin:"#7cc34a", horns:false}, words:["jablko=apple","chléb=bread","mléko=milk","voda=water","sýr=cheese","vejce=egg","maso=meat","ryba=fish","rýže=rice","káva=coffee","polévka=soup","cukr=sugar","sůl=salt","máslo=butter","pomeranč=orange","banán=banana","zelenina=vegetables","ovoce=fruit","čaj=tea","dort=cake"]},
+    {theme:"Zvířata", icon:"🐶", boss:{name:"Zvířecí Medvěd", skin:"#a0673a", horns:false}, words:["pes=dog","kočka=cat","pták=bird","kůň=horse","kráva=cow","prase=pig","ovce=sheep","slon=elephant","myš=mouse","králík=rabbit","žába=frog","had=snake","lev=lion","tygr=tiger","opice=monkey","medvěd=bear","vlk=wolf","kachna=duck","slepice=hen","motýl=butterfly"]},
+    {theme:"Barvy a čísla", icon:"🎨", boss:{name:"Barevný Skřet", skin:"#d96b9a", horns:true}, words:["červená=red","modrá=blue","zelená=green","žlutá=yellow","černá=black","bílá=white","jedna=one","pět=five","deset=ten","sto=hundred","růžová=pink","hnědá=brown","šedá=grey","fialová=purple","dvě=two","tři=three","čtyři=four","sedm=seven","dvacet=twenty","tisíc=thousand"]},
+    {theme:"Dům a věci", icon:"🏠", boss:{name:"Domácí Kostlivec", skin:"#d8d8c0", horns:false}, words:["stůl=table","židle=chair","postel=bed","dveře=door","lampa=lamp","kniha=book","klíč=key","hodiny=clock","taška=bag","telefon=phone","zrcadlo=mirror","koberec=carpet","polštář=pillow","hrnek=cup","talíř=plate","vidlička=fork","nůž=knife","lžíce=spoon","pračka=washing machine","lednice=fridge"]},
+    {theme:"Lidské tělo", icon:"🧍", boss:{name:"Tělesný Yetti", skin:"#9fd3e6", horns:false}, words:["hlava=head","ruka=hand","noha=leg","oko=eye","ucho=ear","nos=nose","ústa=mouth","srdce=heart","záda=back","zub=tooth","vlasy=hair","prst=finger","koleno=knee","rameno=shoulder","krk=neck","břicho=stomach","tvář=cheek","chodidlo=foot","loket=elbow","kůže=skin"]}
   ]},
-  A2:{label:"Mírně pokročilý", coins:45, bosses:[
-    {name:"Cestovní Troll", theme:"Cestování", skin:"#5f8fa8", horns:false, hp:110, dmg:15, words:["letiště=airport","jízdenka=ticket","zavazadlo=luggage","nádraží=station","hotel=hotel","mapa=map","zpoždění=delay","pas=passport","přístav=harbour","dovolená=holiday"]},
-    {name:"Rodinný Obr", theme:"Rodina a domov", skin:"#c98a4b", horns:false, hp:120, dmg:16, words:["sestra=sister","strýc=uncle","babička=grandmother","soused=neighbour","kuchyně=kitchen","zahrada=garden","schody=stairs","okno=window","střecha=roof","ložnice=bedroom"]},
-    {name:"Škodolibý Imp", theme:"Škola a práce", skin:"#e0533d", horns:true, hp:130, dmg:17, words:["učitel=teacher","zkouška=exam","úkol=homework","plat=salary","šéf=boss","schůzka=meeting","kancelář=office","povolání=job","student=student","knihovna=library"]},
-    {name:"Sportovní Minotaur", theme:"Sport", skin:"#8a5a3a", horns:true, hp:135, dmg:17, words:["míč=ball","závod=race","vítězit=win","prohrát=lose","tým=team","plavat=swim","běhat=run","hřiště=playground","hráč=player","trenér=coach"]},
-    {name:"Nákupní Mumie", theme:"Nákupy", skin:"#d9c7a0", horns:false, hp:140, dmg:18, words:["obchod=shop","cena=price","sleva=discount","peněženka=wallet","hotovost=cash","účet=bill","oblečení=clothes","boty=shoes","drahý=expensive","levný=cheap"]}
+  A2:{label:"Mírně pokročilý", coins:45, hp:110, dmg:15, zones:[
+    {theme:"Cestování", icon:"✈️", boss:{name:"Cestovní Troll", skin:"#5f8fa8", horns:false}, words:["letiště=airport","jízdenka=ticket","zavazadlo=luggage","nádraží=station","hotel=hotel","mapa=map","zpoždění=delay","pas=passport","přístav=harbour","dovolená=holiday","kufr=suitcase","let=flight","řidič=driver","turista=tourist","pláž=beach","stan=tent","výlet=trip","průvodce=guide","hranice=border","rezervace=booking"]},
+    {theme:"Rodina a domov", icon:"👪", boss:{name:"Rodinný Obr", skin:"#c98a4b", horns:false}, words:["sestra=sister","strýc=uncle","babička=grandmother","soused=neighbour","kuchyně=kitchen","zahrada=garden","schody=stairs","okno=window","střecha=roof","ložnice=bedroom","otec=father","matka=mother","bratr=brother","syn=son","dcera=daughter","manžel=husband","manželka=wife","dítě=child","příbuzný=relative","vnuk=grandson"]},
+    {theme:"Škola a práce", icon:"🎒", boss:{name:"Škodolibý Imp", skin:"#e0533d", horns:true}, words:["učitel=teacher","zkouška=exam","úkol=homework","plat=salary","šéf=boss","schůzka=meeting","kancelář=office","povolání=job","student=student","knihovna=library","tabule=blackboard","lekce=lesson","slovník=dictionary","poznámka=note","známka=grade","pracovník=worker","továrna=factory","lékař=doctor","kuchař=cook","rozvrh=timetable"]},
+    {theme:"Sport", icon:"⚽", boss:{name:"Sportovní Minotaur", skin:"#8a5a3a", horns:true}, words:["míč=ball","závod=race","vítězit=win","prohrát=lose","tým=team","plavat=swim","běhat=run","hřiště=playground","hráč=player","trenér=coach","branka=goal","skóre=score","stadion=stadium","kolo=bicycle","lyže=skis","rozhodčí=referee","medaile=medal","soutěž=contest","trénink=training","šampion=champion"]},
+    {theme:"Nákupy", icon:"🛍️", boss:{name:"Nákupní Mumie", skin:"#d9c7a0", horns:false}, words:["obchod=shop","cena=price","sleva=discount","peněženka=wallet","hotovost=cash","účet=bill","oblečení=clothes","boty=shoes","drahý=expensive","levný=cheap","košík=basket","pokladna=checkout","prodavač=shop assistant","zboží=goods","objednat=order","vrátit=return","velikost=size","výprodej=sale","kupón=coupon","supermarket=supermarket"]}
   ]},
-  B1:{label:"Středně pokročilý", coins:80, bosses:[
-    {name:"Drak Kancelářský", theme:"Práce a kariéra", skin:"#b53b3b", horns:true, hp:150, dmg:18, words:["zaměstnanec=employee","pohovor=interview","povýšení=promotion","termín=deadline","zkušenost=experience","dovednost=skill","rozpočet=budget","výhoda=advantage","společnost=company","životopis=resume"]},
-    {name:"Bouřná Harpyje", theme:"Počasí a příroda", skin:"#6c7fd1", horns:false, hp:160, dmg:19, words:["bouřka=thunderstorm","mlha=fog","sucho=drought","povodeň=flood","údolí=valley","útes=cliff","větrno=windy","zeměkoule=globe","prostředí=environment","vlna=wave"]},
-    {name:"Zdravotní Vlkodlak", theme:"Zdraví", skin:"#8c8c9e", horns:false, hp:170, dmg:20, words:["bolest=pain","lék=medicine","nemocnice=hospital","zranění=injury","recept=prescription","horečka=fever","kašel=cough","léčba=treatment","alergie=allergy","zotavit se=recover"]},
-    {name:"Citový Kentaur", theme:"Emoce a vztahy", skin:"#d98a4a", horns:false, hp:175, dmg:20, words:["překvapený=surprised","rozzlobený=angry","nervózní=nervous","žárlivý=jealous","hrdý=proud","osamělý=lonely","přátelství=friendship","důvěra=trust","omluva=apology","vztah=relationship"]},
-    {name:"Městský Kraken", theme:"Město a doprava", skin:"#3f7fa0", horns:false, hp:185, dmg:21, words:["křižovatka=crossroads","chodník=pavement","přechod=crossing","předměstí=suburb","náměstí=square","most=bridge","metro=underground","parkoviště=car park","radnice=town hall","semafor=traffic lights"]}
+  B1:{label:"Středně pokročilý", coins:80, hp:150, dmg:18, zones:[
+    {theme:"Práce a kariéra", icon:"💼", boss:{name:"Drak Kancelářský", skin:"#b53b3b", horns:true}, words:["zaměstnanec=employee","pohovor=interview","povýšení=promotion","termín=deadline","zkušenost=experience","dovednost=skill","rozpočet=budget","výhoda=advantage","společnost=company","životopis=resume","kolega=colleague","vedoucí=manager","kariéra=career","rezignovat=resign","školení=training course","výpověď=notice","nezaměstnaný=unemployed","odměna=reward","spolupráce=cooperation","úspěch=success"]},
+    {theme:"Počasí a příroda", icon:"🌋", boss:{name:"Bouřná Harpyje", skin:"#6c7fd1", horns:false}, words:["bouřka=thunderstorm","mlha=fog","sucho=drought","povodeň=flood","údolí=valley","útes=cliff","větrno=windy","zeměkoule=globe","prostředí=environment","vlna=wave","zemětřesení=earthquake","hurikán=hurricane","ledovec=glacier","sopka=volcano","bažina=swamp","pobřeží=coast","vodopád=waterfall","příliv=tide","půda=soil","mráz=frost"]},
+    {theme:"Zdraví", icon:"🏥", boss:{name:"Zdravotní Vlkodlak", skin:"#8c8c9e", horns:false}, words:["bolest=pain","lék=medicine","nemocnice=hospital","zranění=injury","recept=prescription","horečka=fever","kašel=cough","léčba=treatment","alergie=allergy","zotavit se=recover","lékárna=pharmacy","sestra=nurse","chirurg=surgeon","vyšetření=examination","virus=virus","očkování=vaccination","stres=stress","únava=fatigue","obvaz=bandage","dieta=diet"]},
+    {theme:"Emoce a vztahy", icon:"💭", boss:{name:"Citový Kentaur", skin:"#d98a4a", horns:false}, words:["překvapený=surprised","rozzlobený=angry","nervózní=nervous","žárlivý=jealous","hrdý=proud","osamělý=lonely","přátelství=friendship","důvěra=trust","omluva=apology","vztah=relationship","rozčarovaný=disappointed","úzkost=anxiety","vděčný=grateful","vzrušený=excited","ostych=shyness","nadšení=enthusiasm","hádka=quarrel","smířit se=reconcile","zklamání=disappointment","sebevědomí=confidence"]},
+    {theme:"Město a doprava", icon:"🏙️", boss:{name:"Městský Kraken", skin:"#3f7fa0", horns:false}, words:["křižovatka=crossroads","chodník=pavement","přechod=crossing","předměstí=suburb","náměstí=square","most=bridge","metro=underground","parkoviště=car park","radnice=town hall","semafor=traffic lights","nákupní centrum=shopping centre","sídliště=housing estate","stavba=construction","ulička=alley","památka=monument","kostel=church","divadlo=theatre","hřbitov=cemetery","nábřeží=embankment","mrakodrap=skyscraper"]}
   ]},
-  B2:{label:"Pokročilý", coins:130, bosses:[
-    {name:"Lord Argument", theme:"Názory a diskuze", skin:"#7a4fb5", horns:true, hp:190, dmg:22, words:["souhlasit=agree","tvrdit=claim","důkaz=evidence","závěr=conclusion","přesvědčit=convince","výzva=challenge","předpoklad=assumption","zlepšit=improve","zvážit=consider","následek=consequence"]},
-    {name:"Technický Golem", theme:"Technologie", skin:"#4f9aa0", horns:false, hp:200, dmg:23, words:["vylepšení=upgrade","zařízení=device","stáhnout=download","heslo=password","obrazovka=screen","aplikace=application","připojení=connection","zálohovat=back up","vynález=invention","výkon=performance"]},
-    {name:"Právní Chiméra", theme:"Společnost", skin:"#b58a3f", horns:true, hp:210, dmg:24, words:["vláda=government","zákon=law","občan=citizen","volby=election","svoboda=freedom","spravedlnost=justice","nerovnost=inequality","daň=tax","oběť=victim","odpovědnost=responsibility"]},
-    {name:"Ekologická Hydra", theme:"Životní prostředí", skin:"#4aa05a", horns:false, hp:220, dmg:24, words:["oteplování=warming","znečištění=pollution","odpad=waste","obnovitelný=renewable","vyhynulý=extinct","zdroje=resources","palivo=fuel","ochrana=protection","divoká zvěř=wildlife","emise=emission"]},
-    {name:"Obchodní Ďábel", theme:"Byznys", skin:"#a0302c", horns:true, hp:230, dmg:25, words:["zisk=profit","ztráta=loss","investovat=invest","konkurence=competition","smlouva=contract","vyjednávat=negotiate","dodavatel=supplier","zákazník=customer","akcie=shares","podnikatel=entrepreneur"]}
+  B2:{label:"Pokročilý", coins:130, hp:190, dmg:22, zones:[
+    {theme:"Názory a diskuze", icon:"🗣️", boss:{name:"Lord Argument", skin:"#7a4fb5", horns:true}, words:["souhlasit=agree","tvrdit=claim","důkaz=evidence","závěr=conclusion","přesvědčit=convince","výzva=challenge","předpoklad=assumption","zlepšit=improve","zvážit=consider","následek=consequence","popírat=deny","namítat=object","ospravedlnit=justify","tvrzení=statement","kritizovat=criticise","podpořit=support","vyvodit=conclude","odporovat=contradict","debata=debate","přijatelný=acceptable"]},
+    {theme:"Technologie", icon:"💻", boss:{name:"Technický Golem", skin:"#4f9aa0", horns:false}, words:["vylepšení=upgrade","zařízení=device","stáhnout=download","heslo=password","obrazovka=screen","aplikace=application","připojení=connection","zálohovat=back up","vynález=invention","výkon=performance","software=software","hardware=hardware","algoritmus=algorithm","umělá inteligence=artificial intelligence","šifrování=encryption","databáze=database","sledovat=track","bezdrátový=wireless","odinstalovat=uninstall","vývojář=developer"]},
+    {theme:"Společnost", icon:"⚖️", boss:{name:"Právní Chiméra", skin:"#b58a3f", horns:true}, words:["vláda=government","zákon=law","občan=citizen","volby=election","svoboda=freedom","spravedlnost=justice","nerovnost=inequality","daň=tax","oběť=victim","odpovědnost=responsibility","menšina=minority","většina=majority","demonstrace=protest","reforma=reform","diskriminace=discrimination","chudoba=poverty","bohatství=wealth","korupce=corruption","parlament=parliament","soudce=judge"]},
+    {theme:"Životní prostředí", icon:"🌍", boss:{name:"Ekologická Hydra", skin:"#4aa05a", horns:false}, words:["oteplování=warming","znečištění=pollution","odpad=waste","obnovitelný=renewable","vyhynulý=extinct","zdroje=resources","palivo=fuel","ochrana=protection","divoká zvěř=wildlife","emise=emission","skleníkový efekt=greenhouse effect","recyklovat=recycle","biodiverzita=biodiversity","ohrožený=endangered","klimatický=climate","skládka=landfill","ekosystém=ecosystem","odlesňování=deforestation","spotřeba=consumption","hnojivo=fertiliser"]},
+    {theme:"Byznys", icon:"📈", boss:{name:"Obchodní Ďábel", skin:"#a0302c", horns:true}, words:["zisk=profit","ztráta=loss","investovat=invest","konkurence=competition","smlouva=contract","vyjednávat=negotiate","dodavatel=supplier","zákazník=customer","akcie=shares","podnikatel=entrepreneur","příjem=income","výdaje=expenses","fúze=merger","půjčka=loan","úrok=interest","pojištění=insurance","inflace=inflation","vlastník=owner","trh=market","dlužník=debtor"]}
   ]},
-  C1:{label:"Expert", coins:200, bosses:[
-    {name:"Mistr Idiomů", theme:"Pokročilá slovní zásoba", skin:"#2f2f5a", horns:true, hp:240, dmg:26, words:["pomíjivý=ephemeral","všudypřítomný=ubiquitous","houževnatost=resilience","nevyhnutelný=inevitable","dvojznačný=ambiguous","kompromis=compromise","uvážlivý=prudent","zdánlivý=apparent","podkopat=undermine","úsilí=endeavour"]},
-    {name:"Stínový Mudrc", theme:"Abstraktní pojmy", skin:"#4a4a4a", horns:false, hp:260, dmg:28, words:["dilema=dilemma","nuance=nuance","předsudek=prejudice","soucit=compassion","skepticismus=scepticism","paradox=paradox","odhodlání=determination","rozmanitost=diversity","udržitelnost=sustainability","intuice=intuition"]},
-    {name:"Pán Zkázy", theme:"Zkouškové výrazy", skin:"#1a1a1a", horns:true, hp:280, dmg:30, words:["zmírnit=alleviate","zdráhavý=reluctant","výmluvný=eloquent","opomíjet=neglect","doplňovat=complement","úsudek=judgement","všeobecný=widespread","potlačit=suppress","zásadní=crucial","dosáhnout=accomplish"]},
-    {name:"Filozofický Fénix", theme:"Filozofie", skin:"#d97a2a", horns:false, hp:290, dmg:30, words:["vědomí=consciousness","existence=existence","smysl=meaning","morálka=morality","svobodná vůle=free will","předpoklad=premise","rozpor=contradiction","pravda=truth","přesvědčení=belief","rozum=reason"]},
-    {name:"Král Jazyka", theme:"Vybrané výrazy", skin:"#7a2fa0", horns:true, hp:300, dmg:32, words:["přehánět=exaggerate","zaujatý=biased","váhavý=hesitant","vyvrátit=refute","vyčerpávající=exhaustive","zdůraznit=emphasise","zřejmý=obvious","nepatrný=subtle","odolný=robust","namáhavý=arduous"]}
+  C1:{label:"Expert", coins:200, hp:240, dmg:26, zones:[
+    {theme:"Pokročilá slovní zásoba", icon:"🎭", boss:{name:"Mistr Idiomů", skin:"#2f2f5a", horns:true}, words:["pomíjivý=ephemeral","všudypřítomný=ubiquitous","houževnatost=resilience","nevyhnutelný=inevitable","dvojznačný=ambiguous","kompromis=compromise","uvážlivý=prudent","zdánlivý=apparent","podkopat=undermine","úsilí=endeavour","nepolapitelný=elusive","výstižný=concise","pochybný=dubious","nadbytečný=superfluous","bezchybný=impeccable","zákeřný=insidious","přehlížet=overlook","tvrdohlavý=obstinate","rozptýlený=scattered","rozsáhlý=extensive"]},
+    {theme:"Abstraktní pojmy", icon:"🧠", boss:{name:"Stínový Mudrc", skin:"#4a4a4a", horns:false}, words:["dilema=dilemma","nuance=nuance","předsudek=prejudice","soucit=compassion","skepticismus=scepticism","paradox=paradox","odhodlání=determination","rozmanitost=diversity","udržitelnost=sustainability","intuice=intuition","nepřátelství=hostility","pokora=humility","marnost=futility","samolibost=complacency","svědomí=conscience","ctnost=virtue","touha=yearning","zloba=malice","ctižádost=ambition","nostalgie=nostalgia"]},
+    {theme:"Zkouškové výrazy", icon:"📝", boss:{name:"Pán Zkázy", skin:"#1a1a1a", horns:true}, words:["zmírnit=alleviate","zdráhavý=reluctant","výmluvný=eloquent","opomíjet=neglect","doplňovat=complement","úsudek=judgement","všeobecný=widespread","potlačit=suppress","zásadní=crucial","dosáhnout=accomplish","podstatný=substantial","souhrnný=comprehensive","zjevný=evident","podnět=stimulus","omezení=constraint","hodnotit=evaluate","odvodit=derive","vyvolat=trigger","předložit=submit","přispět=contribute"]},
+    {theme:"Filozofie", icon:"🏛️", boss:{name:"Filozofický Fénix", skin:"#d97a2a", horns:false}, words:["vědomí=consciousness","existence=existence","smysl=meaning","morálka=morality","svobodná vůle=free will","předpoklad=premise","rozpor=contradiction","pravda=truth","přesvědčení=belief","rozum=reason","etika=ethics","empirický=empirical","dualismus=dualism","logika=logic","subjektivní=subjective","objektivní=objective","hypotéza=hypothesis","axiom=axiom","podstata=essence","racionální=rational"]},
+    {theme:"Vybrané výrazy", icon:"🖋️", boss:{name:"Král Jazyka", skin:"#7a2fa0", horns:true}, words:["přehánět=exaggerate","zaujatý=biased","váhavý=hesitant","vyvrátit=refute","vyčerpávající=exhaustive","zdůraznit=emphasise","zřejmý=obvious","nepatrný=subtle","odolný=robust","namáhavý=arduous","ohromit=astonish","zahrnovat=encompass","zbrklý=hasty","úmyslný=deliberate","pochlebovat=flatter","ušlechtilý=noble","výstřední=eccentric","hojný=abundant","okamžitý=instantaneous","vynikající=outstanding"]}
   ]}
 };
 const LEVEL_KEYS = Object.keys(LEVELS);
 const TYPING_LEVELS = ["B2","C1"]; // na těchto úrovních se odpověď vždy píše (jinak výběr ze 4 možností)
+const ZONE_LEN = 10;               // počet pater v jedné zóně; poslední patro zóny je boss
 const ATTACKS = [
   {id:"slash",  name:"⚔️ Seknutí",  cost:10, dmg:15, pow:"SLASH!", color:"gold"},
   {id:"fire",   name:"🔥 Ohnivá koule", cost:25, dmg:40, pow:"BOOM!", color:"red"},
@@ -243,6 +279,8 @@ const ITEMS = [
   {id:"j6",slot:"jewelry",rar:"yellow",name:"Zlatý amulet bohatství",icon:"🏆", price:5000, coin:60, en:10}
 ];
 const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+// šance na kořist po zabití: obyčejný nepřítel / boss zóny (čím lepší rarita, tím menší šance)
+const DROP = {normal:{chance:0.35, w:{green:70, blue:25, yellow:5}}, boss:{chance:1, w:{green:45, blue:40, yellow:15}}};
 
 /* ================= STAV ================= */
 const SAVE_KEY = "anglictina-rpg-save-v2";
@@ -274,64 +312,142 @@ function statsText(it){
 }
 
 /* ----- věž: generování soupeřů a obtížnosti pro dané patro ----- */
-function getBoss(level, f){
-  const list = LEVELS[level].bosses;
-  const base = list[(f-1) % list.length];
-  const round = Math.floor((f-1) / list.length);
-  const mega = f % 10 === 0;
-  const suffix = round === 0 ? "" : round <= 3 ? " ("+["","Veterán","Elitní","Legendární"][round]+")" : ` (Legendární ×${round-2})`;
-  return Object.assign({}, base, {
-    name: (mega ? "👑 " : "") + base.name + suffix + (mega ? " – Strážce patra" : ""),
-    hp: Math.round(base.hp * (1 + 0.12*(f-1)) * (mega ? 1.6 : 1)),
-    dmg: Math.round(base.dmg * (1 + 0.06*(f-1)) * (mega ? 1.3 : 1)),
-    mega, floor:f
-  });
+// deterministický generátor: stejné patro = stejný nepřítel (náhled i souboj), každé patro jiný
+function rngFor(str){
+  let h = 1779033703 ^ str.length;
+  for(let i=0;i<str.length;i++){ h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h<<13 | h>>>19; }
+  return () => { h = Math.imul(h ^ h>>>16, 2246822507); h = Math.imul(h ^ h>>>13, 3266489909); return ((h ^= h>>>16) >>> 0) / 4294967296; };
 }
-function getDifficulty(f){
+const pick = (rng, arr) => arr[Math.floor(rng()*arr.length)];
+const ADJ = ["Zlobivý","Hladový","Mrzutý","Vzteklý","Líný","Prohnaný","Chlupatý","Šílený","Smradlavý","Ospalý","Divoký","Hrbatý","Zákeřný","Slizký","Nafoukaný","Pomstychtivý"];
+const NOUN = ["Goblin","Skřet","Troll","Imp","Ogr","Slizoun","Netopýr","Kostlivec","Yetti","Golem","Démon","Vlkodlak","Zombík","Šotek","Pavoukoun","Škrabal"];
+const EYE_COL = ["#d9372b","#2f7fd1","#3fa34d","#8a3fc7","#f2b705","#ff7a00"];
+function makeLook(rng){
+  const hue = Math.floor(rng()*360);
+  return { skin:`hsl(${hue} 55% 52%)`, body:`hsl(${(hue+160)%360} 35% 32%)`, belly:`hsl(${(hue+160)%360} 30% 58%)`,
+    head:Math.floor(rng()*4), eyes:pick(rng,[1,2,2,2,3]), eye:pick(rng,EYE_COL), mouth:Math.floor(rng()*4),
+    horns:Math.floor(rng()*4), ears:Math.floor(rng()*3), acc:Math.floor(rng()*5) };
+}
+function getEnemy(level, f){
+  const L = LEVELS[level];
+  const zi = Math.floor((f-1) / ZONE_LEN), zone = L.zones[zi % L.zones.length], zround = Math.floor(zi / L.zones.length);
+  const isBoss = f % ZONE_LEN === 0;
+  const rng = rngFor(level+":"+f);
+  const look = makeLook(rng);
+  let name;
+  if(isBoss){
+    look.skin = zone.boss.skin; look.horns = zone.boss.horns ? 1 : 2; look.acc = 0; look.mouth = 0; look.eyes = 2; look.head = 0;
+    name = "👑 " + zone.boss.name + (zround ? " " + ["","II","III","IV","V","VI","VII","VIII","IX","X"][Math.min(zround,9)] : "");
+  } else name = pick(rng,ADJ) + " " + pick(rng,NOUN);
+  const growthHp = 1 + 0.12*(f-1), growthDmg = 1 + 0.06*(f-1);
   return {
-    attackEvery: Math.max(2, 5 - Math.floor(f/8)),                         // boss útočí i bez chyby každé N-té kolo
-    timeLimit: f >= 6 ? Math.max(6, 16 - (f-6)*0.4) : 0,                  // limit na odpověď (s) od 6. patra
+    name, look, isBoss, floor:f, theme:zone.theme, icon:zone.icon, words:zone.words, zone:zi,
+    hp: Math.round(L.hp * growthHp * (isBoss ? 2.2 : 0.9 + rng()*0.25)),
+    dmg: Math.round(L.dmg * growthDmg * (isBoss ? 1.4 : 0.9 + rng()*0.2))
+  };
+}
+function getDifficulty(f, isBoss){
+  return {
+    attackEvery: Math.max(2, 5 - Math.floor(f/8) - (isBoss ? 1 : 0)),      // boss útočí i bez chyby každé N-té kolo
+    timeLimit: f >= 6 ? Math.max(6, 16 - (f-6)*0.4) : 0,                   // limit na odpověď (s) od 6. patra
     typingChance: Math.min(0.85, Math.max(0, (f-8)*0.1))                   // šance na psaní odpovědi i na nižších úrovních
   };
 }
 
 /* ================= GRAFIKA (SVG, velkohlavé postavy) ================= */
-const BLADE = {none:"#e8eef2", green:"#9be39b", blue:"#7fb8ff", yellow:"#ffd84a"};
-const TUNIC = {none:"#8a6a4a", green:"#3fa34d", blue:"#2f7fd1", yellow:"#f2b705"};
-const GEM = {green:"#3fa34d", blue:"#2f7fd1", yellow:"#f2b705"};
+/* ----- hrdina: každý kus vybavení má vlastní vzhled ----- */
+const sword = (blade, guard) => `<rect x="98" y="30" width="10" height="78" rx="3" fill="${blade}"/><rect x="90" y="104" width="26" height="8" rx="3" fill="${guard}"/>`;
+const handle = `<rect x="100" y="30" width="7" height="88" rx="3" fill="#8a5a2b"/>`;
+const WEAPON_ART = {
+  none: `<rect x="100" y="66" width="7" height="42" rx="3" fill="#cfd6dc"/><rect x="94" y="106" width="19" height="6" rx="3" fill="#8a5a2b"/>`,
+  w1: sword("#c8924a","#5e3a18"),
+  w2: handle + `<path d="M107 34 Q134 36 132 68 Q118 60 107 62Z" fill="#aab4bc"/>`,
+  w3: handle + `<circle cx="103" cy="30" r="14" fill="#8e99a2"/><path d="M103 8 L107 18 L99 18Z M123 30 L113 34 L113 26Z M83 30 L93 34 L93 26Z" fill="#6d7a84"/>`,
+  w4: handle + `<circle cx="103" cy="22" r="12" fill="#7fb8ff"/><circle cx="99" cy="18" r="3.5" fill="#fff" stroke="none"/>`,
+  w5: sword("#fff6c0","#f2b705") + `<circle cx="103" cy="108" r="4" fill="#4fc3ff"/>`,
+  w6: `<rect x="100" y="14" width="7" height="104" rx="3" fill="#8a5a2b"/><path d="M103 -12 L114 18 L92 18Z" fill="#ffd84a"/><path d="M107 40 L120 52 L107 60Z" fill="#d9372b"/>`
+};
+const sleeve = "#ffd9b0";
+const ARMOR_ART = {
+  none:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#8a6a4a"/>`},
+  a1:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#a0703a"/>`,
+      front:`<path d="M52 100 L60 134 M68 100 L60 134" fill="none" stroke="#5e3a18" stroke-width="3"/><rect x="38" y="122" width="44" height="6" fill="#5e3a18"/>`},
+  a2:{back:`<path d="M34 98 L20 146 L100 146 L86 98Z" fill="#2e7d3a"/>`, body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#3fa34d"/>`,
+      front:`<circle cx="60" cy="104" r="5" fill="#f2b705"/>`},
+  a3:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#aab4bc"/>`,
+      front:`<path d="M42 108 h36 M42 116 h36 M42 124 h36" stroke="#6d7a84" stroke-width="2" fill="none"/><circle cx="36" cy="106" r="9" fill="#2f7fd1"/><circle cx="84" cy="106" r="9" fill="#2f7fd1"/>`},
+  a4:{body:`<rect x="34" y="100" width="52" height="46" rx="10" fill="#5b3fa0"/>`,
+      front:`<circle cx="46" cy="114" r="2.5" fill="#ffd84a" stroke="none"/><circle cx="72" cy="124" r="2.5" fill="#ffd84a" stroke="none"/><circle cx="56" cy="134" r="2.5" fill="#ffd84a" stroke="none"/><rect x="34" y="118" width="52" height="5" fill="#ffd84a"/>`,
+      top:`<ellipse cx="60" cy="34" rx="48" ry="9" fill="#5b3fa0"/><path d="M34 34 L58 -10 L86 34Z" fill="#5b3fa0"/><rect x="38" y="26" width="46" height="6" fill="#ffd84a" stroke="none"/>`},
+  a5:{body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#b53b3b"/>`,
+      front:`<path d="M44 108 q4 4 8 0 q4 4 8 0 q4 4 8 0 M44 118 q4 4 8 0 q4 4 8 0 q4 4 8 0 M44 128 q4 4 8 0 q4 4 8 0 q4 4 8 0" fill="none" stroke="#7a1f1f" stroke-width="2.5"/><path d="M26 106 L34 84 L46 104Z M94 106 L86 84 L74 104Z" fill="#f2b705"/>`},
+  a6:{back:`<path d="M38 104 Q-8 70 4 30 Q24 66 40 80Z M82 104 Q128 70 116 30 Q96 66 80 80Z" fill="#fff"/>`, body:`<rect x="38" y="100" width="44" height="34" rx="8" fill="#fffbe9"/>`,
+      front:`<rect x="38" y="100" width="44" height="6" fill="#f2b705"/><rect x="38" y="127" width="44" height="6" fill="#f2b705"/>`,
+      top:`<ellipse cx="60" cy="-6" rx="24" ry="7" fill="none" stroke="#f2b705" stroke-width="5"/>`}
+};
+const JEWEL_ART = {
+  j1:`<circle cx="37" cy="127" r="6" fill="none" stroke="#c96a2b" stroke-width="3"/>`,
+  j2:`<path d="M40 98 Q60 122 80 98" fill="none" stroke="#ff7a8a" stroke-width="7" stroke-dasharray="0.1 9" stroke-linecap="round"/>`,
+  j3:`<circle cx="37" cy="127" r="7" fill="none" stroke="#cfd6dc" stroke-width="2.5"/><circle cx="37" cy="121" r="4.5" fill="#7fb8ff"/>`,
+  j4:`<path d="M42 98 Q60 118 78 98" fill="none" stroke="#cfd6dc" stroke-width="3"/><circle cx="60" cy="112" r="8" fill="#cfd6dc"/><circle cx="60" cy="112" r="3.5" fill="#8a3fc7" stroke="none"/>`,
+  j5:`<path d="M30 30 L36 4 L48 20 L60 -2 L72 20 L84 4 L90 30Z" fill="#ffd84a"/><circle cx="60" cy="14" r="3.5" fill="#7fe0ff" stroke="none"/><circle cx="40" cy="20" r="2.5" fill="#d9372b" stroke="none"/><circle cx="80" cy="20" r="2.5" fill="#d9372b" stroke="none"/>`,
+  j6:`<path d="M42 98 Q60 126 78 98" fill="none" stroke="#f2b705" stroke-width="4"/><circle cx="60" cy="116" r="10" fill="#ffd84a"/><circle cx="60" cy="116" r="4" fill="#d9372b" stroke="none"/>`
+};
 function heroSVG(){
   const w = equipped("weapon"), a = equipped("armor"), j = equipped("jewelry");
-  const wr = w ? w.rar : "none", ar = a ? a.rar : "none";
-  const glow = wr === "yellow" ? ' style="filter:drop-shadow(0 0 5px #ffd84a)"' : "";
-  const pads = ar === "yellow" ? '<circle cx="36" cy="104" r="9" fill="#ffd84a"/><circle cx="84" cy="104" r="9" fill="#ffd84a"/>' : "";
-  const jewel = j ? `<path d="M42 98 Q60 114 78 98" fill="none" stroke="#f2b705" stroke-width="3"/><circle cx="60" cy="108" r="6" fill="${GEM[j.rar]}"/>` : "";
-  return `<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  <rect x="38" y="100" width="44" height="34" rx="8" fill="${TUNIC[ar]}"/>${pads}
+  const A = ARMOR_ART[a ? a.id : "none"];
+  const glow = w && w.rar === "yellow" ? ' style="filter:drop-shadow(0 0 5px #ffd84a)"' : "";
+  return `<svg viewBox="0 -14 120 164" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+  ${A.back || ""}
   <rect x="40" y="132" width="16" height="14" fill="#5e3a18"/><rect x="64" y="132" width="16" height="14" fill="#5e3a18"/>
-  <g${glow}><rect x="98" y="30" width="10" height="78" rx="3" fill="${BLADE[wr]}" transform="rotate(14 100 100)"/><rect x="90" y="104" width="26" height="8" rx="3" fill="#f2b705" transform="rotate(14 100 100)"/></g>
-  <rect x="30" y="102" width="14" height="24" rx="6" fill="#ffd9b0"/><circle cx="22" cy="114" r="15" fill="#d9372b"/><circle cx="22" cy="114" r="6" fill="#f2b705"/>
-  <rect x="78" y="102" width="14" height="24" rx="6" fill="#ffd9b0" transform="rotate(-20 85 105)"/>
+  ${A.body}${A.front || ""}
+  <g${glow} transform="rotate(14 100 100)">${WEAPON_ART[w ? w.id : "none"]}</g>
+  <rect x="30" y="102" width="14" height="24" rx="6" fill="${sleeve}"/><circle cx="22" cy="114" r="15" fill="#d9372b"/><circle cx="22" cy="114" r="6" fill="#f2b705"/>
+  <rect x="78" y="102" width="14" height="24" rx="6" fill="${sleeve}" transform="rotate(-20 85 105)"/>
   <circle cx="60" cy="58" r="42" fill="#ffd9b0"/>
   <path d="M18 52 Q60 -14 102 52 Q60 30 18 52Z" fill="#c4491c"/>
   <circle cx="44" cy="62" r="11" fill="#fff"/><circle cx="76" cy="62" r="11" fill="#fff"/>
   <circle cx="47" cy="64" r="5" fill="#2b1a10"/><circle cx="73" cy="64" r="5" fill="#2b1a10"/>
   <path d="M42 82 Q60 98 78 82" fill="#fff"/>
-  <path d="M30 48 L54 54 M90 48 L66 54" fill="none"/>${jewel}</svg>`;
+  <path d="M30 48 L54 54 M90 48 L66 54" fill="none"/>
+  ${A.top || ""}${j ? JEWEL_ART[j.id] : ""}</svg>`;
 }
-function bossSVG(b){
-  const horns = b.horns ? `<path d="M22 40 L8 6 L40 28Z M98 40 L112 6 L80 28Z" fill="#f4ecd0"/>` : "";
-  const crown = b.mega ? `<path d="M34 24 L40 4 L52 18 L60 0 L68 18 L80 4 L86 24Z" fill="#f2b705"/>` : "";
-  return `<svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-  <rect x="30" y="98" width="60" height="40" rx="12" fill="#5e3a18"/>
-  <rect x="34" y="134" width="18" height="12" fill="${b.skin}"/><rect x="68" y="134" width="18" height="12" fill="${b.skin}"/>
-  <rect x="2" y="88" width="22" height="16" rx="6" fill="${b.skin}"/><rect x="96" y="88" width="22" height="16" rx="6" fill="${b.skin}"/>
-  ${horns}
-  <ellipse cx="60" cy="62" rx="46" ry="44" fill="${b.skin}"/>
-  <path d="M30 46 L52 56 M90 46 L68 56" fill="none" stroke-width="6"/>
-  <circle cx="42" cy="62" r="10" fill="#fff8c0"/><circle cx="78" cy="62" r="10" fill="#fff8c0"/>
-  <circle cx="44" cy="64" r="4" fill="#d9372b"/><circle cx="76" cy="64" r="4" fill="#d9372b"/>
-  <path d="M30 84 Q60 108 90 84 Z" fill="#3a0d0d"/>
-  <path d="M38 84 L44 94 L50 86 M70 86 L76 94 L82 84" fill="#fff"/>${crown}</svg>`;
+/* ----- nepřátelé: každý vzniká z jiné kombinace tvaru hlavy, očí, tlamy, rohů, uší a doplňků ----- */
+function enemySVG(e){
+  const L = e.look, s = L.skin;
+  const eyeY = [62,66,56,62][L.head], my = eyeY + 22;
+  const head = [
+    `<ellipse cx="60" cy="62" rx="46" ry="44" fill="${s}"/>`,
+    `<ellipse cx="60" cy="68" rx="52" ry="36" fill="${s}"/>`,
+    `<ellipse cx="60" cy="58" rx="38" ry="48" fill="${s}"/>`,
+    `<rect x="14" y="20" width="92" height="84" rx="24" fill="${s}"/>`][L.head];
+  const horns = [``,
+    `<path d="M22 40 L8 6 L40 28Z M98 40 L112 6 L80 28Z" fill="#f4ecd0"/>`,
+    `<path d="M30 30 L38 2 L50 24Z M52 22 L60 -6 L68 22Z M70 24 L82 2 L90 30Z" fill="#f4ecd0"/>`,
+    `<path d="M44 24 L34 -4 M76 24 L86 -4" fill="none" stroke-width="4"/><circle cx="34" cy="-6" r="6" fill="#f2b705"/><circle cx="86" cy="-6" r="6" fill="#f2b705"/>`][L.horns];
+  const ears = [``,
+    `<path d="M16 56 L-4 38 L14 76Z M104 56 L124 38 L106 76Z" fill="${s}"/>`,
+    `<circle cx="12" cy="62" r="11" fill="${s}"/><circle cx="108" cy="62" r="11" fill="${s}"/>`][L.ears];
+  let eyes;
+  if(L.eyes === 1) eyes = `<circle cx="60" cy="${eyeY}" r="17" fill="#fff8c0"/><circle cx="60" cy="${eyeY+2}" r="8" fill="${L.eye}"/><circle cx="60" cy="${eyeY+2}" r="3" fill="#1a1a1a" stroke="none"/>`;
+  else if(L.eyes === 2) eyes = `<circle cx="42" cy="${eyeY}" r="10" fill="#fff8c0"/><circle cx="78" cy="${eyeY}" r="10" fill="#fff8c0"/><circle cx="44" cy="${eyeY+2}" r="4.5" fill="${L.eye}"/><circle cx="76" cy="${eyeY+2}" r="4.5" fill="${L.eye}"/><path d="M26 ${eyeY-16} L54 ${eyeY-7} M94 ${eyeY-16} L66 ${eyeY-7}" fill="none" stroke-width="6"/>`;
+  else eyes = `<circle cx="36" cy="${eyeY+6}" r="8" fill="#fff8c0"/><circle cx="84" cy="${eyeY+6}" r="8" fill="#fff8c0"/><circle cx="60" cy="${eyeY-10}" r="8" fill="#fff8c0"/><circle cx="36" cy="${eyeY+7}" r="3.5" fill="${L.eye}"/><circle cx="84" cy="${eyeY+7}" r="3.5" fill="${L.eye}"/><circle cx="60" cy="${eyeY-9}" r="3.5" fill="${L.eye}"/>`;
+  const mouth = [
+    `<path d="M30 ${my} Q60 ${my+24} 90 ${my}Z" fill="#3a0d0d"/><path d="M38 ${my} L44 ${my+10} L50 ${my+2} M70 ${my+2} L76 ${my+10} L82 ${my}" fill="#fff"/>`,
+    `<path d="M36 ${my+2} Q60 ${my+22} 84 ${my+2}" fill="none" stroke-width="5"/>`,
+    `<path d="M30 ${my} Q60 ${my+24} 90 ${my}Z" fill="#3a0d0d"/><path d="M48 ${my+8} Q60 ${my+28} 72 ${my+8}Z" fill="#ff6f91"/>`,
+    `<rect x="34" y="${my-2}" width="52" height="16" rx="4" fill="#fff"/><path d="M47 ${my-2} V${my+14} M60 ${my-2} V${my+14} M73 ${my-2} V${my+14}" fill="none" stroke-width="2.5"/>`][L.mouth];
+  const acc = [``,
+    `<circle cx="78" cy="${eyeY}" r="12" fill="#1a1a1a"/><path d="M18 ${eyeY-16} L102 ${eyeY+6}" fill="none" stroke="#1a1a1a" stroke-width="4"/>`,
+    `<path d="M86 ${eyeY-22} L66 ${eyeY+22}" fill="none" stroke="#7a1f1f" stroke-width="4"/><path d="M80 ${eyeY-6} l10 4 M76 ${eyeY+6} l10 4" fill="none" stroke="#7a1f1f" stroke-width="3"/>`,
+    `<path d="M14 44 Q60 18 106 44 L104 56 Q60 32 16 58Z" fill="#d9372b"/>`,
+    L.eyes === 3 ? `` : `<path d="M16 46 Q16 8 60 8 Q104 8 104 46Z" fill="#9aa5ad"/><rect x="14" y="42" width="92" height="8" rx="3" fill="#6d7a84"/>`][L.acc];
+  const crown = e.isBoss ? `<path d="M34 26 L40 2 L52 18 L60 -6 L68 18 L80 2 L86 26Z" fill="#f2b705"/>` : "";
+  return `<svg viewBox="0 -12 120 162" xmlns="http://www.w3.org/2000/svg" stroke="#2b1a10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="30" y="98" width="60" height="40" rx="12" fill="${L.body}"/><ellipse cx="60" cy="120" rx="16" ry="14" fill="${L.belly}" stroke="none"/>
+  <rect x="34" y="134" width="18" height="12" fill="${s}"/><rect x="68" y="134" width="18" height="12" fill="${s}"/>
+  <rect x="2" y="88" width="22" height="16" rx="6" fill="${s}"/><rect x="96" y="88" width="22" height="16" rx="6" fill="${s}"/>
+  ${horns}${ears}${head}${eyes}${mouth}${acc}${crown}</svg>`;
 }
 
 /* ================= OBRAZOVKY ================= */
@@ -349,25 +465,44 @@ function renderStart(){
 
 function renderTower(){
   const lv = LEVELS[save.level], f = floorNow();
+  const cur = getEnemy(save.level, f), zoneStart = cur.zone*ZONE_LEN + 1, pos = f - zoneStart + 1;
   $("mapHero").textContent = `🧙 ${save.name} (Lv. ${heroLevel()})`;
   $("mapLevel").textContent = `Úroveň ${save.level} – ${lv.label}`;
   $("mapStats").innerHTML = `<span class="coins">🪙 ${save.coins}</span> ⭐ ${save.xp} XP`;
   $("mapFloor").textContent = f;
+  $("zonebar").innerHTML = `Zóna ${cur.zone+1}: ${cur.icon} ${cur.theme} <small>(patra ${zoneStart}–${zoneStart+ZONE_LEN-1})</small>
+    <div class="bar"><i style="background:var(--gold);width:${(pos-1)/ZONE_LEN*100}%"></i><span>${pos} / ${ZONE_LEN}${pos===ZONE_LEN?" – BOSS":""}</span></div>`;
   const rows = [];
   for(let i = f+2; i >= f; i--){
-    const b = getBoss(save.level, i), cur = i === f;
-    rows.push(`<div class="bosscard ${cur?"current":"locked"} ${b.mega?"mega":""}">
-      <div class="floor">${i}.<br><small>patro</small></div>${bossSVG(b)}
-      <div class="info"><h3>${b.name}</h3><div>Téma: <b>${b.theme}</b></div>
-      <div>❤️ ${b.hp} · 💥 ~${b.dmg}${b.mega?" · 👑 boss patra":""}</div>
-      ${cur ? `<p><button class="btn" id="fightBtn">⚔️ Bojovat</button></p>` : ""}</div></div>`);
+    const b = getEnemy(save.level, i), c = i === f;
+    rows.push(`<div class="bosscard ${c?"current":"locked"} ${b.isBoss?"mega":""}">
+      <div class="floor">${i}.<br><small>patro</small></div>${enemySVG(b)}
+      <div class="info"><h3>${b.name}</h3><div>${b.icon} <b>${b.theme}</b></div>
+      <div>❤️ ${b.hp} · 💥 ~${b.dmg}${b.isBoss?" · 👑 boss zóny":""}</div>
+      ${c ? `<p><button class="btn" id="fightBtn">⚔️ Bojovat</button></p>` : ""}</div></div>`);
   }
   $("bosslist").innerHTML = rows.join("");
   $("fightBtn").onclick = startBattle;
   showScreen("s-map");
 }
 
-/* ----- obchod ----- */
+/* ----- vybavení: společné karty pro obchod a inventář ----- */
+function itemCard(it, buttons, cls){
+  return `<div class="item ${it.rar} ${cls||""}"><div class="ic">${it.icon}</div><h3>${it.name}</h3>
+    <span class="rar ${it.rar}">${RARITY[it.rar].name}</span><p>${statsText(it)}</p>${buttons}</div>`;
+}
+const sellPrice = it => Math.floor(it.price / 2);
+function equipAction(it, a){
+  if(a === "on") save.equip[it.slot] = it.id;
+  else if(a === "off") save.equip[it.slot] = null;
+  else if(a === "sell" && confirm(`Prodat ${it.name} za ${sellPrice(it)} mincí?`)){
+    save.owned.splice(save.owned.indexOf(it.id), 1);
+    if(save.equip[it.slot] === it.id) save.equip[it.slot] = null;
+    save.coins += sellPrice(it);
+  }
+  persist();
+}
+
 function renderShop(){
   const t = totals();
   $("shopHero").innerHTML = heroSVG();
@@ -377,36 +512,60 @@ function renderShop(){
   $("shopTabs").querySelectorAll("button").forEach(b => b.onclick = () => { shopSlot = b.dataset.s; renderShop(); });
   $("shopGrid").innerHTML = ITEMS.filter(i => i.slot === shopSlot).map(it => {
     const own = save.owned.includes(it.id), on = save.equip[it.slot] === it.id;
-    const btn = on ? `<button class="btn" data-a="off" data-id="${it.id}">Sundat</button>`
+    const btn = on ? `<b>✅ Nasazeno</b><br><button class="btn" data-a="off" data-id="${it.id}">Sundat</button>`
               : own ? `<button class="btn green" data-a="on" data-id="${it.id}">Nasadit</button>`
               : `<button class="btn gold" data-a="buy" data-id="${it.id}" ${save.coins<it.price?"disabled":""}>Koupit 🪙 ${it.price}</button>`;
-    return `<div class="item ${it.rar}"><div class="ic">${it.icon}</div><h3>${it.name}</h3>
-      <span class="rar ${it.rar}">${RARITY[it.rar].name}</span><p>${statsText(it)}</p>${on?"<b>✅ Nasazeno</b><br>":""}${btn}</div>`;
+    return itemCard(it, btn);
   }).join("");
   $("shopGrid").querySelectorAll("button[data-a]").forEach(b => b.onclick = () => {
     const it = ITEM[b.dataset.id], a = b.dataset.a;
-    if(a === "buy" && save.coins >= it.price){ save.coins -= it.price; save.owned.push(it.id); save.equip[it.slot] = it.id; }
-    else if(a === "on") save.equip[it.slot] = it.id;
-    else if(a === "off") save.equip[it.slot] = null;
-    persist(); renderShop();
+    if(a === "buy"){ if(save.coins >= it.price){ save.coins -= it.price; save.owned.push(it.id); save.equip[it.slot] = it.id; persist(); } }
+    else equipAction(it, a);
+    renderShop();
   });
   showScreen("s-shop");
 }
 
+function renderProfile(){
+  const t = totals(), lvl = heroLevel();
+  $("profHero").innerHTML = heroSVG();
+  $("profInfo").innerHTML = `<h2 style="margin-top:0">🧙 ${save.name}</h2>
+    <div>Level <b>${lvl}</b> · ⭐ ${save.xp} XP</div>
+    <div class="bar xp"><i style="width:${save.xp%100}%"></i><span>${save.xp%100} / 100 do dalšího levelu</span></div>
+    <div>❤️ Max. životy: <b>${heroMaxHp()}</b></div>
+    <div>💥 Poškození: <b>+${Math.round((lvl-1)*5 + t.atk)} %</b> (level +${(lvl-1)*5} %, vybavení +${t.atk} %)</div>
+    <div>⚡ Energie z odpovědí: <b>+${t.en} %</b></div>
+    <div>🪙 Bonus mincí: <b>+${t.coin} %</b> · <span class="coins">🪙 ${save.coins}</span></div>
+    <div>🏰 Nejvyšší patro (${save.level}): <b>${save.best[save.level] || 0}</b></div>`;
+  $("profSlots").innerHTML = Object.entries(SLOTS).map(([slot, label]) => {
+    const it = equipped(slot);
+    return it ? itemCard(it, `<button class="btn small" data-a="off" data-id="${it.id}">Sundat</button>`)
+              : `<div class="item empty"><div class="ic">❔</div><h3>${label}</h3><p>Nic nenasazeno</p></div>`;
+  }).join("");
+  const own = ITEMS.filter(i => save.owned.includes(i.id));
+  $("profInv").innerHTML = own.length ? own.map(it => {
+    const on = save.equip[it.slot] === it.id;
+    return itemCard(it, `${on ? "<b>✅ Nasazeno</b><br>" : `<button class="btn green small" data-a="on" data-id="${it.id}">Nasadit</button>`}
+      <button class="btn small" data-a="sell" data-id="${it.id}">Prodat 🪙 ${sellPrice(it)}</button>`);
+  }).join("") : `<div class="panel center" style="grid-column:1/-1">Inventář je prázdný. Kup si vybavení v obchodě nebo ho získej po bojích!</div>`;
+  document.querySelectorAll("#profSlots button[data-a], #profInv button[data-a]").forEach(b => b.onclick = () => { equipAction(ITEM[b.dataset.id], b.dataset.a); renderProfile(); });
+  showScreen("s-profile");
+}
+
 /* ================= SOUBOJ ================= */
 function startBattle(){
-  const f = floorNow(), boss = getBoss(save.level, f), maxHp = heroMaxHp();
-  battle = { boss, floor:f, diff:getDifficulty(f), heroMax:maxHp, hero:maxHp, bossHp:boss.hp, energy:0, combo:0, turn:0,
+  const f = floorNow(), boss = getEnemy(save.level, f), maxHp = heroMaxHp();
+  battle = { boss, floor:f, diff:getDifficulty(f, boss.isBoss), heroMax:maxHp, hero:maxHp, bossHp:boss.hp, energy:0, combo:0, turn:0,
              mistakes:{}, correct:0, deck:[], q:null, locked:false, typing:false, over:false };
   $("heroF").innerHTML = heroSVG();
-  $("bossF").innerHTML = bossSVG(boss);
-  $("bossF").classList.toggle("mega", boss.mega);
+  $("bossF").innerHTML = enemySVG(boss);
+  $("bossF").classList.toggle("mega", boss.isBoss);
   $("bHeroName").textContent = `🧙 ${save.name}`;
   $("bBossName").textContent = `${f}. patro · ${boss.name}`;
   $("attacks").innerHTML = ATTACKS.map(a => `<button class="btn ${a.color}" data-a="${a.id}">${a.name}<small>${a.heal?`+${a.heal} HP`:`${a.dmg} dmg`} · ${a.cost} ⚡</small></button>`).join("");
   $("attacks").querySelectorAll("button").forEach(b => b.onclick = () => useAttack(b.dataset.a));
   const d = battle.diff;
-  $("log").textContent = `${boss.name} se objevil!` + (d.timeLimit ? ` Na odpověď máš ${d.timeLimit.toFixed(0)} s.` : " Odpovídej správně, abys získal energii.");
+  $("log").textContent = `${boss.icon} ${boss.theme}: ${boss.name} se objevil!` + (d.timeLimit ? ` Na odpověď máš ${d.timeLimit.toFixed(0)} s.` : " Odpovídej správně, abys získal energii.");
   showScreen("s-battle");
   updateBars();
   nextQuestion();
@@ -529,31 +688,54 @@ function useAttack(id){
   updateBars();
 }
 
+/* ----- kořist a truhla ----- */
+function rollDrop(isBoss){
+  const cfg = isBoss ? DROP.boss : DROP.normal;
+  if(Math.random() > cfg.chance) return null;
+  let r = Math.random() * Object.values(cfg.w).reduce((a,c) => a+c, 0), rar = "green";
+  for(const k in cfg.w){ if((r -= cfg.w[k]) < 0){ rar = k; break; } }
+  return pick(Math.random, ITEMS.filter(i => i.rar === rar));
+}
 function endBattle(won){
   const b = battle;
   b.over = true; clearTimer(); updateBars();
-  const miss = Object.entries(b.mistakes), f = b.floor;
-  let reward = Math.round(LEVELS[save.level].coins * (1 + (f-1)*0.1) * (1 + totals().coin/100));
-  let html = "";
+  const miss = Object.entries(b.mistakes), f = b.floor, boss = b.boss;
+  const base = LEVELS[save.level].coins, cb = 1 + totals().coin/100;
+  let reward = Math.round(base * (1 + (f-1)*0.1) * cb);
+  let html = "", chest = 0;
   if(won){
     if(!miss.length) reward = Math.round(reward*1.2);
-    const xp = 30 + f*2, before = heroLevel();
+    const xp = 30 + f*2 + (boss.isBoss ? 50 : 0), before = heroLevel();
     save.xp += xp; save.tower[save.level] = f + 1;
     save.best[save.level] = Math.max(save.best[save.level] || 0, f);
-    html = `<p>Porazil jsi <b>${b.boss.name}</b> a postupuješ na <b>${f+1}. patro</b>!</p>
+    chest = Math.round(base * (1.5 + f*0.2) * (0.8 + Math.random()*0.5) * cb * (boss.isBoss ? 3 : 1));
+    html = `<p>Porazil jsi <b>${boss.name}</b> a postupuješ na <b>${f+1}. patro</b>!</p>
             <p>🪙 +${reward} mincí${miss.length?"":" (bonus za bezchybný souboj ×1.2)"} · ⭐ +${xp} XP · správně: ${b.correct}</p>` +
            (heroLevel() > before ? `<p><b>🎉 Nový level hrdiny: ${heroLevel()}!</b></p>` : "");
+    const drop = rollDrop(boss.isBoss);
+    if(drop){
+      let note;
+      if(save.owned.includes(drop.id)){ save.coins += sellPrice(drop); note = `už ho máš – prodáno za 🪙 ${sellPrice(drop)}`; }
+      else { save.owned.push(drop.id); note = "přidáno do inventáře" + (save.equip[drop.slot] ? "" : " a nasazeno"); if(!save.equip[drop.slot]) save.equip[drop.slot] = drop.id; }
+      html += `<h3>🎲 Kořist!</h3><div class="drop ${drop.rar}"><span style="font-size:2.4rem">${drop.icon}</span><br><b>${drop.name}</b><br><span class="rar ${drop.rar}">${RARITY[drop.rar].name}</span><br><small>${statsText(drop)}<br>${note}</small></div>`;
+    }
+    html += `<h3>${boss.isBoss ? "👑 Velká truhla" : "Truhla"} – klikni!</h3><div class="chest" id="chest" title="Otevřít">🎁</div><div id="chestOut"></div>`;
     $("resTitle").textContent = "🏆 Vítězství!";
     $("resBtn").textContent = "▶ K dalšímu patru";
   } else {
     reward = Math.round(reward*0.25);
-    html = `<p>${b.boss.name} tě porazil na ${f}. patře… Zkus to znovu!</p><p>🪙 útěcha: +${reward} mincí</p>`;
+    html = `<p>${boss.name} tě porazil na ${f}. patře… Zkus to znovu!</p><p>🪙 útěcha: +${reward} mincí</p>`;
     $("resTitle").textContent = "💀 Porážka";
     $("resBtn").textContent = "Zpět do věže";
   }
-  save.coins += reward; persist();
-  html += miss.length ? `<h3>Slovíčka k procvičení</h3><ul class="miss">${miss.map(([c,e]) => `<li>${c} = <b>${e}</b></li>`).join("")}</ul><br>` : `<p>Bez jediné chyby! 💯</p>`;
-  setTimeout(() => { $("resBody").innerHTML = html; showScreen("s-result"); }, 900);
+  save.coins += reward + chest; persist();
+  html += miss.length ? `<h3>Slovíčka k procvičení</h3><ul class="miss">${miss.map(([c,e]) => `<li>${c} = <b>${e}</b></li>`).join("")}</ul><br>` : (won ? `<p>Bez jediné chyby! 💯</p>` : "");
+  setTimeout(() => {
+    $("resBody").innerHTML = html; showScreen("s-result");
+    const c = $("chest");
+    if(c) c.onclick = () => { c.classList.add("open"); c.classList.remove("chest"); c.classList.add("chest","open"); c.textContent = "💰"; c.onclick = null;
+      $("chestOut").innerHTML = `<p><b>V truhle bylo 🪙 ${chest} mincí!</b></p>`; };
+  }, 900);
 }
 
 /* ===== efekty ===== */
@@ -584,10 +766,9 @@ $("startBtn").onclick = () => {
   save.name = n; persist(); renderTower();
 };
 $("backStart").onclick = () => { renderStart(); showScreen("s-start"); };
-$("shopBtn").onclick = renderShop;
-$("resShop").onclick = renderShop;
-$("shopBack").onclick = renderTower;
-$("resBtn").onclick = renderTower;
+for(const id of ["shopBtn","resShop","profShop"]) $(id).onclick = renderShop;
+for(const id of ["profileBtn","resProfile","shopProfile"]) $(id).onclick = renderProfile;
+for(const id of ["shopBack","profBack","resBtn"]) $(id).onclick = renderTower;
 $("fleeBtn").onclick = () => { if(battle) battle.over = true; clearTimer(); renderTower(); };
 $("typeOk").onclick = () => answer($("typeIn").value);
 $("typeIn").addEventListener("keydown", e => { if(e.key === "Enter") answer($("typeIn").value); });
